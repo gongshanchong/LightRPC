@@ -1,10 +1,10 @@
-#ifndef ROCKET_NET_TCP_TCP_ACCEPTOR_H
-#define ROCKET_NET_TCP_TCP_ACCEPTOR_H
+#ifndef LIGHTRPC_NET_TCP_TCP_ACCEPTOR_H
+#define LIGHTRPC_NET_TCP_TCP_ACCEPTOR_H
 
 #include <memory>
 #include "net_addr.h"
 
-namespace rocket {
+namespace lightrpc {
 
 class TcpAcceptor {
  public:
@@ -12,16 +12,16 @@ class TcpAcceptor {
 
   TcpAcceptor(NetAddr::s_ptr local_addr);
 
-  std::pair<int, NetAddr::s_ptr> accept();
+  std::pair<int, NetAddr::s_ptr> Accept();
 
-  int getListenFd();
+  int GetListenFd();
 
  private:
-  NetAddr::s_ptr m_local_addr; // 服务端监听的地址，addr -> ip:port 
+  NetAddr::s_ptr m_local_addr_; // 服务端监听的地址，addr -> ip:port 
 
-  int m_family {-1};
+  int m_family_ {-1};   // 套接字的协议家族
 
-  int m_listenfd {-1}; // 监听套接字
+  int m_listenfd_ {-1}; // 监听套接字
 
 };
 }

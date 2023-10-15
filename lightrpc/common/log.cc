@@ -68,7 +68,7 @@ void Logger::Init() {
     }
     // 为日志生成时间事件并监听
     m_timer_event_ = std::make_shared<TimerEvent>(Config::GetGlobalConfig()->m_log_sync_inteval_, true, std::bind(&Logger::SyncLoop, this));
-    EventLoop::GetCurrentEventLoop()->addTimerEvent(m_timer_event_);
+    EventLoop::GetCurrentEventLoop()->AddTimerEvent(m_timer_event_);
     // 为日志绑定信号的处理函数，便于可以将终止时的错误写入日志
     signal(SIGSEGV, CoredumpHandler);
     signal(SIGABRT, CoredumpHandler);

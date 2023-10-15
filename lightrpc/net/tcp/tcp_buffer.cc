@@ -3,98 +3,99 @@
 #include "../../common/log.h"
 #include "tcp_buffer.h"
 
-namespace rocket {
-TcpBuffer::TcpBuffer(int size) : m_size(size) {
+namespace lightrpc {
+TcpBuffer::TcpBuffer(int size) : m_size_(size) {
   m_buffer.resize(size);
 }
 
 // 返回可读字节数
-int TcpBuffer::readAble() {
-  return m_write_index - m_read_index;
+int TcpBuffer::ReadAble() {
+  return m_write_index_ - m_read_index_;
 }
 
 // 返回可写的字节数
-int TcpBuffer::writeAble() {
-  return m_buffer.size() - m_write_index;
+int TcpBuffer::WriteAble() {
+  return m_buffer.size() - m_write_index_;
 }
 
-int TcpBuffer::readIndex() {
-  return m_read_index;
+int TcpBuffer::ReadIndex() {
+  return m_read_index_;
 }
 
-int TcpBuffer::writeIndex() {
-  return m_write_index;
+int TcpBuffer::WriteIndex() {
+  return m_write_index_;
 }
 
-void TcpBuffer::writeToBuffer(const char* buf, int size) {
-  if (size > writeAble()) {
+void TcpBuffer::WriteToBuffer(const char* buf, int size) {
+  if (size > WriteAble()) {
     // 调整 buffer 的大小，扩容
-    int new_size = (int)(1.5 * (m_write_index + size));
-    resizeBuffer(new_size);
+    int new_size = (int)(1.5 * (m_write_index_ + size));
+    ResizeBuffer(new_size);
   }
-  memcpy(&m_buffer[m_write_index], buf, size);
-  m_write_index += size; 
+  memcpy(&m_buffer[m_write_index_], buf, size);
+  m_write_index_ += size; 
 }
 
 
-void TcpBuffer::readFromBuffer(std::vector<char>& re, int size) {
-  if (readAble() == 0) {
+void TcpBuffer::ReadFromBuffer(std::vector<char>& re, int size) {
+  if (ReadAble() == 0) {
     return;
   }
-
-  int read_size = readAble() > size ? size : readAble();
+  // 确定可读的大小
+  int read_size = ReadAble() > size ? size : ReadAble();
   std::vector<char> tmp(read_size);
-  memcpy(&tmp[0], &m_buffer[m_read_index], read_size);
+  memcpy(&tmp[0], &m_buffer[m_read_index_], read_size);
 
   re.swap(tmp); 
-  m_read_index += read_size;
+  m_read_index_ += read_size;
 
-  adjustBuffer();
+  AdjustBuffer();
 }
 
-void TcpBuffer::resizeBuffer(int new_size) {
+void TcpBuffer::ResizeBuffer(int new_size) {
   std::vector<char> tmp(new_size);
-  int count = std::min(new_size, readAble());
+  int count = std::min(new_size, ReadAble());
   
-  memcpy(&tmp[0], &m_buffer[m_read_index], count);
+  memcpy(&tmp[0], &m_buffer[m_read_index_], count);
   m_buffer.swap(tmp);
 
-  m_read_index = 0;
-  m_write_index = m_read_index + count;
+  m_read_index_ = 0;
+  m_write_index_ = m_read_index_ + count;
 }
 
-void TcpBuffer::adjustBuffer() {
-  if (m_read_index < int(m_buffer.size() / 3)) {
+void TcpBuffer::AdjustBuffer() {
+  // 调整m_read_index_的位置，去除已经读取的内容
+  if (m_read_index_ < int(m_buffer.size() / 3)) {
     return;
   }
   std::vector<char> buffer(m_buffer.size());
-  int count = readAble();
+  int count = ReadAble();
 
-  memcpy(&buffer[0], &m_buffer[m_read_index], count);
+  memcpy(&buffer[0], &m_buffer[m_read_index_], count);
   m_buffer.swap(buffer);
-  m_read_index = 0;
-  m_write_index = m_read_index + count;
+  m_read_index_ = 0;
+  m_write_index_ = m_read_index_ + count;
 
   buffer.clear();
 }
 
-void TcpBuffer::moveReadIndex(int size) {
-  size_t j = m_read_index + size;
+void TcpBuffer::MoveReadIndex(int size) {
+  size_t j = m_read_index_ + size;
   if (j >= m_buffer.size()) {
-    ERRORLOG("moveReadIndex error, invalid size %d, old_read_index %d, buffer size %d", size, m_read_index, m_buffer.size());
+    LOG_ERROR("moveReadIndex error, invalid size %d, old_read_index %d, buffer size %d", size, m_read_index_, m_buffer.size());
     return;
   }
-  m_read_index = j;
-  adjustBuffer();
+  m_read_index_ = j;
+  AdjustBuffer();
 }
 
-void TcpBuffer::moveWriteIndex(int size) {
-  size_t j = m_write_index + size;
+void TcpBuffer::MoveWriteIndex(int size) {
+  size_t j = m_write_index_ + size;
   if (j >= m_buffer.size()) {
-    ERRORLOG("moveWriteIndex error, invalid size %d, old_read_index %d, buffer size %d", size, m_read_index, m_buffer.size());
+    LOG_ERROR("moveWriteIndex error, invalid size %d, old_read_index %d, buffer size %d", size, m_read_index_, m_buffer.size());
     return;
   }
-  m_write_index = j;
-  adjustBuffer();
+  m_write_index_ = j;
+  AdjustBuffer();
 }
 }
