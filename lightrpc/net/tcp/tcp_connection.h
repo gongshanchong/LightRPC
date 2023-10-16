@@ -1,5 +1,5 @@
-#ifndef ROCKET_NET_TCP_TCP_CONNECTION_H
-#define ROCKET_NET_TCP_TCP_CONNECTION_H
+#ifndef LIGHTRPC_NET_TCP_TCP_CONNECTION_H
+#define LIGHTRPC_NET_TCP_TCP_CONNECTION_H
 
 #include <memory>
 #include <map>
@@ -10,8 +10,9 @@
 #include "../coder/abstract_coder.h"
 #include "../rpc/rpc_dispatcher.h"
 
-namespace rocket {
+namespace lightrpc {
 
+// TCP连接状态
 enum TcpState {
   NotConnected = 1,
   Connected = 2,
@@ -34,68 +35,71 @@ class TcpConnection {
   ~TcpConnection();
 
   // 调用 read 系统函数从 socket 的内核缓冲区里面读取数据，然后放入到我们自己的应用层读缓冲区（m_read_buffer）
-  void onRead();
+  void OnRead();
 
   // 进行处理
-  void excute();
+  void Excute();
 
   // 写意味着调用 write 函数将写缓冲区的数据写入到 socket 上，然后由内核负责发送给对端。
-  void onWrite();
+  void OnWrite();
 
-  void setState(const TcpState state);
+  void SetState(const TcpState state);
 
-  TcpState getState();
+  TcpState GetState();
 
-  void clear();
+  NetAddr::s_ptr GetLocalAddr();
 
-  int getFd();
+  NetAddr::s_ptr GetPeerAddr();
+
+  void Clear();
+
+  int GetFd();
 
   // 服务器主动关闭连接
-  void shutdown();
+  void Shutdown();
 
-  void setConnectionType(TcpConnectionType type);
+  void SetConnectionType(TcpConnectionType type);
 
   // 启动监听可写事件
-  void listenWrite();
+  void ListenWrite();
 
   // 启动监听可读事件
-  void listenRead();
+  void ListenRead();
 
-  void pushSendMessage(AbstractProtocol::s_ptr message, std::function<void(AbstractProtocol::s_ptr)> done);
+  // 添加TinyPB协议的写函数
+  void PushSendMessage(AbstractProtocol::s_ptr message, std::function<void(AbstractProtocol::s_ptr)> done);
 
-  void pushReadMessage(const std::string& msg_id, std::function<void(AbstractProtocol::s_ptr)> done);
+  // 添加TinyPB协议的读函数
+  void PushReadMessage(const std::string& msg_id, std::function<void(AbstractProtocol::s_ptr)> done);
 
-  NetAddr::s_ptr getLocalAddr();
+  // 任务分发时，回复TinyPB协议
+  void Reply(std::vector<AbstractProtocol::s_ptr>& replay_messages);
 
-  NetAddr::s_ptr getPeerAddr();
+private:
+  EventLoop* m_event_loop_ {NULL};    // 代表持有该连接的 IO 线程
 
-  void reply(std::vector<AbstractProtocol::s_ptr>& replay_messages);
+  NetAddr::s_ptr m_local_addr_;       // 监听的服务器地址
+  NetAddr::s_ptr m_peer_addr_;        // 链接的客户端的地址
 
- private:
+  TcpBuffer::s_ptr m_in_buffer_;      // 接收缓冲区
+  TcpBuffer::s_ptr m_out_buffer_;     // 发送缓冲区
 
-  EventLoop* m_event_loop {NULL};   // 代表持有该连接的 IO 线程
+  int m_fd_ {0};
+  FdEvent* m_fd_event_ {NULL};        // 当前 fd_event 对象
 
-  NetAddr::s_ptr m_local_addr;      // 监听的服务器地址
-  NetAddr::s_ptr m_peer_addr;       // 链接的客户端的地址
+  // 服务器状态
+  TcpState m_state_;
+  TcpConnectionType m_connection_type_ {TcpConnectionByServer};
 
-  TcpBuffer::s_ptr m_in_buffer;   // 接收缓冲区
-  TcpBuffer::s_ptr m_out_buffer;  // 发送缓冲区
+  // TinyPB协议编解码
+  AbstractCoder* m_coder_ {NULL};
 
-  FdEvent* m_fd_event {NULL};     // 当前 fd 对象
-
-  AbstractCoder* m_coder {NULL};
-
-  TcpState m_state;
-
-  int m_fd {0};
-
-  TcpConnectionType m_connection_type {TcpConnectionByServer};
-
-  std::vector<std::pair<AbstractProtocol::s_ptr, std::function<void(AbstractProtocol::s_ptr)>>> m_write_dones;
-
+  // TinyPB协议的读写处理函数，回调函数
+  // 如果发送 message 成功，会调用 done 函数， 函数的入参就是 message 对象 
+  std::vector<std::pair<AbstractProtocol::s_ptr, std::function<void(AbstractProtocol::s_ptr)>>> m_write_dones_;
   // key 为 msg_id
-  std::map<std::string, std::function<void(AbstractProtocol::s_ptr)>> m_read_dones;
-  
+  // 如果读取 message 成功，会调用 done 函数， 函数的入参就是 message 对象 
+  std::map<std::string, std::function<void(AbstractProtocol::s_ptr)>> m_read_dones_;
 };
 }
 #endif

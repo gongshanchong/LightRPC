@@ -1,14 +1,14 @@
-#ifndef ROCKET_NET_TCP_SERVER_H
-#define ROCKET_NET_TCP_SERVER_H
+#ifndef LIGHTRPC_NET_TCP_SERVER_H
+#define LIGHTRPC_NET_TCP_SERVER_H
 
 #include <set>
 #include "tcp_acceptor.h"
 #include "tcp_connection.h"
 #include "net_addr.h"
 #include "../eventloop.h"
-#include "../io_thread_group.h"
+#include "../io_thread_pool.h"
 
-namespace rocket {
+namespace lightrpc {
 
 class TcpServer {
  public:
@@ -16,33 +16,35 @@ class TcpServer {
 
   ~TcpServer();
 
-  void start();
+  // 启动tcp
+  void Start();
 
  private:
-  void init();
+  // 初始化
+  void Init();
 
   // 当有新客户端连接之后需要执行
-  void onAccept();
+  void OnAccept();
 
   // 清除 closed 的连接
   void ClearClientTimerFunc();
 
  private:
-  TcpAcceptor::s_ptr m_acceptor;  // 链接器
+  TcpAcceptor::s_ptr m_acceptor_;  // 链接器
 
-  NetAddr::s_ptr m_local_addr;    // 本地监听地址
+  NetAddr::s_ptr m_local_addr_;    // 本地监听地址
 
-  EventLoop* m_main_event_loop {NULL};    // mainReactor
+  EventLoop* m_main_event_loop_ {NULL};     // mainReactor
   
-  IOThreadGroup* m_io_thread_group {NULL};   // subReactor 组
+  IOThreadPool* m_io_thread_pool_ {NULL};   // subReactor 组
 
-  FdEvent* m_listen_fd_event;
+  FdEvent* m_listen_fd_event_;              // 当前监听事件
 
-  int m_client_counts {0};
+  int m_client_counts_ {0};                 // 客户端连接的数量
 
-  std::set<TcpConnection::s_ptr> m_client;
+  std::set<TcpConnection::s_ptr> m_client_; // 客户端连接
 
-  TimerEvent::s_ptr m_clear_client_timer_event;
+  TimerEvent::s_ptr m_clear_client_timer_event_;  // 超时事件
 };
 }
 #endif

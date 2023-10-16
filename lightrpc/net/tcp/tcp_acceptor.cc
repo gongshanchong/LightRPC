@@ -6,7 +6,6 @@
 #include "net_addr.h"
 #include "tcp_acceptor.h"
 
-
 namespace lightrpc {
 
 TcpAcceptor::TcpAcceptor(NetAddr::s_ptr local_addr) : m_local_addr_(local_addr) {

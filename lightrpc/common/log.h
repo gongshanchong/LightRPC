@@ -6,6 +6,7 @@
 #include <memory>
 #include <mutex>
 #include <vector>
+#include <semaphore.h>
 #include <condition_variable>
 
 #include "config.h"
@@ -112,8 +113,9 @@ private:
     std::string m_file_path_;    // 日志输出路径
     int m_max_file_size_ {0};    // 日志单个文件最大大小, 单位为字节
 
-    std::mutex handle_mtx_;                       // 互斥锁,也成互斥量,可以保护关键代码段,以确保独占式访问
-    std::condition_variable condition_variable_;  // 条件变量提供了一种线程间的通知机制,当某个共享数据达到某个值时,唤醒等待这个共享数据的线程
+    sem_t m_sempahore_;           // 信号量
+    std::mutex handle_mtx_;       // 互斥锁
+    std::condition_variable condition_variable_;    // 条件变量
  
     std::string m_date_;             // 当前打印日志的文件日期
     FILE* m_file_hanlder_ {NULL};    // 当前打开的日志文件句柄

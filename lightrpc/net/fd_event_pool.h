@@ -1,5 +1,5 @@
-#ifndef LIGHTRPC_NET_FD_EVENT_GROUP_H
-#define LIGHTRPC_NET_FD_EVENT_GROUP_H
+#ifndef LIGHTRPC_NET_FD_EVENT_POOL_H
+#define LIGHTRPC_NET_FD_EVENT_POOL_H
 
 #include <vector>
 #include <mutex>
@@ -8,19 +8,19 @@
 
 namespace lightrpc {
 // 事件池
-class FdEventGroup {
+class FdEventPool {
  public:
-  FdEventGroup(int size);
+  FdEventPool(int size);
 
-  ~FdEventGroup();
+  ~FdEventPool();
   FdEvent* GetFdEvent(int fd);
 
  public:
-  static FdEventGroup* GetFdEventGroup();
+  static FdEventPool* GetFdEventPool();
 
  private:
   int m_size_ {0};
-  std::vector<FdEvent*> m_fd_group_;
+  std::vector<FdEvent*> m_fd_pool_;
   std::mutex handle_mtx_;
 };
 }

@@ -1,11 +1,11 @@
-#ifndef ROCKET_NET_IO_THREAD_H
-#define ROCKET_NET_IO_THREAD_H
+#ifndef LIGHTRPC_NET_IO_THREAD_H
+#define LIGHTRPC_NET_IO_THREAD_H
 
 #include <pthread.h>
 #include <semaphore.h>
 #include "eventloop.h"
 
-namespace rocket {
+namespace lightrpc {
 
 class IOThread {
  public:
@@ -13,24 +13,24 @@ class IOThread {
   
   ~IOThread();
 
-  EventLoop* getEventLoop();
+  EventLoop* GetEventLoop();
 
-  void start();
+  void Start();
 
-  void join();
+  void Join();
 
  public:
   static void* Main(void* arg);
 
  private:
-  pid_t m_thread_id {-1};    // 线程号
-  pthread_t m_thread {0};    // 线程句柄
+  pid_t m_thread_id_ {-1};    // 线程号
+  pthread_t m_thread_ {0};    // 线程句柄
 
-  EventLoop* m_event_loop {NULL}; // 当前 io 线程的 loop 对象
+  EventLoop* m_event_loop_ {NULL}; // 当前 io 线程的 loop 对象
 
-  sem_t m_init_semaphore;
-  sem_t m_start_semaphore;
-
+  // 信号量
+  sem_t m_init_semaphore_;
+  sem_t m_start_semaphore_;
 };
 
 }

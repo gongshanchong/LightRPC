@@ -4,87 +4,88 @@
 #include "../../common/log.h"
 #include "tcp_client.h"
 #include "../eventloop.h"
-#include "../fd_event_group.h"
+#include "../fd_event_pool.h"
 #include "../../common/error_code.h"
 #include "net_addr.h"
 
-namespace rocket {
+namespace lightrpc {
 
-TcpClient::TcpClient(NetAddr::s_ptr peer_addr) : m_peer_addr(peer_addr) {
-  m_event_loop = EventLoop::GetCurrentEventLoop();
-  m_fd = socket(peer_addr->getFamily(), SOCK_STREAM, 0);
+TcpClient::TcpClient(NetAddr::s_ptr peer_addr) : m_peer_addr_(peer_addr) {
+  m_event_loop_ = EventLoop::GetCurrentEventLoop();
+  m_fd_ = socket(peer_addr->GetFamily(), SOCK_STREAM, 0);
 
-  if (m_fd < 0) {
-    ERRORLOG("TcpClient::TcpClient() error, failed to create fd");
+  if (m_fd_ < 0) {
+    LOG_ERROR("TcpClient::TcpClient() error, failed to create fd");
     return;
   }
   // 创建客户端的事件
-  m_fd_event = FdEventGroup::GetFdEventGroup()->getFdEvent(m_fd);
-  m_fd_event->setNonBlock();
+  m_fd_event_ = FdEventPool::GetFdEventPool()->GetFdEvent(m_fd_);
+  m_fd_event_->SetNonBlock();
   // 创建客户端的链接
-  m_connection = std::make_shared<TcpConnection>(m_event_loop, m_fd, 128, peer_addr, nullptr, TcpConnectionByClient);
-  m_connection->setConnectionType(TcpConnectionByClient);
+  m_connection_ = std::make_shared<TcpConnection>(m_event_loop_, m_fd_, 128, peer_addr, nullptr, TcpConnectionByClient);
+  m_connection_->SetConnectionType(TcpConnectionByClient);
 }
 
 TcpClient::~TcpClient() {
-  DEBUGLOG("TcpClient::~TcpClient()");
-  if (m_fd > 0) {
-    close(m_fd);
+  LOG_DEBUG("TcpClient::~TcpClient()");
+  if (m_fd_ > 0) {
+    close(m_fd_);
   }
 }
 
 // 异步的进行 conenct
 // 如果connect 成功，done 会被执行
-void TcpClient::connect(std::function<void()> done) {
-  int rt = ::connect(m_fd, m_peer_addr->getSockAddr(), m_peer_addr->getSockLen());
+void TcpClient::Connect(std::function<void()> done) {
+  int rt = ::connect(m_fd_, m_peer_addr_->GetSockAddr(), m_peer_addr_->GetSockLen());
   if (rt == 0) {
-    DEBUGLOG("connect [%s] sussess", m_peer_addr->toString().c_str());
-    m_connection->setState(Connected);
-    initLocalAddr();
+    LOG_DEBUG("connect [%s] sussess", m_peer_addr_->ToString().c_str());
+    m_connection_->SetState(Connected);
+    InitLocalAddr();
     if (done) {
       done();
     }
   } else if (rt == -1) {
     if (errno == EINPROGRESS) {
       // epoll 监听可写事件，然后判断错误码
-      m_fd_event->listen(FdEvent::OUT_EVENT, 
+      m_fd_event_->Listen(FdEvent::OUT_EVENT, 
         [this, done]() {
-          int rt = ::connect(m_fd, m_peer_addr->getSockAddr(), m_peer_addr->getSockLen());
+          int rt = ::connect(m_fd_, m_peer_addr_->GetSockAddr(), m_peer_addr_->GetSockLen());
           if ((rt < 0 && errno == EISCONN) || (rt == 0)) {
-            DEBUGLOG("connect [%s] sussess", m_peer_addr->toString().c_str());
-            initLocalAddr();
-            m_connection->setState(Connected);
+            LOG_DEBUG("connect [%s] sussess", m_peer_addr_->ToString().c_str());
+            InitLocalAddr();
+            m_connection_->SetState(Connected);
           } else {
             if (errno == ECONNREFUSED) {
-              m_connect_error_code = ERROR_PEER_CLOSED;
-              m_connect_error_info = "connect refused, sys error = " + std::string(strerror(errno));
+              m_connect_error_code_ = ERROR_PEER_CLOSED;
+              m_connect_error_info_ = "connect refused, sys error = " + std::string(strerror(errno));
             } else {
-              m_connect_error_code = ERROR_FAILED_CONNECT;
-              m_connect_error_info = "connect unkonwn error, sys error = " + std::string(strerror(errno));
+              m_connect_error_code_ = ERROR_FAILED_CONNECT;
+              m_connect_error_info_ = "connect unkonwn error, sys error = " + std::string(strerror(errno));
             }
-            ERRORLOG("connect errror, errno=%d, error=%s", errno, strerror(errno));
-            close(m_fd);
-            m_fd = socket(m_peer_addr->getFamily(), SOCK_STREAM, 0);
+            LOG_DEBUG("connect errror, errno=%d, error=%s", errno, strerror(errno));
+            close(m_fd_);
+            m_fd_ = socket(m_peer_addr_->GetFamily(), SOCK_STREAM, 0);
           }
 
           // 连接完后需要去掉可写事件的监听，不然会一直触发
-          m_event_loop->deleteEpollEvent(m_fd_event);
-          DEBUGLOG("now begin to done");
+          m_event_loop_->DeleteEpollEvent(m_fd_event_);
+          LOG_DEBUG("now begin to done");
           // 如果连接完成，才会执行回调函数
           if (done) {
             done();
           }
         }
       );
-      m_event_loop->addEpollEvent(m_fd_event);
-
-      if (!m_event_loop->isLooping()) {
-        m_event_loop->loop();
+      // 重新添加可写事件的监听，便于下次连接
+      m_event_loop_->AddEpollEvent(m_fd_event_);
+      // 启动loop监听
+      if (!m_event_loop_->IsLooping()) {
+        m_event_loop_->Loop();
       }
     } else {
-      ERRORLOG("connect errror, errno=%d, error=%s", errno, strerror(errno));
-      m_connect_error_code = ERROR_FAILED_CONNECT;
-      m_connect_error_info = "connect error, sys error = " + std::string(strerror(errno));
+      LOG_DEBUG("connect errror, errno=%d, error=%s", errno, strerror(errno));
+      m_connect_error_code_ = ERROR_FAILED_CONNECT;
+      m_connect_error_info_ = "connect error, sys error = " + std::string(strerror(errno));
       if (done) {
         done();
       }
@@ -93,60 +94,62 @@ void TcpClient::connect(std::function<void()> done) {
 
 }
 
-void TcpClient::stop() {
-  if (m_event_loop->isLooping()) {
-    m_event_loop->stop();
+void TcpClient::Stop() {
+  if (m_event_loop_->IsLooping()) {
+    m_event_loop_->Stop();
   }
 }
 
 // 异步的发送 message
 // 如果发送 message 成功，会调用 done 函数， 函数的入参就是 message 对象 
-void TcpClient::writeMessage(AbstractProtocol::s_ptr message, std::function<void(AbstractProtocol::s_ptr)> done) {
+void TcpClient::WriteMessage(AbstractProtocol::s_ptr message, std::function<void(AbstractProtocol::s_ptr)> done) {
   // 1. 把 message 对象写入到 Connection 的 buffer, done 也写入
   // 2. 启动 connection 可写事件
-  m_connection->pushSendMessage(message, done);
-  m_connection->listenWrite();
+  m_connection_->PushSendMessage(message, done);
+  m_connection_->ListenWrite();
 }
 
 // 异步的读取 message
 // 如果读取 message 成功，会调用 done 函数， 函数的入参就是 message 对象 
-void TcpClient::readMessage(const std::string& msg_id, std::function<void(AbstractProtocol::s_ptr)> done) {
+void TcpClient::ReadMessage(const std::string& msg_id, std::function<void(AbstractProtocol::s_ptr)> done) {
   // 1. 监听可读事件
   // 2. 从 buffer 里 decode 得到 message 对象, 判断是否 msg_id 相等，相等则读成功，执行其回调
-  m_connection->pushReadMessage(msg_id, done);
-  m_connection->listenRead();
+  m_connection_->PushReadMessage(msg_id, done);
+  m_connection_->ListenRead();
 }
 
-int TcpClient::getConnectErrorCode() {
-  return m_connect_error_code;
+int TcpClient::GetConnectErrorCode() {
+  return m_connect_error_code_;
 }
 
-std::string TcpClient::getConnectErrorInfo() {
-  return m_connect_error_info;
+std::string TcpClient::GetConnectErrorInfo() {
+  return m_connect_error_info_;
 }
 
-NetAddr::s_ptr TcpClient::getPeerAddr() {
-  return m_peer_addr;
+NetAddr::s_ptr TcpClient::GetPeerAddr() {
+  return m_peer_addr_;
 }
 
-NetAddr::s_ptr TcpClient::getLocalAddr() {
-  return m_local_addr;
+NetAddr::s_ptr TcpClient::GetLocalAddr() {
+  return m_local_addr_;
 }
 
-void TcpClient::initLocalAddr() {
+void TcpClient::InitLocalAddr() {
   sockaddr_in local_addr;
   socklen_t len = sizeof(local_addr);
 
-  int ret = getsockname(m_fd, reinterpret_cast<sockaddr*>(&local_addr), &len);
+  // 可以获得一个与socket相关的地址
+  // 服务器端可以通过它得到相关客户端地址。而客户端也可以得到当前已连接成功的socket的ip和端口。
+  int ret = getsockname(m_fd_, reinterpret_cast<sockaddr*>(&local_addr), &len);
   if (ret != 0) {
-    ERRORLOG("initLocalAddr error, getsockname error. errno=%d, error=%s", errno, strerror(errno));
+    LOG_ERROR("initLocalAddr error, getsockname error. errno=%d, error=%s", errno, strerror(errno));
     return;
   }
 
-  m_local_addr = std::make_shared<IPNetAddr>(local_addr);
+  m_local_addr_ = std::make_shared<IPNetAddr>(local_addr);
 }
 
-void TcpClient::addTimerEvent(TimerEvent::s_ptr timer_event) {
-  m_event_loop->addTimerEvent(timer_event);
+void TcpClient::AddTimerEvent(TimerEvent::s_ptr timer_event) {
+  m_event_loop_->AddTimerEvent(timer_event);
 }
 }

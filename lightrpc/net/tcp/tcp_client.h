@@ -1,5 +1,5 @@
-#ifndef ROCKET_NET_TCP_TCP_CLIENT_H
-#define ROCKET_NET_TCP_TCP_CLIENT_H
+#ifndef LIGHTRPC_NET_TCP_TCP_CLIENT_H
+#define LIGHTRPC_NET_TCP_TCP_CLIENT_H
 
 #include <memory>
 #include "net_addr.h"
@@ -8,8 +8,7 @@
 #include "../coder/abstract_protocol.h"
 #include "../timer_event.h"
 
-
-namespace rocket {
+namespace lightrpc {
 
 class TcpClient {
  public:
@@ -21,43 +20,44 @@ class TcpClient {
 
   // 异步的进行 conenct
   // 如果 connect 完成，done 会被执行
-  void connect(std::function<void()> done);
+  void Connect(std::function<void()> done);
 
   // 异步的发送 message
   // 如果发送 message 成功，会调用 done 函数， 函数的入参就是 message 对象 
-  void writeMessage(AbstractProtocol::s_ptr message, std::function<void(AbstractProtocol::s_ptr)> done);
+  void WriteMessage(AbstractProtocol::s_ptr message, std::function<void(AbstractProtocol::s_ptr)> done);
 
   // 异步的读取 message
   // 如果读取 message 成功，会调用 done 函数， 函数的入参就是 message 对象 
-  void readMessage(const std::string& msg_id, std::function<void(AbstractProtocol::s_ptr)> done);
+  void ReadMessage(const std::string& msg_id, std::function<void(AbstractProtocol::s_ptr)> done);
 
-  void stop();
+  void Stop();
 
-  int getConnectErrorCode();
+  int GetConnectErrorCode();
 
-  std::string getConnectErrorInfo();
+  std::string GetConnectErrorInfo();
 
-  NetAddr::s_ptr getPeerAddr();
+  NetAddr::s_ptr GetPeerAddr();
 
-  NetAddr::s_ptr getLocalAddr();
+  NetAddr::s_ptr GetLocalAddr();
 
-  void initLocalAddr();
+  void InitLocalAddr();
 
-  void addTimerEvent(TimerEvent::s_ptr timer_event);
+  void AddTimerEvent(TimerEvent::s_ptr timer_event);
 
  private:
-  NetAddr::s_ptr m_peer_addr;
-  NetAddr::s_ptr m_local_addr;
+  NetAddr::s_ptr m_peer_addr_;    // 连接的另一端地址
+  NetAddr::s_ptr m_local_addr_;   // 本地监听地址
 
-  EventLoop* m_event_loop {NULL};
+  EventLoop* m_event_loop_ {NULL};
 
-  int m_fd {-1};
-  FdEvent* m_fd_event {NULL};
+  int m_fd_ {-1};
+  FdEvent* m_fd_event_ {NULL};
 
-  TcpConnection::s_ptr m_connection;
+  TcpConnection::s_ptr m_connection_; // 连接
 
-  int m_connect_error_code {0};
-  std::string m_connect_error_info;
+  // 连接的错误信息
+  int m_connect_error_code_ {0};
+  std::string m_connect_error_info_;
 };  
 }
 #endif

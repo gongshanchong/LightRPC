@@ -194,6 +194,10 @@ AsyncLogger::AsyncLogger(const std::string& file_name, const std::string& file_p
   
     // 创建线程
     assert(pthread_create(&m_thread_, NULL, &AsyncLogger::Loop, this) == 0);
+
+    // wait, 直到新线程执行完 Loop 函数的前置
+    // 防止线程创建时函数已结束导致参数捕获失败
+    sem_wait(&m_sempahore_);
 }
 
 // 生产者-消费者（条件变量实现）
@@ -201,6 +205,8 @@ void* AsyncLogger::Loop(void* arg) {
   // 将 buffer 里面的全部数据打印到文件中，然后线程睡眠，直到有新的数据再重复这个过程
   AsyncLogger* logger = reinterpret_cast<AsyncLogger*>(arg); 
 
+  // 把指定的信号量 sem 的值加 1，唤醒正在等待该信号量的任意线程。
+  sem_post(&logger->m_sempahore_);
   while(1) {
     // 加互斥锁保证读取消息队列安全
     std::unique_lock<std::mutex> lock(logger->handle_mtx_);
