@@ -18,7 +18,7 @@ class RpcDispatcher {
 
  public:
   typedef std::shared_ptr<google::protobuf::Service> service_s_ptr;
-
+  // 事件分发
   void Dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::s_ptr response, TcpConnection* connection);
   // 将这个类注册到了服务器中
   void RegisterService(service_s_ptr service);
@@ -30,6 +30,7 @@ class RpcDispatcher {
   bool ParseServiceFullName(const std::string& full_name, std::string& service_name, std::string& method_name);
 
  private:
+  // 服务名-服务
   std::map<std::string, service_s_ptr> m_service_map_;
 };
 }

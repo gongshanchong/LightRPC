@@ -7,16 +7,16 @@ namespace lightrpc {
 class RpcInterface;
 class RunTime {
  public:
-  RpcInterface* getRpcInterface();
+  RpcInterface* GetRpcInterface();
 
  public:
   static RunTime* GetRunTime();
 
  public:
   // 当前线程处理的请求的 msgid
-  std::string m_msgid;
-  std::string m_method_name;
-  RpcInterface* m_rpc_interface {NULL};
+  std::string m_msgid_;
+  std::string m_method_name_;
+  RpcInterface* m_rpc_interface_ {NULL};
 };
 }
 #endif

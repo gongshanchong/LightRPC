@@ -45,6 +45,7 @@ void TcpClient::Connect(std::function<void()> done) {
       done();
     }
   } else if (rt == -1) {
+    // 套接字是非阻塞的，且一个连接尝试将被阻塞
     if (errno == EINPROGRESS) {
       // epoll 监听可写事件，然后判断错误码
       m_fd_event_->Listen(FdEvent::OUT_EVENT, 
@@ -76,7 +77,7 @@ void TcpClient::Connect(std::function<void()> done) {
           }
         }
       );
-      // 重新添加可写事件的监听，便于下次连接
+      // 重新添加可写事件的监听，便于下次重新连接
       m_event_loop_->AddEpollEvent(m_fd_event_);
       // 启动loop监听
       if (!m_event_loop_->IsLooping()) {

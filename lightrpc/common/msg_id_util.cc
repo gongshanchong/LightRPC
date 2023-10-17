@@ -4,7 +4,7 @@
 #include "msg_id_util.h"
 #include "log.h"
 
-namespace rocket {
+namespace lightrpc {
 
 static int g_msg_id_length = 20;
 static int g_random_fd = -1;
@@ -19,7 +19,7 @@ std::string MsgIDUtil::GenMsgID() {
     }
     std::string res(g_msg_id_length, 0);
     if ((read(g_random_fd, &res[0], g_msg_id_length)) != g_msg_id_length) {
-      ERRORLOG("read form /dev/urandom error");
+      LOG_ERROR("read form /dev/urandom error");
       return "";
     }
     for (int i = 0; i < g_msg_id_length; ++i) {
