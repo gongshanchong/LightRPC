@@ -4,6 +4,7 @@
 #include <memory>
 #include <google/protobuf/message.h>
 #include "rpc_controller.h"
+#include "../../common/log.h"
 
 namespace lightrpc {
 

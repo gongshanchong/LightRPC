@@ -1,7 +1,4 @@
-#include "../../common/log.h"
 #include "rpc_closure.h"
-#include "rpc_closure.h"
-#include "rpc_controller.h"
 #include "rpc_interface.h"
 
 namespace lightrpc {

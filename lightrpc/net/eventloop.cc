@@ -175,6 +175,7 @@ void EventLoop::Stop() {
 }
 
 void EventLoop::AddEpollEvent(FdEvent* event) {
+  // 保证线程安全
   if (IsInLoopThread()) {
     ADD_TO_EPOLL();
   } else {
@@ -186,6 +187,7 @@ void EventLoop::AddEpollEvent(FdEvent* event) {
 }
 
 void EventLoop::DeleteEpollEvent(FdEvent* event) {
+  // 保证线程安全
   if (IsInLoopThread()) {
     DELETE_TO_EPOLL();
   } else {

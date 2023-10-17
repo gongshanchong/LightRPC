@@ -3,6 +3,12 @@
 
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/syscall.h>
+#include <sys/time.h>
+#include <string.h>
+#include <arpa/inet.h>
 
 namespace lightrpc {
 

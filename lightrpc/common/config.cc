@@ -1,4 +1,3 @@
-#include <tinyxml/tinyxml.h>
 #include "config.h"
 
 #define READ_XML_NODE(name, parent) \

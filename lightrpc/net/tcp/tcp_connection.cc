@@ -95,11 +95,11 @@ void TcpConnection::Excute() {
       RpcDispatcher::GetRpcDispatcher()->Dispatch(result[i], message, this);
     }
   } else {
-    // 从 buffer 里 decode 得到 message 对象, 执行其回调
+    // 从 buffer 里 decode 得到响应 message 对象, 执行其回调
     std::vector<AbstractProtocol::s_ptr> result;
     m_coder_->Decode(result, m_in_buffer_);
 
-    // 如果读取 message 成功，会调用 done 函数
+    // 如果读取响应 message 成功，会调用 done 函数
     for (size_t i = 0; i < result.size(); ++i) {
       std::string msg_id = result[i]->m_msg_id_;
       auto it = m_read_dones_.find(msg_id);
@@ -162,7 +162,7 @@ void TcpConnection::OnWrite() {
     m_event_loop_->AddEpollEvent(m_fd_event_);
   }
 
-  // 发送成功，执行 done 函数
+  // 请求发送成功，执行请求 done 函数（设置读的回调函数）
   if (m_connection_type_ == TcpConnectionByClient) {
     for (size_t i = 0; i < m_write_dones_.size(); ++i) {
       m_write_dones_[i].second(m_write_dones_[i].first);

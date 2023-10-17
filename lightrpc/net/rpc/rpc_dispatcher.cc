@@ -1,16 +1,5 @@
-#include <google/protobuf/service.h>
-#include <google/protobuf/descriptor.h>
-#include <google/protobuf/message.h>
-
 #include "rpc_dispatcher.h"
-#include "../tinypb/tinypb_protocol.h"
-#include "../../common/log.h"
-#include "../../common/error_code.h"
-#include "rpc_controller.h"
-#include "rpc_closure.h"
-#include "../tcp/net_addr.h"
 #include "../tcp/tcp_connection.h"
-#include "../../common/run_time.h"
 
 namespace lightrpc {
 
@@ -84,7 +73,7 @@ void RpcDispatcher::Dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::
   RunTime::GetRunTime()->m_msgid_ = req_protocol->m_msg_id_;
   RunTime::GetRunTime()->m_method_name_ = method_name;
   // closure 就会把 response 对象再序列化，最终生成一个 TinyPBProtocol 的结构体，最后通过 TcpConnection::reply 函数，将数据再发送给客户端
-  RpcClosure* closure = new RpcClosure(nullptr, [req_msg, rsp_msg, req_protocol, rsp_protocol, connection, rpc_controller, this]() mutable {
+  RpcClosure* closure = new RpcClosure(nullptr, [req_msg, rsp_msg, req_protocol, rsp_protocol, connection, this]() mutable {
     if (!rsp_msg->SerializeToString(&(rsp_protocol->m_pb_data_))) {
       LOG_ERROR("%s | serilize error, origin message [%s]", req_protocol->m_msg_id_.c_str(), rsp_msg->ShortDebugString().c_str());
       SetTinyPBError(rsp_protocol, ERROR_FAILED_SERIALIZE, "serilize error");

@@ -2,7 +2,19 @@
 #define LIGHTRPC_NET_RPC_RPC_CHANNEL_H
 
 #include <google/protobuf/service.h>
+#include <google/protobuf/service.h>
+#include <google/protobuf/descriptor.h>
+#include <google/protobuf/message.h>
 #include <memory>
+
+#include "rpc_controller.h"
+#include "../tinypb/tinypb_protocol.h"
+#include "../tcp/tcp_client.h"
+#include "../../common/log.h"
+#include "../../common/msg_id_util.h"
+#include "../../common/error_code.h"
+#include "../../common/run_time.h"
+#include "../../net/timer_event.h"
 #include "../../net/tcp/net_addr.h"
 #include "../../net/tcp/tcp_client.h"
 #include "../../net/timer_event.h"
@@ -12,17 +24,10 @@ namespace lightrpc {
   std::shared_ptr<type> var_name = std::make_shared<type>(); \
 
 #define NEWRPCCONTROLLER(var_name) \
-  std::shared_ptr<rocket::RpcController> var_name = std::make_shared<rocket::RpcController>(); \
+  std::shared_ptr<lightrpc::RpcController> var_name = std::make_shared<lightrpc::RpcController>(); \
 
 #define NEWRPCCHANNEL(addr, var_name) \
-  std::shared_ptr<rocket::RpcChannel> var_name = std::make_shared<rocket::RpcChannel>(rocket::RpcChannel::FindAddr(addr)); \
-
-#define CALLRPRC(addr, stub_name, method_name, controller, request, response, closure) \
-  { \
-  NEWRPCCHANNEL(addr, channel); \
-  channel->Init(controller, request, response, closure); \
-  stub_name(channel.get()).method_name(controller.get(), request.get(), response.get(), closure.get()); \
-  } \
+  std::shared_ptr<lightrpc::RpcChannel> var_name = std::make_shared<lightrpc::RpcChannel>(lightrpc::RpcChannel::FindAddr(addr)); \
 
 // RpcChannel 代表了 RPC 的通信。通常情况下，不应该直接调用 RpcChannel，而是构造一个包装它的 stub Service。
 class RpcChannel : public google::protobuf::RpcChannel, public std::enable_shared_from_this<RpcChannel> {
@@ -43,36 +48,17 @@ class RpcChannel : public google::protobuf::RpcChannel, public std::enable_share
 
   ~RpcChannel();
 
-  void Init(controller_s_ptr controller, message_s_ptr req, message_s_ptr res, closure_s_ptr done);
-
   void CallMethod(const google::protobuf::MethodDescriptor* method,
                           google::protobuf::RpcController* controller, const google::protobuf::Message* request,
                           google::protobuf::Message* response, google::protobuf::Closure* done);
 
-  google::protobuf::RpcController* GetController(); 
-
-  google::protobuf::Message* GetRequest();
-
-  google::protobuf::Message* GetResponse();
-
-  google::protobuf::Closure* GetClosure();
-
   TcpClient* GetTcpClient();
 
  private:
-  void CallBack();
+  void CallBack(google::protobuf::RpcController* controller, google::protobuf::Closure* done);
 
  private:
   NetAddr::s_ptr m_peer_addr_ {nullptr};
-  NetAddr::s_ptr m_local_addr {nullptr};
-
-  controller_s_ptr m_controller_ {nullptr};
-  message_s_ptr m_request_ {nullptr};
-  message_s_ptr m_response_ {nullptr};
-  closure_s_ptr m_closure_ {nullptr};
-
-  bool m_is_init_ {false};
-
   TcpClient::s_ptr m_client_ {nullptr};
 };
 }

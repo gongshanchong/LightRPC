@@ -1,16 +1,4 @@
-#include <sys/time.h>
-#include <sstream>
-#include <stdio.h>
-
-#include <assert.h>
-#include <signal.h>
-#include <unistd.h>
 #include "log.h"
-#include "util.h"
-#include "config.h"
-#include "../net/eventloop.h"
-#include "run_time.h"
-
 
 namespace lightrpc {
 
@@ -160,8 +148,8 @@ std::string LogEvent::ToString() {
       << "[" << m_pid_ << ":" << m_thread_id_ << "]\t";
 
     // 获取当前线程处理的请求的 msgid
-    std::string msgid = RunTime::GetRunTime()->m_msgid;
-    std::string method_name = RunTime::GetRunTime()->m_method_name;
+    std::string msgid = RunTime::GetRunTime()->m_msgid_;
+    std::string method_name = RunTime::GetRunTime()->m_method_name_;
     if (!msgid.empty()) {
       ss << "[" << msgid << "]\t";
     }

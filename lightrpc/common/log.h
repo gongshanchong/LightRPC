@@ -1,6 +1,12 @@
 #ifndef LIGHTRPC_COMMON_LOG_H
 #define LIGHTRPC_COMMON_LOG_H
 
+#include <sys/time.h>
+#include <sstream>
+#include <stdio.h>
+#include <assert.h>
+#include <signal.h>
+#include <unistd.h>
 #include <string>
 #include <queue>
 #include <memory>
@@ -9,7 +15,10 @@
 #include <semaphore.h>
 #include <condition_variable>
 
+#include "util.h"
+#include "run_time.h"
 #include "config.h"
+#include "../net/eventloop.h"
 #include "../net/timer_event.h"
 
 namespace lightrpc {

@@ -1,4 +1,3 @@
-
 #include "run_time.h"
 
 namespace lightrpc {

@@ -4,7 +4,17 @@
 #include <map>
 #include <memory>
 #include <google/protobuf/service.h>
+#include <google/protobuf/service.h>
+#include <google/protobuf/descriptor.h>
+#include <google/protobuf/message.h>
 
+#include "../tinypb/tinypb_protocol.h"
+#include "../../common/log.h"
+#include "../../common/error_code.h"
+#include "rpc_controller.h"
+#include "rpc_closure.h"
+#include "../tcp/net_addr.h"
+#include "../../common/run_time.h"
 #include "../tinypb/abstract_protocol.h"
 #include "../tinypb/tinypb_protocol.h"
 
