@@ -5,8 +5,8 @@
 #include <memory>
 #include <google/protobuf/service.h>
 
-#include "../coder/abstract_protocol.h"
-#include "../coder/tinypb_protocol.h"
+#include "../tinypb/abstract_protocol.h"
+#include "../tinypb/tinypb_protocol.h"
 
 namespace lightrpc {
 

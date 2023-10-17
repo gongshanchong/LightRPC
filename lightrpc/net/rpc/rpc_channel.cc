@@ -3,7 +3,7 @@
 #include <google/protobuf/message.h>
 #include "rpc_channel.h"
 #include "rpc_controller.h"
-#include "../coder/tinypb_protocol.h"
+#include "../tinypb/tinypb_protocol.h"
 #include "../tcp/tcp_client.h"
 #include "../../common/log.h"
 #include "../../common/msg_id_util.h"
@@ -70,7 +70,7 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
       my_controller->SetMsgId(req_protocol->m_msg_id_);
     }
   } else {
-    // 如果 controller 指定了 msgno, 直接使用
+    // 如果 controller 指定了 msgid, 直接使用
     req_protocol->m_msg_id_ = my_controller->GetMsgId();
   }
   // 获取请求的方法
@@ -130,6 +130,7 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
       req_protocol->m_msg_id_.c_str(), 
       GetTcpClient()->GetPeerAddr()->ToString().c_str(), 
       GetTcpClient()->GetPeerAddr()->ToString().c_str()); 
+    // 先调用 writeMessage 发送 req_protocol, 然后调用 readMessage 等待回包
     // 发送请求并设置回调函数
     GetTcpClient()->WriteMessage(req_protocol, [req_protocol, this, my_controller](AbstractProtocol::s_ptr) mutable {
       // 发送请求成功，输出日志

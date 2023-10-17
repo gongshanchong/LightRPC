@@ -3,7 +3,7 @@
 #include <google/protobuf/message.h>
 
 #include "rpc_dispatcher.h"
-#include "../coder/tinypb_protocol.h"
+#include "../tinypb/tinypb_protocol.h"
 #include "../../common/log.h"
 #include "../../common/error_code.h"
 #include "rpc_controller.h"

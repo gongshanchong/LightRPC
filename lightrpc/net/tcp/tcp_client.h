@@ -5,7 +5,7 @@
 #include "net_addr.h"
 #include "../eventloop.h"
 #include "tcp_connection.h"
-#include "../coder/abstract_protocol.h"
+#include "../tinypb/abstract_protocol.h"
 #include "../timer_event.h"
 
 namespace lightrpc {

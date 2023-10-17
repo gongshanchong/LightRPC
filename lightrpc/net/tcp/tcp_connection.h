@@ -7,7 +7,7 @@
 #include "net_addr.h"
 #include "tcp_buffer.h"
 #include "../io_thread.h"
-#include "../coder/abstract_coder.h"
+#include "../tinypb/abstract_coder.h"
 #include "../rpc/rpc_dispatcher.h"
 
 namespace lightrpc {

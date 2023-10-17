@@ -2,8 +2,8 @@
 #include "../../common/log.h"
 #include "../../net/fd_event_pool.h"
 #include "tcp_connection.h"
-#include "../coder/string_coder.h"
-#include "../coder/tinypb_coder.h"
+#include "../tinypb/string_coder.h"
+#include "../tinypb/tinypb_coder.h"
 
 namespace lightrpc {
 
