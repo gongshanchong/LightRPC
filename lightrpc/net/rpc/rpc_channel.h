@@ -33,9 +33,9 @@ namespace lightrpc {
 class RpcChannel : public google::protobuf::RpcChannel, public std::enable_shared_from_this<RpcChannel> {
  public:
   typedef std::shared_ptr<RpcChannel> s_ptr;
-  typedef std::shared_ptr<google::protobuf::RpcController> controller_s_ptr;
-  typedef std::shared_ptr<google::protobuf::Message> message_s_ptr;
-  typedef std::shared_ptr<google::protobuf::Closure> closure_s_ptr;
+  typedef google::protobuf::RpcController* controller_ptr;
+  typedef google::protobuf::Message* message_ptr;
+  typedef google::protobuf::Closure* closure_ptr;
 
  public:
   // 获取 addr
@@ -55,11 +55,18 @@ class RpcChannel : public google::protobuf::RpcChannel, public std::enable_share
   TcpClient* GetTcpClient();
 
  private:
-  void CallBack(google::protobuf::RpcController* controller, google::protobuf::Closure* done);
+  void Init(google::protobuf::RpcController* controller, const google::protobuf::Message* request,
+                          google::protobuf::Message* response, google::protobuf::Closure* done);
+  void CallBack();
 
  private:
   NetAddr::s_ptr m_peer_addr_ {nullptr};
   TcpClient::s_ptr m_client_ {nullptr};
+
+  controller_ptr m_controller_ {nullptr};
+  const google::protobuf::Message* m_request_ {nullptr};
+  message_ptr m_response_ {nullptr};
+  closure_ptr m_closure_ {nullptr};
 };
 }
 #endif

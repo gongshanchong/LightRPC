@@ -25,10 +25,6 @@ void RpcInterface::Reply() {
   }
 }
 
-std::shared_ptr<RpcClosure> RpcInterface::NewRpcClosure(std::function<void()>& cb) {
-  return std::make_shared<RpcClosure>(shared_from_this(), cb);
-}
-
 void RpcInterface::Destroy() {
   if (m_req_base_) {
     delete m_req_base_;

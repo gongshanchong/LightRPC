@@ -28,13 +28,10 @@ class RpcInterface : public std::enable_shared_from_this<RpcInterface> {
   // free resourse
   void Destroy();
 
-  // alloc a closure object which handle by this interface
-  std::shared_ptr<RpcClosure> NewRpcClosure(std::function<void()>& cb);
-
   // core business deal method
   virtual void Run() = 0;
 
-  // set error code and error into to response message
+  // set error code and error into to controller to write response message
   virtual void SetError(int code, const std::string& err_info) = 0;
 
  protected:

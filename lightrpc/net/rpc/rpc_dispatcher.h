@@ -39,6 +39,9 @@ class RpcDispatcher {
   // 解析 service_full_name，得到 service_name 和 method_name
   bool ParseServiceFullName(const std::string& full_name, std::string& service_name, std::string& method_name);
 
+  // 回复客户端的回调函数
+  void Reply(AbstractProtocol::s_ptr response, TcpConnection* connection);
+
  private:
   // 服务名-服务
   std::map<std::string, service_s_ptr> m_service_map_;

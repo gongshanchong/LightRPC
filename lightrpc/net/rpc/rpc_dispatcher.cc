@@ -35,6 +35,7 @@ void RpcDispatcher::Dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::
   if (!ParseServiceFullName(method_full_name, service_name, method_name)) {
     // 解析失败，返回对应错误码, 不进行其他的处理
     SetTinyPBError(rsp_protocol, ERROR_PARSE_SERVICE_NAME, "parse service name error");
+    Reply(rsp_protocol, connection);
     return;
   }
   // 找到对应的 service
@@ -42,6 +43,7 @@ void RpcDispatcher::Dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::
   if (it == m_service_map_.end()) {
     LOG_ERROR("%s | sericve neame[%s] not found", req_protocol->m_msg_id_.c_str(), service_name.c_str());
     SetTinyPBError(rsp_protocol, ERROR_SERVICE_NOT_FOUND, "service not found");
+    Reply(rsp_protocol, connection);
     return;
   }
   // 找到对应的 method
@@ -50,6 +52,7 @@ void RpcDispatcher::Dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::
   if (method == NULL) {
     LOG_ERROR("%s | method neame[%s] not found in service[%s]", req_protocol->m_msg_id_.c_str(), method_name.c_str(), service_name.c_str());
     SetTinyPBError(rsp_protocol, ERROR_SERVICE_NOT_FOUND, "method not found");
+    Reply(rsp_protocol, connection);
     return;
   }
   // 根据 method 对象反射出 request 和 response 对象
@@ -59,6 +62,7 @@ void RpcDispatcher::Dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::
   if (!req_msg->ParseFromString(req_protocol->m_pb_data_)) {
     LOG_ERROR("%s | deserilize error", req_protocol->m_msg_id_.c_str(), method_name.c_str(), service_name.c_str());
     SetTinyPBError(rsp_protocol, ERROR_FAILED_DESERIALIZE, "deserilize error");
+    Reply(rsp_protocol, connection);
     DELETE_RESOURCE(req_msg);
     return;
   }
@@ -77,15 +81,18 @@ void RpcDispatcher::Dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::
     if (!rsp_msg->SerializeToString(&(rsp_protocol->m_pb_data_))) {
       LOG_ERROR("%s | serilize error, origin message [%s]", req_protocol->m_msg_id_.c_str(), rsp_msg->ShortDebugString().c_str());
       SetTinyPBError(rsp_protocol, ERROR_FAILED_SERIALIZE, "serilize error");
-    } else {
+    } 
+    else if (rpc_controller->GetErrorCode() != 0){
+      LOG_ERROR("%s | run error [%s]", req_protocol->m_msg_id_.c_str(), rpc_controller->GetErrorInfo());
+      SetTinyPBError(rsp_protocol, rpc_controller->GetErrorCode(), rpc_controller->GetErrorInfo());
+    }
+    else {
       rsp_protocol->m_err_code_ = 0;
-      rsp_protocol->m_err_info_ = "";
+      rsp_protocol->m_err_info_ = "OK";
       LOG_INFO("%s | dispatch success, requesut[%s], response[%s]", req_protocol->m_msg_id_.c_str(), req_msg->ShortDebugString().c_str(), rsp_msg->ShortDebugString().c_str());
     }
 
-    std::vector<AbstractProtocol::s_ptr> replay_messages;
-    replay_messages.emplace_back(rsp_protocol);
-    connection->Reply(replay_messages);
+    Reply(rsp_protocol, connection);
   });
   // 调用业务处理方法，本质上就是输入一个 request 对象，然后获得一个 response 对象
   service->CallMethod(method, rpc_controller, req_msg, rsp_msg, closure);
@@ -107,6 +114,12 @@ bool RpcDispatcher::ParseServiceFullName(const std::string& full_name, std::stri
   LOG_INFO("parse sericve_name[%s] and method_name[%s] from full name [%s]", service_name.c_str(), method_name.c_str(),full_name.c_str());
 
   return true;
+}
+
+void Reply(AbstractProtocol::s_ptr response, TcpConnection* connection){
+  std::vector<AbstractProtocol::s_ptr> replay_messages;
+  replay_messages.emplace_back(response);
+  connection->Reply(replay_messages);
 }
 
 void RpcDispatcher::RegisterService(service_s_ptr service) {

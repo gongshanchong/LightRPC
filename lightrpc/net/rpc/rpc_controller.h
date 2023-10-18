@@ -16,6 +16,7 @@ class RpcController : public google::protobuf::RpcController {
   RpcController() { LOG_INFO("RpcController"); } 
   ~RpcController() { LOG_INFO("~RpcController"); } 
 
+  // Client-side methods ---------------------------------------------
   void Reset();
 
   bool Failed() const;
@@ -23,12 +24,15 @@ class RpcController : public google::protobuf::RpcController {
   std::string ErrorText() const;
 
   void StartCancel();
+  // -----------------------------------------------------------------
 
+  // Server-side methods ---------------------------------------------
   void SetFailed(const std::string& reason);
 
   bool IsCanceled() const;
 
   void NotifyOnCancel(google::protobuf::Closure* callback);
+  // -----------------------------------------------------------------
 
   void SetError(int32_t error_code, const std::string error_info);
 

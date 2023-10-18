@@ -10,17 +10,31 @@ RpcChannel::~RpcChannel() {
   LOG_INFO("~RpcChannel");
 }
 
-void RpcChannel::CallBack(google::protobuf::RpcController* controller, google::protobuf::Closure* done) {
-  RpcController* my_controller = dynamic_cast<RpcController*>(controller);
-  if (my_controller->Finished()) {
+void RpcChannel::Init(google::protobuf::RpcController* controller, const google::protobuf::Message* request,
+                          google::protobuf::Message* response, google::protobuf::Closure* done){
+    m_request_ = request;
+    m_response_ = response;
+    m_closure_ = done;
+    m_controller_ = controller;
+}
+
+void RpcChannel::CallBack() {
+  RpcController* method_controller = dynamic_cast<RpcController*>(m_controller_);
+  if (method_controller->GetErrorCode() != 0) {
+    LOG_ERROR("call rpc failed, request[%s], error code[%d], error info[%s]", 
+        m_request_->ShortDebugString().c_str(), 
+        method_controller->GetErrorCode(), 
+        method_controller->GetErrorInfo().c_str());
+  }
+  if (method_controller->Finished()) {
+    LOG_INFO("call rpc repeat, request[%s] of this controller finished", m_request_->ShortDebugString().c_str());
     return;
   }
-
   // 执行闭包函数
-  if (done) {
-    done->Run();
-    if (my_controller) {
-      my_controller->SetFinished(true);
+  if (m_closure_) {
+    m_closure_->Run();
+    if (method_controller) {
+      method_controller->SetFinished(true);
     }
   }
 }
@@ -29,20 +43,22 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
                         google::protobuf::RpcController* controller, const google::protobuf::Message* request,
                         google::protobuf::Message* response, google::protobuf::Closure* done) {
   std::shared_ptr<lightrpc::TinyPBProtocol> req_protocol = std::make_shared<lightrpc::TinyPBProtocol>();
+  // 初始化
+  Init(controller, request, response, done);
+  RpcController* method_controller = dynamic_cast<RpcController*>(m_controller_);
   // 判断参数是否为空
-  RpcController* method_controller = dynamic_cast<RpcController*>(controller);
   if (method_controller == NULL || request == NULL || response == NULL) {
     LOG_ERROR("failed callmethod, RpcController convert error");
     if(method_controller == NULL){ return; }
     method_controller->SetError(ERROR_RPC_CHANNEL_INIT, "controller or request or response NULL");
-    CallBack(method_controller, done);
+    CallBack();
     return;
   }
   // 获取客户端地址
   if (m_peer_addr_ == nullptr) {
     LOG_ERROR("failed get peer addr");
     method_controller->SetError(ERROR_RPC_PEER_ADDR, "peer addr nullptr");
-    CallBack(method_controller, done);
+    CallBack();
     return;
   }
   m_client_ = std::make_shared<TcpClient>(m_peer_addr_);
@@ -71,7 +87,7 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
     std::string err_info = "failde to serialize";
     method_controller->SetError(ERROR_FAILED_SERIALIZE, err_info);
     LOG_ERROR("%s | %s, origin requeset [%s] ", req_protocol->m_msg_id_.c_str(), err_info.c_str(), request->ShortDebugString().c_str());
-    CallBack(method_controller, done);
+    CallBack();
     return;
   }
 
@@ -86,11 +102,11 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
     method_controller->StartCancel();
     method_controller->SetError(ERROR_RPC_CALL_TIMEOUT, "rpc call timeout " + std::to_string(method_controller->GetTimeout()));
 
-    channel->CallBack(method_controller, done);
+    channel->CallBack();
   });
   m_client_->AddTimerEvent(timer_event);
   // 设置connnect的回调函数，连接成功后发送请求并接受响应
-  m_client_->Connect([response, method_controller, done, req_protocol, this]() mutable {
+  m_client_->Connect([method_controller, req_protocol, this]() mutable {
     // 连接错误
     if (GetTcpClient()->GetConnectErrorCode() != 0) {
       method_controller->SetError(GetTcpClient()->GetConnectErrorCode(), GetTcpClient()->GetConnectErrorInfo());
@@ -98,7 +114,7 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
         req_protocol->m_msg_id_.c_str(), method_controller->GetErrorCode(), 
         method_controller->GetErrorInfo().c_str(), GetTcpClient()->GetPeerAddr()->ToString().c_str());
       
-      CallBack(method_controller, done);
+      CallBack();
       return;
     }
     // 连接成功，输出日志信息
@@ -108,25 +124,25 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
       GetTcpClient()->GetPeerAddr()->ToString().c_str()); 
     // 先调用 writeMessage 发送 req_protocol, 然后调用 readMessage 等待回包
     // 发送请求并设置回调函数
-    GetTcpClient()->WriteMessage(req_protocol, [response, method_controller, done, req_protocol, this](AbstractProtocol::s_ptr) mutable {
+    GetTcpClient()->WriteMessage(req_protocol, [method_controller, req_protocol, this](AbstractProtocol::s_ptr) mutable {
       // 发送请求成功，输出日志
       LOG_INFO("%s | send rpc request success. call method name[%s], peer addr[%s], local addr[%s]", 
         req_protocol->m_msg_id_.c_str(), req_protocol->m_method_name_.c_str(),
         GetTcpClient()->GetPeerAddr()->ToString().c_str(), GetTcpClient()->GetLocalAddr()->ToString().c_str());
 
       // 读取响应并设置回调函数
-      GetTcpClient()->ReadMessage(req_protocol->m_msg_id_, [response, method_controller, done, this](AbstractProtocol::s_ptr msg) mutable {
+      GetTcpClient()->ReadMessage(req_protocol->m_msg_id_, [method_controller, this](AbstractProtocol::s_ptr msg) mutable {
         std::shared_ptr<lightrpc::TinyPBProtocol> rsp_protocol = std::dynamic_pointer_cast<lightrpc::TinyPBProtocol>(msg);
         // 读取响应成功，输出日志
         LOG_INFO("%s | success get rpc response, call method name[%s], peer addr[%s], local addr[%s]", 
           rsp_protocol->m_msg_id_.c_str(), rsp_protocol->m_method_name_.c_str(),
           GetTcpClient()->GetPeerAddr()->ToString().c_str(), GetTcpClient()->GetLocalAddr()->ToString().c_str());
         // 反序列化响应
-        if (!(response->ParseFromString(rsp_protocol->m_pb_data_))){
+        if (!(m_response_->ParseFromString(rsp_protocol->m_pb_data_))){
           LOG_ERROR("%s | serialize error", rsp_protocol->m_msg_id_.c_str());
           method_controller->SetError(ERROR_FAILED_SERIALIZE, "serialize error");
           
-          CallBack(method_controller, done);
+          CallBack();
           return;
         }
         // 连接错误
@@ -137,7 +153,7 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
 
           method_controller->SetError(rsp_protocol->m_err_code_, rsp_protocol->m_err_info_);
           
-          CallBack(method_controller, done);
+          CallBack();
           return;
         }
         // 调用rpc成功
@@ -145,7 +161,7 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
           rsp_protocol->m_msg_id_.c_str(), rsp_protocol->m_method_name_.c_str(),
           GetTcpClient()->GetPeerAddr()->ToString().c_str(), GetTcpClient()->GetLocalAddr()->ToString().c_str())
 
-        CallBack(method_controller, done);
+        CallBack();
       });
     });
   });

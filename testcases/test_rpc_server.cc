@@ -21,20 +21,8 @@
 #include "../lightrpc/net/tcp/net_addr.h"
 #include "../lightrpc/net/tcp/tcp_server.h"
 #include "../lightrpc/net/rpc/rpc_dispatcher.h"
-#include "MakeOrderInterface.h"
 
-#include "order.pb.h"
-
-class OrderImpl : public Order {
- public:
-  void makeOrder(google::protobuf::RpcController* controller,
-                      const ::makeOrderRequest* request,
-                      ::makeOrderResponse* response,
-                      ::google::protobuf::Closure* done) {
-    std::shared_ptr<lightrpc::MakeOrderInterface> impl = std::make_shared<lightrpc::MakeOrderInterface>(request, response, done, controller);
-    impl->Run();
-  }
-};
+#include "orderimpl.h"
 
 int main(int argc, char* argv[]) {
 
