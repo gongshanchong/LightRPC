@@ -25,6 +25,7 @@ void RpcChannel::CallBack() {
         m_request_->ShortDebugString().c_str(), 
         method_controller->GetErrorCode(), 
         method_controller->GetErrorInfo().c_str());
+    return;
   }
   if (method_controller->Finished()) {
     LOG_INFO("call rpc repeat, request[%s] of this controller finished", m_request_->ShortDebugString().c_str());

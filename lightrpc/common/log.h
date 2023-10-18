@@ -188,7 +188,7 @@ private:
     AsyncLogger::s_ptr m_asnyc_app_logger_;  // 业务逻辑日志
     TimerEvent::s_ptr m_timer_event_;        // 日志产生的时间事件
 
-    int m_type_ {0};
+    int m_type_ {0};            // 0则直接输出到终端，1则建立文件存储
 };
 
 // 日志事件（进程号、线程号、时间、文件名、行号）

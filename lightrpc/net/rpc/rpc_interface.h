@@ -18,7 +18,7 @@ class RpcClosure;
 class RpcInterface : public std::enable_shared_from_this<RpcInterface> {
  public:
 
-  RpcInterface(const google::protobuf::Message* req, google::protobuf::Message* rsp, RpcClosure* done, RpcController* controller);
+  RpcInterface(const google::protobuf::Message* req, google::protobuf::Message* rsp, ::google::protobuf::Closure* done, google::protobuf::RpcController* controller);
 
   virtual ~RpcInterface();
 
@@ -40,7 +40,7 @@ class RpcInterface : public std::enable_shared_from_this<RpcInterface> {
 
   google::protobuf::Message* m_rsp_base_ {NULL};
 
-  RpcClosure* m_done_ {NULL};        // callback
+  google::protobuf::Closure* m_done_ {NULL};        // callback
 
   RpcController* m_controller_ {NULL};
 };

@@ -98,7 +98,6 @@ void Logger::InitGlobalLogger(int type /*=1*/) {
     g_logger->Init();
 }
 
-
 std::string LogLevelToString(LogLevel level) {
     switch (level) {
     case Debug:

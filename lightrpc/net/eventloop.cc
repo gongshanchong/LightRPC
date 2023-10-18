@@ -10,8 +10,10 @@
 #define ADD_TO_EPOLL() \
     auto it = m_listen_fds_.find(event->GetFd()); \
     int op = EPOLL_CTL_ADD; \
+    std::string op_str = "add";\
     if (it != m_listen_fds_.end()) { \
       op = EPOLL_CTL_MOD; \
+      op_str = "update";\
     } \
     epoll_event tmp = event->GetEpollEvent(); \
     LOG_INFO("epoll_event.events = %d", (int)tmp.events); \
@@ -20,7 +22,7 @@
       LOG_ERROR("failed epoll_ctl when add fd, errno=%d, error=%s", errno, strerror(errno)); \
     } \
     m_listen_fds_.insert(event->GetFd()); \
-    LOG_DEBUG("add event success, fd[%d]", event->GetFd()) \
+    LOG_DEBUG("%s event success, fd[%d]", op_str.c_str(), event->GetFd()) \
 
 // 向epoll添删除监听事件
 #define DELETE_TO_EPOLL() \

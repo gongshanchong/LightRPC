@@ -92,7 +92,7 @@ void RpcDispatcher::Dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::
       LOG_INFO("%s | dispatch success, requesut[%s], response[%s]", req_protocol->m_msg_id_.c_str(), req_msg->ShortDebugString().c_str(), rsp_msg->ShortDebugString().c_str());
     }
 
-    Reply(rsp_protocol, connection);
+    this->Reply(rsp_protocol, connection);
   });
   // 调用业务处理方法，本质上就是输入一个 request 对象，然后获得一个 response 对象
   service->CallMethod(method, rpc_controller, req_msg, rsp_msg, closure);
@@ -116,7 +116,7 @@ bool RpcDispatcher::ParseServiceFullName(const std::string& full_name, std::stri
   return true;
 }
 
-void Reply(AbstractProtocol::s_ptr response, TcpConnection* connection){
+void RpcDispatcher::Reply(AbstractProtocol::s_ptr response, TcpConnection* connection){
   std::vector<AbstractProtocol::s_ptr> replay_messages;
   replay_messages.emplace_back(response);
   connection->Reply(replay_messages);

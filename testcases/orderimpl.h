@@ -7,6 +7,9 @@
 
 class MakeOrderInterface : public lightrpc::RpcInterface{
 public:
+    MakeOrderInterface(const google::protobuf::Message* req, google::protobuf::Message* rsp, ::google::protobuf::Closure* done, google::protobuf::RpcController* controller):
+    lightrpc::RpcInterface(req, rsp, done, controller){}
+
     void Run(){
         try {
             // 业务逻辑代码

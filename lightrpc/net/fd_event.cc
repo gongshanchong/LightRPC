@@ -40,8 +40,10 @@ void FdEvent::Listen(TriggerEvent event_type, std::function<void()> callback, st
 void FdEvent::Cancle(TriggerEvent event_type) {
   if (event_type == TriggerEvent::IN_EVENT) {
     m_listen_events_.events &= (~EPOLLIN);
+    LOG_DEBUG("cancle in_event success, fd[%d]", m_fd_);
   } else {
     m_listen_events_.events &= (~EPOLLOUT);
+    LOG_DEBUG("cancle out_event success, fd[%d]", m_fd_);
   }
 }
 
