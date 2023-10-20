@@ -2,7 +2,7 @@
 #include "../../common/log.h"
 #include "../../net/fd_event_pool.h"
 #include "tcp_connection.h"
-#include "../tinypb/string_coder.h"
+#include "../rpc/string_coder.h"
 #include "../tinypb/tinypb_coder.h"
 
 namespace lightrpc {
