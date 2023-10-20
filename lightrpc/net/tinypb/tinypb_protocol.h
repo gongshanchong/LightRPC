@@ -12,6 +12,9 @@ struct TinyPBProtocol : public AbstractProtocol {
   TinyPBProtocol(){}
   ~TinyPBProtocol() {}
 
+  // 对响应信息设置错误码
+  void SetTinyPBError(int32_t err_code, const std::string err_info);
+
  public:
   static char PB_START_;             // 报文的开始
   static char PB_END_;               // 报文的结束

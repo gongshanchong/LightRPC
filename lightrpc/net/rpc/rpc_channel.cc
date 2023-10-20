@@ -43,7 +43,6 @@ void RpcChannel::CallBack() {
 void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
                         google::protobuf::RpcController* controller, const google::protobuf::Message* request,
                         google::protobuf::Message* response, google::protobuf::Closure* done) {
-  std::shared_ptr<lightrpc::TinyPBProtocol> req_protocol = std::make_shared<lightrpc::TinyPBProtocol>();
   // 初始化
   Init(controller, request, response, done);
   RpcController* method_controller = dynamic_cast<RpcController*>(m_controller_);
@@ -63,6 +62,7 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
     return;
   }
   m_client_ = std::make_shared<TcpClient>(m_peer_addr_, protocol_);
+  std::shared_ptr<lightrpc::TinyPBProtocol> req_protocol = std::make_shared<lightrpc::TinyPBProtocol>();
   // 获取msg_id
   if (method_controller->GetMsgId().empty()) {
     // 先从 runtime 里面取, 取不到再生成一个

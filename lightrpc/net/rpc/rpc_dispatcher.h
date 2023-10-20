@@ -17,6 +17,7 @@
 #include "../../common/run_time.h"
 #include "abstract_protocol.h"
 #include "../tinypb/tinypb_protocol.h"
+#include "../http/http_servlet.h"
 
 namespace lightrpc {
 
@@ -30,12 +31,15 @@ class RpcDispatcher {
   typedef std::shared_ptr<google::protobuf::Service> service_s_ptr;
   // 事件分发
   void Dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::s_ptr response, TcpConnection* connection);
-  // 将这个类注册到了服务器中
+  // 将这个服务注册到了服务器中
   void RegisterService(service_s_ptr service);
-  // 对响应信息设置错误码
-  void SetTinyPBError(std::shared_ptr<TinyPBProtocol> msg, int32_t err_code, const std::string err_info);
+  void RegisterServlet(const std::string& path, HttpServlet::ptr servlet);
 
  private:
+  // 调用TINYPB协议的服务
+  void CallTinyPBService(AbstractProtocol::s_ptr request, AbstractProtocol::s_ptr response, TcpConnection* connection);
+  // 调用HTTP协议的服务
+  void CallHttpServlet(AbstractProtocol::s_ptr request, AbstractProtocol::s_ptr response, TcpConnection* connection);
   // 解析 service_full_name，得到 service_name 和 method_name
   bool ParseServiceFullName(const std::string& full_name, std::string& service_name, std::string& method_name);
 
@@ -45,6 +49,7 @@ class RpcDispatcher {
  private:
   // 服务名-服务
   std::map<std::string, service_s_ptr> m_service_map_;
+  std::map<std::string, HttpServlet::ptr> m_servlets_map_;
 };
 }
 #endif

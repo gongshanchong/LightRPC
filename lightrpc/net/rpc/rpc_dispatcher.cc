@@ -1,5 +1,7 @@
 #include "rpc_dispatcher.h"
 #include "../tcp/tcp_connection.h"
+#include "abstract_protocol.h"
+#include <memory>
 
 namespace lightrpc {
 
@@ -19,12 +21,10 @@ RpcDispatcher* RpcDispatcher::GetRpcDispatcher() {
   return g_rpc_dispatcher;
 }
 
-
-void RpcDispatcher::Dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::s_ptr response, TcpConnection* connection) {
+void RpcDispatcher::CallTinyPBService(AbstractProtocol::s_ptr request, AbstractProtocol::s_ptr response, TcpConnection* connection){
   // 构造请求、响应信息
   std::shared_ptr<TinyPBProtocol> req_protocol = std::dynamic_pointer_cast<TinyPBProtocol>(request);
   std::shared_ptr<TinyPBProtocol> rsp_protocol = std::dynamic_pointer_cast<TinyPBProtocol>(response);
-
   std::string method_full_name = req_protocol->m_method_name_;
   std::string service_name;
   std::string method_name;
@@ -34,7 +34,7 @@ void RpcDispatcher::Dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::
   // 解析完整的 rpc 方法名
   if (!ParseServiceFullName(method_full_name, service_name, method_name)) {
     // 解析失败，返回对应错误码, 不进行其他的处理
-    SetTinyPBError(rsp_protocol, ERROR_PARSE_SERVICE_NAME, "parse service name error");
+    rsp_protocol->SetTinyPBError(ERROR_PARSE_SERVICE_NAME, "parse service name error");
     Reply(rsp_protocol, connection);
     return;
   }
@@ -42,7 +42,7 @@ void RpcDispatcher::Dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::
   auto it = m_service_map_.find(service_name);
   if (it == m_service_map_.end()) {
     LOG_ERROR("%s | sericve neame[%s] not found", req_protocol->m_msg_id_.c_str(), service_name.c_str());
-    SetTinyPBError(rsp_protocol, ERROR_SERVICE_NOT_FOUND, "service not found");
+    rsp_protocol->SetTinyPBError(ERROR_SERVICE_NOT_FOUND, "service not found");
     Reply(rsp_protocol, connection);
     return;
   }
@@ -51,7 +51,7 @@ void RpcDispatcher::Dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::
   const google::protobuf::MethodDescriptor* method = service->GetDescriptor()->FindMethodByName(method_name);
   if (method == NULL) {
     LOG_ERROR("%s | method neame[%s] not found in service[%s]", req_protocol->m_msg_id_.c_str(), method_name.c_str(), service_name.c_str());
-    SetTinyPBError(rsp_protocol, ERROR_SERVICE_NOT_FOUND, "method not found");
+    rsp_protocol->SetTinyPBError(ERROR_SERVICE_NOT_FOUND, "method not found");
     Reply(rsp_protocol, connection);
     return;
   }
@@ -61,7 +61,7 @@ void RpcDispatcher::Dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::
   google::protobuf::Message* req_msg = service->GetRequestPrototype(method).New();
   if (!req_msg->ParseFromString(req_protocol->m_pb_data_)) {
     LOG_ERROR("%s | deserilize error", req_protocol->m_msg_id_.c_str(), method_name.c_str(), service_name.c_str());
-    SetTinyPBError(rsp_protocol, ERROR_FAILED_DESERIALIZE, "deserilize error");
+    rsp_protocol->SetTinyPBError(ERROR_FAILED_DESERIALIZE, "deserilize error");
     Reply(rsp_protocol, connection);
     DELETE_RESOURCE(req_msg);
     return;
@@ -80,11 +80,11 @@ void RpcDispatcher::Dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::
   RpcClosure* closure = new RpcClosure([req_msg, rsp_msg, req_protocol, rsp_protocol, connection, rpc_controller, this]() mutable {
     if (!rsp_msg->SerializeToString(&(rsp_protocol->m_pb_data_))) {
       LOG_ERROR("%s | serilize error, origin message [%s]", req_protocol->m_msg_id_.c_str(), rsp_msg->ShortDebugString().c_str());
-      SetTinyPBError(rsp_protocol, ERROR_FAILED_SERIALIZE, "serilize error");
+      rsp_protocol->SetTinyPBError(ERROR_FAILED_SERIALIZE, "serilize error");
     } 
     else if (rpc_controller->GetErrorCode() != 0){
       LOG_ERROR("%s | run error [%s]", req_protocol->m_msg_id_.c_str(), rpc_controller->GetErrorInfo());
-      SetTinyPBError(rsp_protocol, rpc_controller->GetErrorCode(), rpc_controller->GetErrorInfo());
+      rsp_protocol->SetTinyPBError(rpc_controller->GetErrorCode(), rpc_controller->GetErrorInfo());
     }
     else {
       rsp_protocol->m_err_code_ = 0;
@@ -96,6 +96,38 @@ void RpcDispatcher::Dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::
   });
   // 调用业务处理方法，本质上就是输入一个 request 对象，然后获得一个 response 对象
   service->CallMethod(method, rpc_controller, req_msg, rsp_msg, closure);
+}
+
+void RpcDispatcher::CallHttpServlet(AbstractProtocol::s_ptr request, AbstractProtocol::s_ptr response, TcpConnection* connection){
+  // 构造请求、响应信息
+  std::shared_ptr<HttpRequest> req_protocol = std::dynamic_pointer_cast<HttpRequest>(request);
+  std::shared_ptr<HttpResponse> rsp_protocol = std::dynamic_pointer_cast<HttpResponse>(response);
+
+  LOG_INFO("begin to dispatch client http request, msgno = %s", request->m_msg_id_);
+
+  std::string url_path = req_protocol->m_request_path_;
+  if (!url_path.empty()) {
+    auto it = m_servlets_map_.find(url_path);
+    if (it == m_servlets_map_.end()) {
+      LOG_ERROR("404, url path{%s}, msgno= %s", url_path, request->m_msg_id_);
+      NotFoundHttpServlet servlet;
+      servlet.SetCommParam(req_protocol, rsp_protocol);
+      servlet.Handle(req_protocol, rsp_protocol);
+    } else {
+      it->second->SetCommParam(req_protocol, rsp_protocol);
+      it->second->Handle(req_protocol, rsp_protocol);
+    }
+  }
+  Reply(rsp_protocol, connection);
+}
+
+void RpcDispatcher::Dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::s_ptr response, TcpConnection* connection) {
+  // 依据协议进行不同的服务分发
+  if(request->protocol_ == ProtocalType::TINYPB){
+    CallTinyPBService(request, response, connection);
+  }else{
+    CallHttpServlet(request, response, connection);
+  }
 }
 
 bool RpcDispatcher::ParseServiceFullName(const std::string& full_name, std::string& service_name, std::string& method_name) {
@@ -125,12 +157,15 @@ void RpcDispatcher::Reply(AbstractProtocol::s_ptr response, TcpConnection* conne
 void RpcDispatcher::RegisterService(service_s_ptr service) {
   std::string service_name = service->GetDescriptor()->full_name();
   m_service_map_[service_name] = service;
-
 }
 
-void RpcDispatcher::SetTinyPBError(std::shared_ptr<TinyPBProtocol> msg, int32_t err_code, const std::string err_info) {
-  msg->m_err_code_ = err_code;
-  msg->m_err_info_ = err_info;
-  msg->m_err_info_len_ = err_info.length();
+void RpcDispatcher::RegisterServlet(const std::string& path, HttpServlet::ptr servlet){
+  auto it = m_service_map_.find(path);
+  if (it == m_service_map_.end()) {
+    LOG_DEBUG("register servlet success to path {%s}", path);
+    m_servlets_map_[path] = servlet;
+  } else {
+    LOG_DEBUG("failed to register, beacuse path {%s} has already register sertlet", path);
+  }
 }
 }

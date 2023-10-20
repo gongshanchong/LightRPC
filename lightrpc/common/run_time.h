@@ -16,7 +16,6 @@ class RunTime {
   // 当前线程处理的请求的 msgid
   std::string m_msgid_;
   std::string m_method_name_;
-  RpcInterface* m_rpc_interface_ {NULL};
 };
 }
 #endif

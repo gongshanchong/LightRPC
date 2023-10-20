@@ -6,6 +6,7 @@ namespace lightrpc {
     void HttpCoder::Encode(std::vector<AbstractProtocol::s_ptr>& messages, TcpBuffer::s_ptr out_buffer){
         for (auto &i : messages) {
             std::shared_ptr<HttpResponse> response = std::dynamic_pointer_cast<HttpResponse>(i);
+            response->protocol_ = ProtocalType::HTTP;
 
             std::stringstream ss;
             ss << response->m_response_version_ << " " << response->m_response_code_ << " "
@@ -13,7 +14,7 @@ namespace lightrpc {
                 << "\r\n" << response->m_response_body_;
             std::string http_res = ss.str();
             LOG_DEBUG("msg_id = %s", response->m_msg_id_.c_str());
-    
+            // 将响应写入写缓冲区
             out_buffer->WriteToBuffer(http_res.c_str(), http_res.length());
             LOG_DEBUG("succ encode and write http response [%s] to buffer, writeindex = %d", response->m_msg_id_.c_str(), out_buffer->WriteIndex());
         }
@@ -37,7 +38,8 @@ namespace lightrpc {
             bool is_parse_request_line = false;
             bool is_parse_request_header = false;
             bool is_parse_request_content = false;
-            std::shared_ptr<HttpRequest> request = std::make_shared<HttpRequest>(); 
+            std::shared_ptr<HttpRequest> request = std::make_shared<HttpRequest>();
+            request->protocol_ = ProtocalType::HTTP;
             if (!request) {
                 LOG_ERROR("not httprequest type");
                 return;

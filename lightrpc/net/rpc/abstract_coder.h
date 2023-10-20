@@ -7,7 +7,6 @@
 
 namespace lightrpc {
 
-
 class AbstractCoder {
  public:
   // 将 message 对象转化为字节流，写入到 buffer

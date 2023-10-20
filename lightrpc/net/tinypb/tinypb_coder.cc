@@ -14,6 +14,7 @@ void TinyPBCoder::Encode(std::vector<AbstractProtocol::s_ptr> &messages,
   for (auto &i : messages) {
     std::shared_ptr<TinyPBProtocol> msg =
         std::dynamic_pointer_cast<TinyPBProtocol>(i);
+    msg->protocol_ = ProtocalType::TINYPB;
     int len = 0;
     const char *buf = EncodeTinyPB(msg, len);
     if (buf != NULL && len != 0) {
@@ -71,6 +72,7 @@ void TinyPBCoder::Decode(std::vector<AbstractProtocol::s_ptr> &out_messages,
       buffer->MoveReadIndex(end_index - start_index + 1);
       std::shared_ptr<TinyPBProtocol> message =
           std::make_shared<TinyPBProtocol>();
+      message->protocol_ = ProtocalType::TINYPB;
       message->m_pk_len_ = pk_len;
       // 获取msg_id_len在buffer中的索引，并获取msg_id_len
       int msg_id_len_index =
