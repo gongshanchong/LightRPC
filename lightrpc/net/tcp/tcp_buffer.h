@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <string>
 
 namespace lightrpc {
 
@@ -11,6 +12,8 @@ class TcpBuffer {
   typedef std::shared_ptr<TcpBuffer> s_ptr;
 
   TcpBuffer(int size);
+
+  std::string GetBufferString();
 
   // 返回可读字节数
   int ReadAble();
@@ -25,6 +28,7 @@ class TcpBuffer {
   void WriteToBuffer(const char* buf, int size);
 
   void ReadFromBuffer(std::vector<char>& re, int size);
+
 
   void ResizeBuffer(int new_size);
 
@@ -41,7 +45,7 @@ class TcpBuffer {
 
  public:
   // 在buffer上维护读写索引，每次写都判断是否需要扩容，每次读都将读后的内容删除
-  std::vector<char> m_buffer;
+  std::vector<char> m_buffer_;
 };
 }
 #endif

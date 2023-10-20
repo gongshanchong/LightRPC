@@ -5,7 +5,7 @@ namespace lightrpc {
     // 将 message 对象转化为字节流，写入到 buffer
     void HttpCoder::Encode(std::vector<AbstractProtocol::s_ptr>& messages, TcpBuffer::s_ptr out_buffer){
         for (auto &i : messages) {
-            std::shared_ptr<HttpResponse> response =std::dynamic_pointer_cast<HttpResponse>(i);
+            std::shared_ptr<HttpResponse> response = std::dynamic_pointer_cast<HttpResponse>(i);
 
             std::stringstream ss;
             ss << response->m_response_version_ << " " << response->m_response_code_ << " "
@@ -22,26 +22,26 @@ namespace lightrpc {
     // 将 buffer 里面的字节流转换为 message 对象
     void HttpCoder::Decode(std::vector<AbstractProtocol::s_ptr>& out_messages, TcpBuffer::s_ptr buffer){
         std::string strs = "";
-        if (!buf || !data) {
+        if (!buffer || !out_messages) {
             LOG_ERROR("decode error! buf or data nullptr");
             return;
         }
-        std::shared_ptr<HttpRequest> request = std::make_shared<HttpRequest>(); 
-        if (!request) {
-            LOG_ERROR("not httprequest type");
-            return;
-        }
-        
-        strs = buf->GetBufferString();
-        bool is_parse_request_line = false;
-        bool is_parse_request_header = false;
-        bool is_parse_request_content = false;
-        int read_size = 0;
-        std::string tmp(strs);
-        int len = tmp.length();
-        LOG_DEBUG("pending to parse str: %s, total size = %d", tmp, len);
         
         while (1) {
+            std::string strs = buffer->GetBufferString();
+            // 记录已读的长度
+            int read_size = 0;
+            std::string tmp(strs);
+            bool parse_success = false;
+            bool is_parse_request_line = false;
+            bool is_parse_request_header = false;
+            bool is_parse_request_content = false;
+            std::shared_ptr<HttpRequest> request = std::make_shared<HttpRequest>(); 
+            if (!request) {
+                LOG_ERROR("not httprequest type");
+                return;
+            }
+
             // 解析请求行
             if (!is_parse_request_line) {
                 size_t i = tmp.find(g_CRLF);
@@ -95,12 +95,13 @@ namespace lightrpc {
             }
             if (is_parse_request_line && is_parse_request_header && is_parse_request_header) {
                 LOG_DEBUG("parse http request success, read size is %d bytes", read_size);
-                buf->recycleRead(read_size);
-                break;
+                buffer->MoveReadIndex(read_size);
+                // 生成个msg_id，便于跟踪
+                request->msg_id = GenMsgID();
+                out_messages.push_back(request);
+                continue;
             }
         }
-        
-        data = request;
     }
 
     // 获取协议类型
@@ -109,7 +110,7 @@ namespace lightrpc {
     }
 
     // 解析http请求
-    bool HttpCoder::ParseHttpRequestLine(HttpRequest* requset, const std::string& tmp){
+    bool HttpCoder::ParseHttpRequestLine(std::shared_ptr<HttpRequest> requset, const std::string& tmp){
         size_t s1 = tmp.find_first_of(" ");
         size_t s2 = tmp.find_last_of(" ");
 
@@ -174,7 +175,7 @@ namespace lightrpc {
         return true;
     }
 
-    bool HttpCoder::ParseHttpRequestHeader(HttpRequest* requset, const std::string& tmp){
+    bool HttpCoder::ParseHttpRequestHeader(std::shared_ptr<HttpRequest> requset, const std::string& tmp){
         if (tmp.empty() || tmp.length() < 4 || tmp == "\r\n\r\n") {
             return true;
         }
@@ -182,7 +183,7 @@ namespace lightrpc {
         return true;
     }
 
-    bool HttpCoder::ParseHttpRequestContent(HttpRequest* requset, const std::string& tmp){
+    bool HttpCoder::ParseHttpRequestContent(std::shared_ptr<HttpRequest> requset, const std::string& tmp){
         if (tmp.empty()) {
             return true;
         }

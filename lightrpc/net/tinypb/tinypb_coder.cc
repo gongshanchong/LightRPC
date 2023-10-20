@@ -171,12 +171,12 @@ const char *TinyPBCoder::EncodeTinyPB(std::shared_ptr<TinyPBProtocol> message,
   int32_t pk_len_net = htonl(pk_len);
   memcpy(tmp, &pk_len_net, sizeof(pk_len_net));
   tmp += sizeof(pk_len_net);
-  // 报文内容长度
+  // 报文id长度
   int msg_id_len = message->m_msg_id_.length();
   int32_t msg_id_len_net = htonl(msg_id_len);
   memcpy(tmp, &msg_id_len_net, sizeof(msg_id_len_net));
   tmp += sizeof(msg_id_len_net);
-  // 报文内容
+  // 报文id
   if (!message->m_msg_id_.empty()) {
     memcpy(tmp, &(message->m_msg_id_[0]), msg_id_len);
     tmp += msg_id_len;
