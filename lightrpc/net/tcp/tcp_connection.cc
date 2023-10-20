@@ -42,12 +42,12 @@ void TcpConnection::OnRead() {
   bool is_close = false;
   while(!is_read_all) {
     if (m_in_buffer_->WriteAble() == 0) {
-      m_in_buffer_->ResizeBuffer(2 * m_in_buffer_->m_buffer.size());
+      m_in_buffer_->ResizeBuffer(2 * m_in_buffer_->m_buffer_.size());
     }
     int read_count = m_in_buffer_->WriteAble();
     int write_index = m_in_buffer_->WriteIndex(); 
     // 从socket中读取数据
-    int rt = read(m_fd_, &(m_in_buffer_->m_buffer[write_index]), read_count);
+    int rt = read(m_fd_, &(m_in_buffer_->m_buffer_[write_index]), read_count);
     LOG_DEBUG("success read %d bytes from addr[%s], client fd[%d]", rt, m_peer_addr_->ToString().c_str(), m_fd_);
     // 依据读取的数据大小进行判断
     if (rt > 0) {
@@ -143,7 +143,7 @@ void TcpConnection::OnWrite() {
     int write_size = m_out_buffer_->ReadAble();
     int read_index = m_out_buffer_->ReadIndex();
     // 向socket中写数据
-    int rt = write(m_fd_, &(m_out_buffer_->m_buffer[read_index]), write_size);
+    int rt = write(m_fd_, &(m_out_buffer_->m_buffer_[read_index]), write_size);
     // 依据写的数据大小进行判断
     if (rt >= write_size) {
       LOG_DEBUG("no data need to send to client [%s]", m_peer_addr_->ToString().c_str());
