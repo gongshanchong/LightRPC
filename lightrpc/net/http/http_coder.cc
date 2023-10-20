@@ -4,25 +4,103 @@
 namespace lightrpc {
     // 将 message 对象转化为字节流，写入到 buffer
     void HttpCoder::Encode(std::vector<AbstractProtocol::s_ptr>& messages, TcpBuffer::s_ptr out_buffer){
-        HttpResponse* response = dynamic_cast<HttpResponse*>(messages);
-        response->encode_succ = false;
+        for (auto &i : messages) {
+            std::shared_ptr<HttpResponse> response =std::dynamic_pointer_cast<HttpResponse>(i);
 
-        std::stringstream ss;
-        ss << response->m_response_version << " " << response->m_response_code << " "
-            << response->m_response_info << "\r\n" << response->m_response_header.toHttpString()
-            << "\r\n" << response->m_response_body;
-        std::string http_res = ss.str();
-        DebugLog << "encode http response is:  " << http_res;  
-
-        buf->writeToBuffer(http_res.c_str(), http_res.length());
-        DebugLog << "succ encode and write to buffer, writeindex=" << buf->writeIndex();
-        response->encode_succ = true;
-        DebugLog << "test encode end";
+            std::stringstream ss;
+            ss << response->m_response_version_ << " " << response->m_response_code_ << " "
+                << response->m_response_info_ << "\r\n" << response->m_response_header_.ToHttpString()
+                << "\r\n" << response->m_response_body_;
+            std::string http_res = ss.str();
+            LOG_DEBUG("msg_id = %s", message->m_msg_id.c_str());
+    
+            buf->WriteToBuffer(http_res.c_str(), http_res.length());
+            LOG_DEBUG("succ encode and write http response [%s] to buffer, writeindex = %d", message->m_msg_id.c_str(), buf->writeIndex());
+        }
     }
 
     // 将 buffer 里面的字节流转换为 message 对象
     void HttpCoder::Decode(std::vector<AbstractProtocol::s_ptr>& out_messages, TcpBuffer::s_ptr buffer){
-
+        std::string strs = "";
+        if (!buf || !data) {
+            LOG_ERROR("decode error! buf or data nullptr");
+            return;
+        }
+        std::shared_ptr<HttpRequest> request = std::make_shared<HttpRequest>(); 
+        if (!request) {
+            LOG_ERROR("not httprequest type");
+            return;
+        }
+        
+        strs = buf->GetBufferString();
+        bool is_parse_request_line = false;
+        bool is_parse_request_header = false;
+        bool is_parse_request_content = false;
+        int read_size = 0;
+        std::string tmp(strs);
+        int len = tmp.length();
+        LOG_DEBUG("pending to parse str: %s, total size = %d", tmp, len);
+        
+        while (1) {
+            // 解析请求行
+            if (!is_parse_request_line) {
+                size_t i = tmp.find(g_CRLF);
+                if (i == tmp.npos) {
+                    LOG_DEBUG("not found CRLF in buffer");
+                    return;
+                }
+                if (i == tmp.length() - 2) {
+                    LOG_DEBUG("need to read more data");
+                    break;
+                }
+                is_parse_request_line = ParseHttpRequestLine(request, tmp.substr(0, i));
+                if (!is_parse_request_line) {
+                    return;
+                }    
+                tmp = tmp.substr(i + 2, len - 2 - i);
+                len = tmp.length();
+                read_size = read_size + i + 2;
+            }
+            // 解析请求头
+            if (!is_parse_request_header) {
+                size_t j  = tmp.find(g_CRLF_DOUBLE);
+                if (j == tmp.npos) {
+                    LOG_DEBUG("not found CRLF CRLF in buffer");
+                    return;
+                }
+                is_parse_request_header = ParseHttpRequestHeader(request, tmp.substr(0, j));
+                if (!is_parse_request_header) {
+                    return;
+                }
+                tmp = tmp.substr(j + 4, len - 4 - j);
+                len = tmp.length();
+                read_size = read_size + j + 4;
+            }
+            // 解析请求体
+            if (!is_parse_request_content) {
+                int content_len = std::atoi(request->m_requeset_header_.m_maps_["Content-Length"].c_str());
+                if ((int)strs.length() - read_size < content_len) {
+                    LOG_DEBUG("need to read more data");
+                    return;
+                }
+                if (request->m_request_method_ == POST && content_len != 0) {
+                    is_parse_request_content = ParseHttpRequestContent(request, tmp.substr(0, content_len));
+                    if (!is_parse_request_content) {
+                        return;
+                    }
+                    read_size = read_size + content_len;
+                  } else {
+                    is_parse_request_content = true;
+                  }
+            }
+            if (is_parse_request_line && is_parse_request_header && is_parse_request_header) {
+                LOG_DEBUG("parse http request success, read size is %d bytes", read_size);
+                buf->recycleRead(read_size);
+                break;
+            }
+        }
+        
+        data = request;
     }
 
     // 获取协议类型
