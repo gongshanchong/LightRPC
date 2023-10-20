@@ -91,7 +91,7 @@ private:
   TcpState m_state_;
   TcpConnectionType m_connection_type_ {TcpConnectionByServer};
 
-  // TinyPB协议编解码
+  // 协议编解码
   AbstractCoder* m_coder_ {NULL};
 
   // TinyPB协议的读写处理函数，回调函数

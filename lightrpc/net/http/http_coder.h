@@ -28,9 +28,9 @@ public:
 
 private:
     // 解析http请求
-    bool ParseHttpRequestLine(HttpRequest* requset, const std::string& tmp);
-    bool ParseHttpRequestHeader(HttpRequest* requset, const std::string& tmp);
-    bool ParseHttpRequestContent(HttpRequest* requset, const std::string& tmp);
+    bool ParseHttpRequestLine(std::shared_ptr<HttpRequest> requset, const std::string& tmp);
+    bool ParseHttpRequestHeader(std::shared_ptr<HttpRequest> requset, const std::string& tmp);
+    bool ParseHttpRequestContent(std::shared_ptr<HttpRequest> requset, const std::string& tmp);
 };
 
 } 
