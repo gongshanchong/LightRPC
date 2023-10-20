@@ -30,7 +30,7 @@ class TcpConnection {
   typedef std::shared_ptr<TcpConnection> s_ptr;
 
  public:
-  TcpConnection(EventLoop* event_loop, int fd, int buffer_size, NetAddr::s_ptr peer_addr, NetAddr::s_ptr local_addr, TcpConnectionType type = TcpConnectionByServer);
+  TcpConnection(EventLoop* event_loop, int fd, int buffer_size, NetAddr::s_ptr peer_addr, NetAddr::s_ptr local_addr, std::string protocol, TcpConnectionType type = TcpConnectionByServer);
 
   ~TcpConnection();
 
@@ -92,6 +92,7 @@ private:
   TcpConnectionType m_connection_type_ {TcpConnectionByServer};
 
   // 协议编解码
+  std::string protocol_;              // 通信协议
   AbstractCoder* m_coder_ {NULL};
 
   // TinyPB协议的读写处理函数，回调函数

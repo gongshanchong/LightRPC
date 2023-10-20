@@ -7,10 +7,6 @@
 
 namespace lightrpc {
 
-enum ProtocalType {
-  TinyPb_Protocal = 1,
-  Http_Protocal = 2
-};
 
 class AbstractCoder {
  public:
@@ -19,9 +15,6 @@ class AbstractCoder {
 
   // 将 buffer 里面的字节流转换为 message 对象
   virtual void Decode(std::vector<AbstractProtocol::s_ptr>& out_messages, TcpBuffer::s_ptr buffer) = 0;
-
-  // 获取协议类型
-  virtual ProtocalType GetProtocalType() = 0;
 
   virtual ~AbstractCoder() {}
 };

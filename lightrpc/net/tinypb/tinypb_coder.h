@@ -18,9 +18,6 @@ class TinyPBCoder : public AbstractCoder {
   // 将 buffer 里面的字节流转换为 message 对象
   void Decode(std::vector<AbstractProtocol::s_ptr>& out_messages, TcpBuffer::s_ptr buffer);
 
-  // 获取协议类型
-  ProtocalType GetProtocalType();
-
  private:
   const char* EncodeTinyPB(std::shared_ptr<TinyPBProtocol> message, int& len);
 

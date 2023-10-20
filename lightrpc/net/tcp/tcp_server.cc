@@ -6,7 +6,7 @@
 
 namespace lightrpc {
 
-TcpServer::TcpServer(NetAddr::s_ptr local_addr) : m_local_addr_(local_addr) {
+TcpServer::TcpServer(NetAddr::s_ptr local_addr, std::string protocol, int timeout) : m_local_addr_(local_addr), protocol_(protocol), timeout_(timeout){
   Init(); 
   LOG_INFO("rocket TcpServer listen sucess on [%s]", m_local_addr_->ToString().c_str());
 }
@@ -38,7 +38,7 @@ void TcpServer::Init() {
 
   // 主loop添加服务器端的时间事件监听，定时去除已经关闭的连接
   // 重复，间隔为5秒
-  m_clear_client_timer_event_ = std::make_shared<TimerEvent>(5000, true, std::bind(&TcpServer::ClearClientTimerFunc, this));
+  m_clear_client_timer_event_ = std::make_shared<TimerEvent>(timeout_, true, std::bind(&TcpServer::ClearClientTimerFunc, this));
 	m_main_event_loop_->AddTimerEvent(m_clear_client_timer_event_);
 }
 
@@ -52,7 +52,7 @@ void TcpServer::OnAccept() {
   // 把 cleintfd 添加到任意 IO 线程里面，对线程池的线程进行轮流添加
   IOThread* io_thread = m_io_thread_pool_->GetIOThread();
   // 将客服端放入到线程中的loop中进行监听
-  TcpConnection::s_ptr connetion = std::make_shared<TcpConnection>(io_thread->GetEventLoop(), client_fd, 128, peer_addr, m_local_addr_);
+  TcpConnection::s_ptr connetion = std::make_shared<TcpConnection>(io_thread->GetEventLoop(), client_fd, 128, peer_addr, m_local_addr_, protocol_);
   connetion->SetState(Connected);
   m_client_.insert(connetion);
 

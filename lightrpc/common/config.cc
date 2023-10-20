@@ -87,6 +87,9 @@ Config::Config(const char* xmlfile) {
             RpcStub stub;
             stub.name_ = std::string(node->FirstChildElement("name")->GetText());
             stub.timeout_ = std::atoi(node->FirstChildElement("timeout")->GetText());
+            std::string protocal = std::string(node->FirstChildElement("protocal")->GetText());
+            std::transform(protocal.begin(), protocal.end(), protocal.begin(), toupper);
+            stub.protocal_ = protocal;
 
             std::string ip = std::string(node->FirstChildElement("ip")->GetText());
             uint16_t port = std::atoi(node->FirstChildElement("port")->GetText());

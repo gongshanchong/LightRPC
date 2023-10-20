@@ -105,11 +105,6 @@ namespace lightrpc {
         }
     }
 
-    // 获取协议类型
-    ProtocalType HttpCoder::GetProtocalType(){
-        return Http_Protocal;
-    }
-
     // 解析http请求
     bool HttpCoder::ParseHttpRequestLine(std::shared_ptr<HttpRequest> requset, const std::string& tmp){
         size_t s1 = tmp.find_first_of(" ");

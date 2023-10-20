@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <algorithm>
 #include <tinyxml/tinyxml.h>
 #include "../net/tcp/net_addr.h"
 
@@ -12,6 +13,7 @@ namespace lightrpc {
 struct RpcStub {
   std::string name_;
   NetAddr::s_ptr addr_;
+  std::string protocal_;
   int timeout_ {2000};
 };
 

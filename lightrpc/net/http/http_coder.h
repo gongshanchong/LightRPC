@@ -24,9 +24,6 @@ public:
     // 将 buffer 里面的字节流转换为 message 对象
     void Decode(std::vector<AbstractProtocol::s_ptr>& out_messages, TcpBuffer::s_ptr buffer);
 
-    // 获取协议类型
-    ProtocalType GetProtocalType();
-
 private:
     // 解析http请求
     bool ParseHttpRequestLine(std::shared_ptr<HttpRequest> requset, const std::string& tmp);

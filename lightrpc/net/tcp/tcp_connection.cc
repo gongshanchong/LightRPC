@@ -4,19 +4,24 @@
 #include "tcp_connection.h"
 #include "../rpc/string_coder.h"
 #include "../tinypb/tinypb_coder.h"
+#include "../http/http_coder.h"
 
 namespace lightrpc {
 
-TcpConnection::TcpConnection(EventLoop* event_loop, int fd, int buffer_size, NetAddr::s_ptr peer_addr, NetAddr::s_ptr local_addr, TcpConnectionType type /*= TcpConnectionByServer*/)
-    : m_event_loop_(event_loop), m_local_addr_(local_addr), m_peer_addr_(peer_addr), m_state_(NotConnected), m_fd_(fd), m_connection_type_(type) {
+TcpConnection::TcpConnection(EventLoop* event_loop, int fd, int buffer_size, NetAddr::s_ptr peer_addr, NetAddr::s_ptr local_addr, std::string protocol, TcpConnectionType type /*= TcpConnectionByServer*/)
+    : m_event_loop_(event_loop), m_fd_(fd), m_peer_addr_(peer_addr), m_local_addr_(local_addr), protocol_(protocol), m_connection_type_(type) , m_state_(NotConnected){
   // 缓冲区初始化
   m_in_buffer_ = std::make_shared<TcpBuffer>(buffer_size);
   m_out_buffer_ = std::make_shared<TcpBuffer>(buffer_size);
   // 从事件池中获取事件，并设置为非阻塞
   m_fd_event_ = FdEventPool::GetFdEventPool()->GetFdEvent(fd);
   m_fd_event_->SetNonBlock();
-  // TinyPB协议的编解码
-  m_coder_ = new TinyPBCoder();
+  // 协议的编解码
+  if(protocol_ == "HTTP"){
+    m_coder_ = new HttpCoder();
+  }else{
+    m_coder_ = new TinyPBCoder();
+  }
   // 判断连接的类型
   if (m_connection_type_ == TcpConnectionByServer) {
     ListenRead();

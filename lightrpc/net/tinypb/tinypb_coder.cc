@@ -33,7 +33,7 @@ void TinyPBCoder::Decode(std::vector<AbstractProtocol::s_ptr> &out_messages,
     // 遍历 buffer，找到
     // PB_START，找到之后，解析出整包的长度。然后得到结束符的位置，判断是否为
     // PB_END
-    std::vector<char> tmp = buffer->m_buffer;
+    std::vector<char> tmp = buffer->m_buffer_;
     int start_index = buffer->ReadIndex();
     int end_index = -1;
 
@@ -147,9 +147,6 @@ void TinyPBCoder::Decode(std::vector<AbstractProtocol::s_ptr> &out_messages,
     }
   }
 }
-
-// 获取协议类型
-ProtocalType TinyPBCoder::GetProtocalType() { return TinyPb_Protocal; }
 
 const char *TinyPBCoder::EncodeTinyPB(std::shared_ptr<TinyPBProtocol> message,
                                       int &len) {

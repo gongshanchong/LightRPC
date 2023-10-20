@@ -14,8 +14,8 @@
 #include "../lightrpc/common/log.h"
 #include "../lightrpc/net/tcp/tcp_client.h"
 #include "../lightrpc/net/tcp/net_addr.h"
-#include "../lightrpc/net/tinypb/string_coder.h"
-#include "../lightrpc/net/tinypb/abstract_protocol.h"
+#include "../lightrpc/net/rpc/string_coder.h"
+#include "../lightrpc/net/rpc/abstract_protocol.h"
 #include "../lightrpc/net/tinypb/tinypb_coder.h"
 #include "../lightrpc/net/tinypb/tinypb_protocol.h"
 #include "../lightrpc/net/tcp/net_addr.h"
@@ -29,7 +29,7 @@
 
 void test_tcp_client() {
   lightrpc::IPNetAddr::s_ptr addr = std::make_shared<lightrpc::IPNetAddr>("127.0.0.1", 12345);
-  lightrpc::TcpClient client(addr);
+  lightrpc::TcpClient client(addr, "HTTP");
   client.Connect([addr, &client]() {
     LOG_DEBUG("conenct to [%s] success", addr->ToString().c_str());
     std::shared_ptr<lightrpc::TinyPBProtocol> message = std::make_shared<lightrpc::TinyPBProtocol>();
@@ -70,7 +70,7 @@ void test_rpc_channel() {
   NEWMESSAGE(makeOrderRequest, request);
   NEWMESSAGE(makeOrderResponse, response);
   // 获取服务端通信
-  std::shared_ptr<lightrpc::RpcChannel> channel = std::make_shared<lightrpc::RpcChannel>(lightrpc::RpcChannel::FindAddr("127.0.0.1:12345"));
+  std::shared_ptr<lightrpc::RpcChannel> channel = std::make_shared<lightrpc::RpcChannel>(lightrpc::RpcChannel::FindAddr("127.0.0.1:12345"), "TINYPB");
   std::shared_ptr<Order_Stub> stub = std::make_shared<Order_Stub>(channel.get());
   // 请求与响应
   request->set_price(100);

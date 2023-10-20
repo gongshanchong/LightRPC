@@ -2,7 +2,7 @@
 
 namespace lightrpc {
 
-RpcChannel::RpcChannel(NetAddr::s_ptr peer_addr) : m_peer_addr_(peer_addr) {
+RpcChannel::RpcChannel(NetAddr::s_ptr peer_addr, std::string protocol) : m_peer_addr_(peer_addr), protocol_(protocol){
   LOG_INFO("RpcChannel");
 }
 
@@ -62,7 +62,7 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
     CallBack();
     return;
   }
-  m_client_ = std::make_shared<TcpClient>(m_peer_addr_);
+  m_client_ = std::make_shared<TcpClient>(m_peer_addr_, protocol_);
   // 获取msg_id
   if (method_controller->GetMsgId().empty()) {
     // 先从 runtime 里面取, 取不到再生成一个

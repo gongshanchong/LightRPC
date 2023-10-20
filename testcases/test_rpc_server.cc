@@ -14,8 +14,8 @@
 #include "../lightrpc/common/log.h"
 #include "../lightrpc/net/tcp/tcp_client.h"
 #include "../lightrpc/net/tcp/net_addr.h"
-#include "../lightrpc/net/tinypb/string_coder.h"
-#include "../lightrpc/net/tinypb/abstract_protocol.h"
+#include "../lightrpc/net/rpc/string_coder.h"
+#include "../lightrpc/net/rpc/abstract_protocol.h"
 #include "../lightrpc/net/tinypb/tinypb_coder.h"
 #include "../lightrpc/net/tinypb/tinypb_protocol.h"
 #include "../lightrpc/net/tcp/net_addr.h"
@@ -40,9 +40,9 @@ int main(int argc, char* argv[]) {
   std::shared_ptr<OrderImpl> service = std::make_shared<OrderImpl>();
   lightrpc::RpcDispatcher::GetRpcDispatcher()->RegisterService(service);
 
-  lightrpc::IPNetAddr::s_ptr addr = std::make_shared<lightrpc::IPNetAddr>("127.0.0.1", lightrpc::Config::GetGlobalConfig()->m_port_);
-
-  lightrpc::TcpServer tcp_server(addr);
+  lightrpc::TcpServer tcp_server(lightrpc::Config::GetGlobalConfig()->m_rpc_stubs_["default"].addr_, 
+  lightrpc::Config::GetGlobalConfig()->m_rpc_stubs_["default"].protocal_, 
+  lightrpc::Config::GetGlobalConfig()->m_rpc_stubs_["default"].timeout_);
 
   tcp_server.Start();
 
