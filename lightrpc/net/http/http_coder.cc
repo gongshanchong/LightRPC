@@ -12,17 +12,17 @@ namespace lightrpc {
                 << response->m_response_info_ << "\r\n" << response->m_response_header_.ToHttpString()
                 << "\r\n" << response->m_response_body_;
             std::string http_res = ss.str();
-            LOG_DEBUG("msg_id = %s", message->m_msg_id.c_str());
+            LOG_DEBUG("msg_id = %s", response->m_msg_id_.c_str());
     
-            buf->WriteToBuffer(http_res.c_str(), http_res.length());
-            LOG_DEBUG("succ encode and write http response [%s] to buffer, writeindex = %d", message->m_msg_id.c_str(), buf->writeIndex());
+            out_buffer->WriteToBuffer(http_res.c_str(), http_res.length());
+            LOG_DEBUG("succ encode and write http response [%s] to buffer, writeindex = %d", response->m_msg_id_.c_str(), out_buffer->WriteIndex());
         }
     }
 
     // 将 buffer 里面的字节流转换为 message 对象
     void HttpCoder::Decode(std::vector<AbstractProtocol::s_ptr>& out_messages, TcpBuffer::s_ptr buffer){
         std::string strs = "";
-        if (!buffer || !out_messages) {
+        if (!buffer || out_messages.empty()) {
             LOG_ERROR("decode error! buf or data nullptr");
             return;
         }
@@ -32,6 +32,7 @@ namespace lightrpc {
             // 记录已读的长度
             int read_size = 0;
             std::string tmp(strs);
+            int len = tmp.length();
             bool parse_success = false;
             bool is_parse_request_line = false;
             bool is_parse_request_header = false;
@@ -97,7 +98,7 @@ namespace lightrpc {
                 LOG_DEBUG("parse http request success, read size is %d bytes", read_size);
                 buffer->MoveReadIndex(read_size);
                 // 生成个msg_id，便于跟踪
-                request->msg_id = GenMsgID();
+                request->m_msg_id_ = MsgIDUtil::GenMsgID();
                 out_messages.push_back(request);
                 continue;
             }

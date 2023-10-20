@@ -7,6 +7,7 @@
 #include "../rpc/abstract_protocol.h"
 #include "../rpc/abstract_coder.h"
 #include "../../common/log.h"
+#include "../../common/msg_id_util.h"
 #include "http_protocol.h"
 
 namespace lightrpc {
