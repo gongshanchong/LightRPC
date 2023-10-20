@@ -15,7 +15,7 @@
 #include "rpc_closure.h"
 #include "../tcp/net_addr.h"
 #include "../../common/run_time.h"
-#include "../tinypb/abstract_protocol.h"
+#include "abstract_protocol.h"
 #include "../tinypb/tinypb_protocol.h"
 
 namespace lightrpc {

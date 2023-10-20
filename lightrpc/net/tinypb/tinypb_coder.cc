@@ -1,33 +1,38 @@
-#include <vector>
-#include <string.h>
-#include <arpa/inet.h>
 #include "tinypb_coder.h"
-#include "tinypb_protocol.h"
-#include "../../common/util.h"
 #include "../../common/log.h"
+#include "../../common/util.h"
+#include "tinypb_protocol.h"
+#include <arpa/inet.h>
+#include <string.h>
+#include <vector>
 
 namespace lightrpc {
 
 // 将 message 对象转化为字节流，写入到 buffer
-void TinyPBCoder::Encode(std::vector<AbstractProtocol::s_ptr>& messages, TcpBuffer::s_ptr out_buffer) {
+void TinyPBCoder::Encode(std::vector<AbstractProtocol::s_ptr> &messages,
+                         TcpBuffer::s_ptr out_buffer) {
   for (auto &i : messages) {
-    std::shared_ptr<TinyPBProtocol> msg = std::dynamic_pointer_cast<TinyPBProtocol>(i);
+    std::shared_ptr<TinyPBProtocol> msg =
+        std::dynamic_pointer_cast<TinyPBProtocol>(i);
     int len = 0;
-    const char* buf = EncodeTinyPB(msg, len);
+    const char *buf = EncodeTinyPB(msg, len);
     if (buf != NULL && len != 0) {
       out_buffer->WriteToBuffer(buf, len);
     }
     if (buf) {
-      free((void*)buf);
+      free((void *)buf);
       buf = NULL;
     }
   }
 }
 
 // 将 buffer 里面的字节流转换为 message 对象
-void TinyPBCoder::Decode(std::vector<AbstractProtocol::s_ptr>& out_messages, TcpBuffer::s_ptr buffer) {
-  while(1) {
-    // 遍历 buffer，找到 PB_START，找到之后，解析出整包的长度。然后得到结束符的位置，判断是否为 PB_END
+void TinyPBCoder::Decode(std::vector<AbstractProtocol::s_ptr> &out_messages,
+                         TcpBuffer::s_ptr buffer) {
+  while (1) {
+    // 遍历 buffer，找到
+    // PB_START，找到之后，解析出整包的长度。然后得到结束符的位置，判断是否为
+    // PB_END
     std::vector<char> tmp = buffer->m_buffer;
     int start_index = buffer->ReadIndex();
     int end_index = -1;
@@ -37,9 +42,9 @@ void TinyPBCoder::Decode(std::vector<AbstractProtocol::s_ptr>& out_messages, Tcp
     int i = 0;
     for (i = start_index; i < buffer->WriteIndex(); ++i) {
       if (tmp[i] == TinyPBProtocol::PB_START_) {
-        // 读下去四个字节。由于是网络字节序，需要转为主机字节序  
+        // 读下去四个字节。由于是网络字节序，需要转为主机字节序
         if (i + 1 < buffer->WriteIndex()) {
-          pk_len = GetInt32FromNetByte(&tmp[i+1]);
+          pk_len = GetInt32FromNetByte(&tmp[i + 1]);
           LOG_DEBUG("get pk_len = %d", pk_len);
 
           // 结束符的索引
@@ -64,13 +69,16 @@ void TinyPBCoder::Decode(std::vector<AbstractProtocol::s_ptr>& out_messages, Tcp
     // 开始对buffer里面的内容进行解析
     if (parse_success_) {
       buffer->MoveReadIndex(end_index - start_index + 1);
-      std::shared_ptr<TinyPBProtocol> message = std::make_shared<TinyPBProtocol>(); 
+      std::shared_ptr<TinyPBProtocol> message =
+          std::make_shared<TinyPBProtocol>();
       message->m_pk_len_ = pk_len;
       // 获取msg_id_len在buffer中的索引，并获取msg_id_len
-      int msg_id_len_index = start_index + sizeof(char) + sizeof(message->m_pk_len_);
+      int msg_id_len_index =
+          start_index + sizeof(char) + sizeof(message->m_pk_len_);
       if (msg_id_len_index >= end_index) {
         message->parse_success_ = false;
-        LOG_ERROR("parse error, msg_id_len_index[%d] >= end_index[%d]", msg_id_len_index, end_index);
+        LOG_ERROR("parse error, msg_id_len_index[%d] >= end_index[%d]",
+                  msg_id_len_index, end_index);
         continue;
       }
       message->m_msg_id_len_ = GetInt32FromNetByte(&tmp[msg_id_len_index]);
@@ -85,21 +93,26 @@ void TinyPBCoder::Decode(std::vector<AbstractProtocol::s_ptr>& out_messages, Tcp
       int method_name_len_index = msg_id_index + message->m_msg_id_len_;
       if (method_name_len_index >= end_index) {
         message->parse_success_ = false;
-        LOG_ERROR("parse error, method_name_len_index[%d] >= end_index[%d]", method_name_len_index, end_index);
+        LOG_ERROR("parse error, method_name_len_index[%d] >= end_index[%d]",
+                  method_name_len_index, end_index);
         continue;
       }
-      message->m_method_name_len_ = GetInt32FromNetByte(&tmp[method_name_len_index]);
+      message->m_method_name_len_ =
+          GetInt32FromNetByte(&tmp[method_name_len_index]);
       // 获取method_name在buffer中的索引，并获取method_name
-      int method_name_index = method_name_len_index + sizeof(message->m_method_name_len_);
+      int method_name_index =
+          method_name_len_index + sizeof(message->m_method_name_len_);
       char method_name[512] = {0};
-      memcpy(&method_name[0], &tmp[method_name_index], message->m_method_name_len_);
+      memcpy(&method_name[0], &tmp[method_name_index],
+             message->m_method_name_len_);
       message->m_method_name_ = std::string(method_name);
       LOG_DEBUG("parse method_name=%s", message->m_method_name_.c_str());
       // 获取err_code在buffer中的索引，并获取err_code
       int err_code_index = method_name_index + message->m_method_name_len_;
       if (err_code_index >= end_index) {
         message->parse_success_ = false;
-        LOG_ERROR("parse error, err_code_index[%d] >= end_index[%d]", err_code_index, end_index);
+        LOG_ERROR("parse error, err_code_index[%d] >= end_index[%d]",
+                  err_code_index, end_index);
         continue;
       }
       message->m_err_code_ = GetInt32FromNetByte(&tmp[err_code_index]);
@@ -107,18 +120,23 @@ void TinyPBCoder::Decode(std::vector<AbstractProtocol::s_ptr>& out_messages, Tcp
       int error_info_len_index = err_code_index + sizeof(message->m_err_code_);
       if (error_info_len_index >= end_index) {
         message->parse_success_ = false;
-        LOG_ERROR("parse error, error_info_len_index[%d] >= end_index[%d]", error_info_len_index, end_index);
+        LOG_ERROR("parse error, error_info_len_index[%d] >= end_index[%d]",
+                  error_info_len_index, end_index);
         continue;
       }
-      message->m_err_info_len_ = GetInt32FromNetByte(&tmp[error_info_len_index]);
+      message->m_err_info_len_ =
+          GetInt32FromNetByte(&tmp[error_info_len_index]);
       // 获取err_info在buffer中的索引，并获取err_info
-      int err_info_index = error_info_len_index + sizeof(message->m_err_info_len_);
+      int err_info_index =
+          error_info_len_index + sizeof(message->m_err_info_len_);
       char error_info[512] = {0};
       memcpy(&error_info[0], &tmp[err_info_index], message->m_err_info_len_);
       message->m_err_info_ = std::string(error_info);
       LOG_DEBUG("parse error_info=%s", message->m_err_info_.c_str());
       // 获取pb_data_len，以及pd_data在buffer中的索引，并获取pd_data
-      int pb_data_len = message->m_pk_len_ - message->m_method_name_len_ - message->m_msg_id_len_ - message->m_err_info_len_ - 2 - 24;
+      int pb_data_len = message->m_pk_len_ - message->m_method_name_len_ -
+                        message->m_msg_id_len_ - message->m_err_info_len_ - 2 -
+                        24;
       int pd_data_index = err_info_index + message->m_err_info_len_;
       message->m_pb_data_ = std::string(&tmp[pd_data_index], pb_data_len);
 
@@ -130,16 +148,22 @@ void TinyPBCoder::Decode(std::vector<AbstractProtocol::s_ptr>& out_messages, Tcp
   }
 }
 
-const char* TinyPBCoder::EncodeTinyPB(std::shared_ptr<TinyPBProtocol> message, int& len) {
+// 获取协议类型
+ProtocalType TinyPBCoder::GetProtocalType() { return TinyPb_Protocal; }
+
+const char *TinyPBCoder::EncodeTinyPB(std::shared_ptr<TinyPBProtocol> message,
+                                      int &len) {
   if (message->m_msg_id_.empty()) {
     message->m_msg_id_ = "123456789";
   }
   LOG_DEBUG("msg_id = %s", message->m_msg_id_.c_str());
-  int pk_len = 2 + 24 + message->m_msg_id_.length() + message->m_method_name_.length() + message->m_err_info_.length() + message->m_pb_data_.length();
+  int pk_len = 2 + 24 + message->m_msg_id_.length() +
+               message->m_method_name_.length() +
+               message->m_err_info_.length() + message->m_pb_data_.length();
   LOG_DEBUG("pk_len = %d", pk_len);
 
-  char* buf = reinterpret_cast<char*>(malloc(pk_len));
-  char* tmp = buf;
+  char *buf = reinterpret_cast<char *>(malloc(pk_len));
+  char *tmp = buf;
   // 报文开始符
   *tmp = TinyPBProtocol::PB_START_;
   tmp++;
@@ -205,4 +229,4 @@ const char* TinyPBCoder::EncodeTinyPB(std::shared_ptr<TinyPBProtocol> message, i
 
   return buf;
 }
-}
+} // namespace lightrpc

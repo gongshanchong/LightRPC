@@ -2,7 +2,7 @@
 #define LIGHTRPC_NET_CODER_TINYPB_PROTOCOL_H 
 
 #include <string>
-#include "abstract_protocol.h"
+#include "../rpc/abstract_protocol.h"
 
 namespace lightrpc {
 // TinyPB 协议是基于 protobuf 的一种自定义协议，主要是加了一些必要的字段如 错误码、RPC 方法名、起始结束标志位等。
