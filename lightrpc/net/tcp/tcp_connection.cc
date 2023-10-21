@@ -9,7 +9,7 @@
 namespace lightrpc {
 
 TcpConnection::TcpConnection(EventLoop* event_loop, int fd, int buffer_size, NetAddr::s_ptr peer_addr, NetAddr::s_ptr local_addr, std::string protocol, TcpConnectionType type /*= TcpConnectionByServer*/)
-    : m_event_loop_(event_loop), m_fd_(fd), m_peer_addr_(peer_addr), m_local_addr_(local_addr), protocol_(protocol), m_connection_type_(type) , m_state_(NotConnected){
+    : m_event_loop_(event_loop), m_fd_(fd), m_peer_addr_(peer_addr), m_local_addr_(local_addr), m_connection_type_(type) , m_state_(NotConnected){
   // 缓冲区初始化
   m_in_buffer_ = std::make_shared<TcpBuffer>(buffer_size);
   m_out_buffer_ = std::make_shared<TcpBuffer>(buffer_size);
@@ -17,7 +17,7 @@ TcpConnection::TcpConnection(EventLoop* event_loop, int fd, int buffer_size, Net
   m_fd_event_ = FdEventPool::GetFdEventPool()->GetFdEvent(fd);
   m_fd_event_->SetNonBlock();
   // 协议的编解码
-  if(protocol_ == "HTTP"){
+  if(protocol == "HTTP"){
     m_coder_ = new HttpCoder();
   }else{
     m_coder_ = new TinyPBCoder();

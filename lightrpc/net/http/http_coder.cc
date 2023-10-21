@@ -101,6 +101,7 @@ namespace lightrpc {
                 buffer->MoveReadIndex(read_size);
                 // 生成个msg_id，便于跟踪
                 request->m_msg_id_ = MsgIDUtil::GenMsgID();
+                RunTime::GetRunTime()->m_msgid_ = request->m_msg_id_;
                 out_messages.push_back(request);
                 continue;
             }

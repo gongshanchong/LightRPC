@@ -22,7 +22,7 @@
 #include "../lightrpc/net/tcp/tcp_server.h"
 #include "../lightrpc/net/rpc/rpc_dispatcher.h"
 
-#include "./tinypb/orderimpl.h"
+#include "orderimpl.h"
 
 int main(int argc, char* argv[]) {
 

@@ -30,21 +30,6 @@ extern std::string g_CRLF_DOUBLE;
 extern std::string content_type_text;
 extern const char* default_html_template;
 
-// 将状态码转换为字符串
-const char* HttpCodeToString(const int code);
-
-// split a string to map
-// for example:  str is a=1&tt=2&cc=3  split_str = '&' joiner='=' 
-// get res is {"a":"1", "tt":"2", "cc", "3"}
-void SplitStrToMap(const std::string& str, const std::string& split_str, 
-const std::string& joiner, std::map<std::string, std::string>& res);
-
-// split a string to vector 
-// for example:  str is a=1&tt=2&cc=3  split_str = '&' 
-// get res is {"a=1", "tt=2", "cc=3"}
-void SplitStrToVector(const std::string& str, const std::string& split_str, 
-std::vector<std::string>& res);
-
 // http协议的头部信息
 class HttpHeaderComm {
 public:
@@ -92,7 +77,33 @@ public:
     std::string m_response_body_;       // 响应体
 };
 
-}
+// 将状态码转换为字符串
+const char* HttpCodeToString(const int code);
 
+// split a string to map
+// for example:  str is a=1&tt=2&cc=3  split_str = '&' joiner='=' 
+// get res is {"a":"1", "tt":"2", "cc", "3"}
+void SplitStrToMap(const std::string& str, const std::string& split_str, 
+const std::string& joiner, std::map<std::string, std::string>& res);
+
+// split a string to vector 
+// for example:  str is a=1&tt=2&cc=3  split_str = '&' 
+// get res is {"a=1", "tt=2", "cc=3"}
+void SplitStrToVector(const std::string& str, const std::string& split_str, 
+std::vector<std::string>& res);
+
+void SetHttpCode(std::shared_ptr<HttpResponse> res, const int code);
+  
+void SetHttpContentType(std::shared_ptr<HttpResponse> res, const std::string& content_type);
+
+void SetHttpBody(std::shared_ptr<HttpResponse> res, const std::string& body);
+
+void SetCommParam(std::shared_ptr<HttpRequest> req, std::shared_ptr<HttpResponse> res);
+
+void SetNotFoundHttp(std::shared_ptr<HttpResponse> res);
+
+void SetInternalErrorHttp(std::shared_ptr<HttpResponse> res, const std::string error_info);
+
+}
 
 #endif

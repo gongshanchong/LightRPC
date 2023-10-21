@@ -1,4 +1,5 @@
 #include "rpc_controller.h"
+#include "abstract_protocol.h"
 
 namespace lightrpc {
 
@@ -94,6 +95,14 @@ void RpcController::SetTimeout(int timeout) {
 
 int RpcController::GetTimeout() {
   return m_timeout_;
+}
+
+void RpcController::SetProtocol(ProtocalType protocol){
+  protocol_ = protocol;
+}
+
+ProtocalType RpcController::GetProtocol(){
+  return protocol_;
 }
 
 bool RpcController::Finished() {

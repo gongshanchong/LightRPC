@@ -65,20 +65,14 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
   std::shared_ptr<lightrpc::TinyPBProtocol> req_protocol = std::make_shared<lightrpc::TinyPBProtocol>();
   // 获取msg_id
   if (method_controller->GetMsgId().empty()) {
-    // 先从 runtime 里面取, 取不到再生成一个
     // 这样的目的是为了实现 msg_id 的透传，假设服务 A 调用了 B，那么同一个 msgid 可以在服务 A 和 B 之间串起来，方便日志追踪
-    std::string msg_id = RunTime::GetRunTime()->m_msgid_;
-    if (!msg_id.empty()) {
-      req_protocol->m_msg_id_ = msg_id;
-      method_controller->SetMsgId(msg_id);
-    } else {
-      req_protocol->m_msg_id_ = MsgIDUtil::GenMsgID();
-      RunTime::GetRunTime()->m_msgid_ = req_protocol->m_msg_id_;
-      method_controller->SetMsgId(req_protocol->m_msg_id_);
-    }
+    req_protocol->m_msg_id_ = MsgIDUtil::GenMsgID();
+    RunTime::GetRunTime()->m_msgid_ = req_protocol->m_msg_id_;
+    method_controller->SetMsgId(req_protocol->m_msg_id_);
   } else {
     // 如果 controller 指定了 msgid, 直接使用
     req_protocol->m_msg_id_ = method_controller->GetMsgId();
+    RunTime::GetRunTime()->m_msgid_ = req_protocol->m_msg_id_;
   }
   // 获取请求的方法
   req_protocol->m_method_name_ = method->full_name();

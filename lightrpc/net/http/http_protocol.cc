@@ -10,6 +10,30 @@ std::string g_CRLF_DOUBLE = "\r\n\r\n";
 std::string content_type_text = "text/html;charset=utf-8";
 const char* default_html_template = "<html><body><h1>%s</h1><p>%s</p></body></html>";
 
+std::string HttpHeaderComm::GetValue(const std::string& key) {
+    return m_maps_[key.c_str()];
+}
+
+int HttpHeaderComm::GetHeaderTotalLength() {
+    int len = 0;
+    for (auto it : m_maps_) {
+        len += it.first.length() + 1 + it.second.length() + 2;
+    }
+    return len;
+}
+
+void HttpHeaderComm::SetKeyValue(const std::string& key, const std::string& value) {
+    m_maps_[key.c_str()] = value;
+}
+
+std::string HttpHeaderComm::ToHttpString() {
+    std::stringstream ss;
+    for (auto it : m_maps_) {
+        ss << it.first << ":" << it.second << "\r\n";
+    }
+    return ss.str();
+}
+
 const char* HttpCodeToString(const int code) {
     switch (code)
     {
@@ -85,28 +109,40 @@ void SplitStrToVector(const std::string& str, const std::string& split_str,
 
 }
 
-std::string HttpHeaderComm::GetValue(const std::string& key) {
-    return m_maps_[key.c_str()];
+void SetHttpCode(std::shared_ptr<HttpResponse> res, const int code) {
+    res->m_response_code_ = code;
+    res->m_response_info_ = std::string(HttpCodeToString(code));
 }
 
-int HttpHeaderComm::GetHeaderTotalLength() {
-    int len = 0;
-    for (auto it : m_maps_) {
-        len += it.first.length() + 1 + it.second.length() + 2;
-    }
-    return len;
+void SetHttpContentType(std::shared_ptr<HttpResponse> res, const std::string& content_type) {
+    res->m_response_header_.m_maps_["Content-Type"] = content_type;
 }
 
-void HttpHeaderComm::SetKeyValue(const std::string& key, const std::string& value) {
-    m_maps_[key.c_str()] = value;
+void SetHttpBody(std::shared_ptr<HttpResponse> res, const std::string& body) {
+    res->m_response_body_ = body;
+    res->m_response_header_.m_maps_["Content-Length"]= std::to_string(res->m_response_body_.length());
 }
 
-std::string HttpHeaderComm::ToHttpString() {
-    std::stringstream ss;
-    for (auto it : m_maps_) {
-        ss << it.first << ":" << it.second << "\r\n";
-    }
-    return ss.str();
+void SetCommParam(std::shared_ptr<HttpRequest> req, std::shared_ptr<HttpResponse> res) {
+    LOG_DEBUG("set response version = %s", req->m_request_version_);
+    res->m_response_version_ = req->m_request_version_;
+    res->m_response_header_.m_maps_["Connection"]= req->m_requeset_header_.m_maps_["Connection"];
+}
+
+void SetNotFoundHttp(std::shared_ptr<HttpResponse> res){
+  SetHttpCode(res, HTTP_NOTFOUND);
+  SetHttpContentType(res, content_type_text);
+  char buf[512];
+  sprintf(buf, default_html_template, std::to_string(HTTP_NOTFOUND).c_str(), HttpCodeToString(HTTP_NOTFOUND));
+  SetHttpBody(res, buf);
+}
+
+void SetInternalErrorHttp(std::shared_ptr<HttpResponse> res, const std::string error_info){
+  SetHttpCode(res, HTTP_INTERNALSERVERERROR);
+  SetHttpContentType(res, content_type_text);
+  char buf[512];
+  sprintf(buf, default_html_template, std::to_string(HTTP_INTERNALSERVERERROR).c_str(), error_info.c_str());
+  SetHttpBody(res, buf);
 }
 
 }

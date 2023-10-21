@@ -4,11 +4,7 @@
 #include <string>
 
 namespace lightrpc {
-class RpcInterface;
 class RunTime {
- public:
-  RpcInterface* GetRpcInterface();
-
  public:
   static RunTime* GetRunTime();
 

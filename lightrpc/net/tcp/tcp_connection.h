@@ -92,7 +92,6 @@ private:
   TcpConnectionType m_connection_type_ {TcpConnectionByServer};
 
   // 协议编解码
-  std::string protocol_;              // 通信协议
   AbstractCoder* m_coder_ {NULL};
 
   // TinyPB协议的读写处理函数，回调函数

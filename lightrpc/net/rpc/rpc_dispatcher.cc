@@ -74,6 +74,7 @@ void RpcDispatcher::CallTinyPBService(AbstractProtocol::s_ptr request, AbstractP
   rpc_controller->SetLocalAddr(connection->GetLocalAddr());
   rpc_controller->SetPeerAddr(connection->GetPeerAddr());
   rpc_controller->SetMsgId(req_protocol->m_msg_id_);
+  rpc_controller->SetProtocol(ProtocalType::TINYPB);
   RunTime::GetRunTime()->m_msgid_ = req_protocol->m_msg_id_;
   RunTime::GetRunTime()->m_method_name_ = method_name;
   // closure 就会把 response 对象再序列化，最终生成一个 TinyPBProtocol 的结构体，最后通过 TcpConnection::reply 函数，将数据再发送给客户端
@@ -102,23 +103,71 @@ void RpcDispatcher::CallHttpServlet(AbstractProtocol::s_ptr request, AbstractPro
   // 构造请求、响应信息
   std::shared_ptr<HttpRequest> req_protocol = std::dynamic_pointer_cast<HttpRequest>(request);
   std::shared_ptr<HttpResponse> rsp_protocol = std::dynamic_pointer_cast<HttpResponse>(response);
-
   LOG_INFO("begin to dispatch client http request, msgno = %s", request->m_msg_id_);
-
   std::string url_path = req_protocol->m_request_path_;
-  if (!url_path.empty()) {
-    auto it = m_servlets_map_.find(url_path);
-    if (it == m_servlets_map_.end()) {
-      LOG_ERROR("404, url path{%s}, msgno= %s", url_path, request->m_msg_id_);
-      NotFoundHttpServlet servlet;
-      servlet.SetCommParam(req_protocol, rsp_protocol);
-      servlet.Handle(req_protocol, rsp_protocol);
-    } else {
-      it->second->SetCommParam(req_protocol, rsp_protocol);
-      it->second->Handle(req_protocol, rsp_protocol);
-    }
+  std::string service_name;
+  std::string method_name;
+
+  rsp_protocol->m_msg_id_ = req_protocol->m_msg_id_;
+  SetCommParam(req_protocol, rsp_protocol);
+  // 解析完整的 rpc 方法名
+  if (!ParseUrlPathToervice(url_path, service_name, method_name)) {
+    // 解析失败，返回对应错误码, 不进行其他的处理
+    LOG_ERROR("404, url path{%s}, msgno= %s", url_path, request->m_msg_id_);
+    // 设置未发现响应报文
+    SetNotFoundHttp(rsp_protocol);
+    // 回复客户端
+    Reply(rsp_protocol, connection);
+    return;
   }
-  Reply(rsp_protocol, connection);
+  // 找到对应的 service
+  auto it = m_service_map_.find(service_name);
+  if (it == m_service_map_.end()) {
+    LOG_ERROR("%s | sericve neame[%s] not found", req_protocol->m_msg_id_.c_str(), service_name.c_str());
+    // 设置未发现响应报文
+    SetNotFoundHttp(rsp_protocol);
+    Reply(rsp_protocol, connection);
+    return;
+  }
+  // 找到对应的 method
+  service_s_ptr service = (*it).second;
+  const google::protobuf::MethodDescriptor* method = service->GetDescriptor()->FindMethodByName(method_name);
+  if (method == NULL) {
+    LOG_ERROR("%s | method neame[%s] not found in service[%s]", req_protocol->m_msg_id_.c_str(), method_name.c_str(), service_name.c_str());
+    // 设置未发现响应报文
+    SetNotFoundHttp(rsp_protocol);
+    Reply(rsp_protocol, connection);
+    return;
+  }
+  // 根据 method 对象反射出 request 和 response 对象
+  google::protobuf::Message* req_msg = service->GetRequestPrototype(method).New();
+  google::protobuf::Message* rsp_msg = service->GetResponsePrototype(method).New();
+  // 设置相关信息，辅助对象
+  RpcController* rpc_controller = new RpcController();
+  rpc_controller->SetLocalAddr(connection->GetLocalAddr());
+  rpc_controller->SetPeerAddr(connection->GetPeerAddr());
+  rpc_controller->SetMsgId(req_protocol->m_msg_id_);
+  rpc_controller->SetProtocol(ProtocalType::HTTP);
+  RunTime::GetRunTime()->m_msgid_ = req_protocol->m_msg_id_;
+  RunTime::GetRunTime()->m_method_name_ = method_name;
+  // closure 就会把 response 对象再序列化，最终生成一个 TinyPBProtocol 的结构体，最后通过 TcpConnection::reply 函数，将数据再发送给客户端
+  RpcClosure* closure = new RpcClosure([req_msg, rsp_msg, req_protocol, rsp_protocol, connection, rpc_controller, this]() mutable {
+    if (rpc_controller->GetErrorCode() != 0){
+      LOG_ERROR("%s | run error [%s]", req_protocol->m_msg_id_.c_str(), rpc_controller->GetErrorInfo());
+      SetHttpCode(rsp_protocol, HTTP_INTERNALSERVERERROR);
+      SetInternalErrorHttp(rsp_protocol, rpc_controller->GetErrorInfo());
+    }
+    else {
+      SetHttpCode(rsp_protocol, lightrpc::HTTP_OK);
+      SetHttpContentType(rsp_protocol, lightrpc::content_type_text);
+      SetHttpBody(rsp_protocol, rpc_controller->GetErrorInfo());
+      LOG_INFO("%s | http dispatch success", req_protocol->m_msg_id_.c_str());
+    }
+
+    this->Reply(rsp_protocol, connection);
+  });
+  // 调用业务处理方法，本质上就是输入一个 request 对象，然后获得一个 response 对象
+  service->CallMethod(method, rpc_controller, req_msg, rsp_msg, closure);
 }
 
 void RpcDispatcher::Dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::s_ptr response, TcpConnection* connection) {
@@ -148,6 +197,24 @@ bool RpcDispatcher::ParseServiceFullName(const std::string& full_name, std::stri
   return true;
 }
 
+bool RpcDispatcher::ParseUrlPathToervice(const std::string& url, std::string& service_name, std::string& method_name){
+  if (url.empty()) {
+    LOG_ERROR("url empty"); 
+    return false;
+  }
+  size_t i = url.find_last_of("/");
+  if (i == url.npos) {
+    LOG_ERROR("not find / in full name [%s]", url.c_str());
+    return false;
+  }
+  service_name = url.substr(0, i);
+  method_name = url.substr(i + 1, url.length() - i - 1);
+
+  LOG_INFO("parse sericve_name[%s] and method_name[%s] from url [%s]", service_name.c_str(), method_name.c_str(), url.c_str());
+
+  return true;
+}
+
 void RpcDispatcher::Reply(AbstractProtocol::s_ptr response, TcpConnection* connection){
   std::vector<AbstractProtocol::s_ptr> replay_messages;
   replay_messages.emplace_back(response);
@@ -159,11 +226,11 @@ void RpcDispatcher::RegisterService(service_s_ptr service) {
   m_service_map_[service_name] = service;
 }
 
-void RpcDispatcher::RegisterServlet(const std::string& path, HttpServlet::ptr servlet){
+void RpcDispatcher::RegisterServlet(const std::string& path, service_s_ptr service){
   auto it = m_service_map_.find(path);
   if (it == m_service_map_.end()) {
     LOG_DEBUG("register servlet success to path {%s}", path);
-    m_servlets_map_[path] = servlet;
+    m_service_map_[path] = service;
   } else {
     LOG_DEBUG("failed to register, beacuse path {%s} has already register sertlet", path);
   }

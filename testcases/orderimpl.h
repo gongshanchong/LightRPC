@@ -1,9 +1,11 @@
 #ifndef LIGHTRPC_TESTCASES_ORDERIMPL_H
 #define LIGHTRPC_TESTCASES_ORDERIMPL_H
 
-#include "../../lightrpc/net/rpc/rpc_interface.h"
-#include "../../lightrpc/common/exception.h"
-#include "../order.pb.h"
+#include "../lightrpc/net/rpc/rpc_interface.h"
+#include "../lightrpc/common/exception.h"
+#include "order.pb.h"
+#include <cstdio>
+#include <string>
 
 class MakeOrderInterface : public lightrpc::RpcInterface{
 public:
@@ -16,13 +18,21 @@ public:
             LOG_APPDEBUG("start sleep 5s");
             sleep(5);
             LOG_APPDEBUG("end sleep 5s");
-            if (dynamic_cast<const makeOrderRequest*>(m_req_base_)->price() < 10) {
-                dynamic_cast<makeOrderResponse*>(m_rsp_base_)->set_ret_code(-1);
-                dynamic_cast<makeOrderResponse*>(m_rsp_base_)->set_res_info("short balance");
+            auto resquest = dynamic_cast<const makeOrderRequest*>(m_req_base_);
+            auto response = dynamic_cast<makeOrderResponse*>(m_rsp_base_);
+            if (resquest->price() < 10) {
+                response->set_ret_code(-1);
+                response->set_res_info("short balance");
                 return;
             }
-            dynamic_cast<makeOrderResponse*>(m_rsp_base_)->set_order_id("20230514");
+            response->set_order_id("20230514");
             LOG_APPDEBUG("call makeOrder success");
+            if(m_controller_->GetProtocol() == lightrpc::ProtocalType::HTTP){
+                const char* html = "<html><body><h1>Welcome to TinyRPC, just enjoy it!</h1><p>%s</p></body></html>";
+                char buf[512];
+                sprintf(buf, html, ("Your order_id is " + response->order_id()).c_str());
+                m_controller_->SetError(0, std::string(buf));
+            }
         }catch (lightrpc::LightrpcException& e) {
             LOG_APPERROR("LightrpcException exception[%s], deal handle", e.what());
             e.handle();

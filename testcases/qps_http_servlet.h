@@ -1,5 +1,4 @@
-#include "../../lightrpc/common/log.h"
-#include "../../lightrpc/net/http/http_servlet.h"
+#include "../lightrpc/common/log.h"
 #include "../order.pb.h"
 
 class QPSHttpServlet : public lightrpc::HttpServlet {
