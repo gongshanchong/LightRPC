@@ -26,13 +26,6 @@ public:
                 return;
             }
             response->set_order_id("20230514");
-            LOG_APPDEBUG("call makeOrder success");
-            if(m_controller_->GetProtocol() == lightrpc::ProtocalType::HTTP){
-                const char* html = "<html><body><h1>Welcome to TinyRPC, just enjoy it!</h1><p>%s</p></body></html>";
-                char buf[512];
-                sprintf(buf, html, ("Your order_id is " + response->order_id()).c_str());
-                m_controller_->SetError(0, std::string(buf));
-            }
         }catch (lightrpc::LightrpcException& e) {
             LOG_APPERROR("LightrpcException exception[%s], deal handle", e.what());
             e.handle();

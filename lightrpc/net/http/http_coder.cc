@@ -1,22 +1,36 @@
 #include "http_coder.h"
+#include "http_protocol.h"
 #include <algorithm>
 
 namespace lightrpc {
     // 将 message 对象转化为字节流，写入到 buffer
     void HttpCoder::Encode(std::vector<AbstractProtocol::s_ptr>& messages, TcpBuffer::s_ptr out_buffer){
         for (auto &i : messages) {
-            std::shared_ptr<HttpResponse> response = std::dynamic_pointer_cast<HttpResponse>(i);
-            response->protocol_ = ProtocalType::HTTP;
-
             std::stringstream ss;
-            ss << response->m_response_version_ << " " << response->m_response_code_ << " "
-                << response->m_response_info_ << "\r\n" << response->m_response_header_.ToHttpString()
-                << "\r\n" << response->m_response_body_;
-            std::string http_res = ss.str();
-            LOG_DEBUG("msg_id = %s", response->m_msg_id_.c_str());
+            std::string http_content;
+            if(i->http_type_ == HttpType::RESPONSE){
+                std::shared_ptr<HttpResponse> response = std::dynamic_pointer_cast<HttpResponse>(i);
+                response->protocol_ = ProtocalType::HTTP;
+
+                ss << response->m_response_version_ << " " << response->m_response_code_ << " "
+                    << response->m_response_info_ << "\r\n" << response->m_response_header_.ToHttpString()
+                    << "\r\n" << response->m_response_body_;
+                http_content = ss.str();
+                LOG_DEBUG("succ encode and write http response [%s] to buffer, writeindex = %d", response->m_msg_id_.c_str(), out_buffer->WriteIndex());
+            }else{
+                std::shared_ptr<HttpRequest> resquest = std::dynamic_pointer_cast<HttpRequest>(i);
+                resquest->protocol_ = ProtocalType::HTTP;
+               
+                ss << resquest->m_request_method_ << " " << resquest->m_request_path_ << " "
+                    << resquest->m_request_version_ << "\r\n" << resquest->m_requeset_header_.ToHttpString()
+                    << "\r\n" << resquest->m_request_body_;
+                http_content = ss.str();
+                LOG_DEBUG("succ encode and write http request [%s] to buffer, writeindex = %d", resquest->m_msg_id_.c_str(), out_buffer->WriteIndex());
+            }
+            
+            LOG_DEBUG("msg_id = %s", i->m_msg_id_.c_str());
             // 将响应写入写缓冲区
-            out_buffer->WriteToBuffer(http_res.c_str(), http_res.length());
-            LOG_DEBUG("succ encode and write http response [%s] to buffer, writeindex = %d", response->m_msg_id_.c_str(), out_buffer->WriteIndex());
+            out_buffer->WriteToBuffer(http_content.c_str(), http_content.length());
         }
     }
 

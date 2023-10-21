@@ -38,7 +38,7 @@ class RpcDispatcher {
   // 调用TINYPB协议的服务
   void CallTinyPBService(AbstractProtocol::s_ptr request, AbstractProtocol::s_ptr response, TcpConnection* connection);
   // 调用HTTP协议的服务
-  void CallHttpServlet(AbstractProtocol::s_ptr request, AbstractProtocol::s_ptr response, TcpConnection* connection);
+  void CallHttpService(AbstractProtocol::s_ptr request, AbstractProtocol::s_ptr response, TcpConnection* connection);
   // 解析 service_full_name，得到 service_name 和 method_name
   bool ParseServiceFullName(const std::string& full_name, std::string& service_name, std::string& method_name);
   // 解析 url(/service/method), service_name 和 method_name

@@ -59,6 +59,15 @@ class RpcChannel : public google::protobuf::RpcChannel, public std::enable_share
                           google::protobuf::Message* response, google::protobuf::Closure* done);
   void CallBack();
 
+  // 调用TINYPB协议的服务
+  void CallTinyPBService(const google::protobuf::MethodDescriptor* method,
+                          google::protobuf::RpcController* controller, const google::protobuf::Message* request,
+                          google::protobuf::Message* response, google::protobuf::Closure* done);
+  // 调用HTTP协议的服务
+  void CallHttpService(const google::protobuf::MethodDescriptor* method,
+                          google::protobuf::RpcController* controller, const google::protobuf::Message* request,
+                          google::protobuf::Message* response, google::protobuf::Closure* done);
+
  private:
   NetAddr::s_ptr m_peer_addr_ {nullptr};
   std::string protocol_;

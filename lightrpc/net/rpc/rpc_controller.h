@@ -8,6 +8,7 @@
 #include "../tcp/net_addr.h"
 #include "../../common/log.h"
 #include "abstract_protocol.h"
+#include "../http/http_protocol.h"
 
 namespace lightrpc {
 
@@ -61,6 +62,10 @@ class RpcController : public google::protobuf::RpcController {
 
   void SetProtocol(ProtocalType protocol);
 
+  HttpMethod GetCallMethod();
+
+  void SetCallMethod(HttpMethod call_method);
+
   bool Finished();
 
   void SetFinished(bool value);
@@ -77,8 +82,9 @@ class RpcController : public google::protobuf::RpcController {
   NetAddr::s_ptr m_local_addr_;
   NetAddr::s_ptr m_peer_addr_;
 
-  ProtocalType protocol_;   // 协议类型
-  int m_timeout_ {1000};    // ms
+  ProtocalType protocol_;    // 协议类型
+  HttpMethod call_method_;   // http请求类型类型
+  int m_timeout_ {1000};     // ms
 };
 }
 #endif

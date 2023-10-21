@@ -105,6 +105,14 @@ ProtocalType RpcController::GetProtocol(){
   return protocol_;
 }
 
+HttpMethod RpcController::GetCallMethod(){
+  return call_method_;
+}
+
+void RpcController::SetCallMethod(HttpMethod call_method){
+  call_method_ = call_method;
+}
+
 bool RpcController::Finished() {
   return m_is_finished_;
 }

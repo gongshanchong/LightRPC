@@ -16,6 +16,24 @@ void RpcChannel::Init(google::protobuf::RpcController* controller, const google:
     m_response_ = response;
     m_closure_ = done;
     m_controller_ = controller;
+
+    RpcController* method_controller = dynamic_cast<RpcController*>(m_controller_);
+    // 判断参数是否为空
+    if (method_controller == NULL || request == NULL || response == NULL) {
+      LOG_ERROR("failed callmethod, RpcController convert error");
+      if(method_controller == NULL){ return; }
+      method_controller->SetError(ERROR_RPC_CHANNEL_INIT, "controller or request or response NULL");
+      CallBack();
+      return;
+    }
+    // 获取客户端地址
+    if (m_peer_addr_ == nullptr) {
+      LOG_ERROR("failed get peer addr");
+      method_controller->SetError(ERROR_RPC_PEER_ADDR, "peer addr nullptr");
+      CallBack();
+      return;
+    }
+    m_client_ = std::make_shared<TcpClient>(m_peer_addr_, protocol_);
 }
 
 void RpcChannel::CallBack() {
@@ -40,28 +58,10 @@ void RpcChannel::CallBack() {
   }
 }
 
-void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
+void RpcChannel::CallTinyPBService(const google::protobuf::MethodDescriptor* method,
                         google::protobuf::RpcController* controller, const google::protobuf::Message* request,
                         google::protobuf::Message* response, google::protobuf::Closure* done) {
-  // 初始化
-  Init(controller, request, response, done);
   RpcController* method_controller = dynamic_cast<RpcController*>(m_controller_);
-  // 判断参数是否为空
-  if (method_controller == NULL || request == NULL || response == NULL) {
-    LOG_ERROR("failed callmethod, RpcController convert error");
-    if(method_controller == NULL){ return; }
-    method_controller->SetError(ERROR_RPC_CHANNEL_INIT, "controller or request or response NULL");
-    CallBack();
-    return;
-  }
-  // 获取客户端地址
-  if (m_peer_addr_ == nullptr) {
-    LOG_ERROR("failed get peer addr");
-    method_controller->SetError(ERROR_RPC_PEER_ADDR, "peer addr nullptr");
-    CallBack();
-    return;
-  }
-  m_client_ = std::make_shared<TcpClient>(m_peer_addr_, protocol_);
   std::shared_ptr<lightrpc::TinyPBProtocol> req_protocol = std::make_shared<lightrpc::TinyPBProtocol>();
   // 获取msg_id
   if (method_controller->GetMsgId().empty()) {
@@ -160,6 +160,127 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
       });
     });
   });
+}
+
+void RpcChannel::CallHttpService(const google::protobuf::MethodDescriptor* method,
+                        google::protobuf::RpcController* controller, const google::protobuf::Message* request,
+                        google::protobuf::Message* response, google::protobuf::Closure* done){
+  RpcController* method_controller = dynamic_cast<RpcController*>(m_controller_);
+  std::shared_ptr<lightrpc::HttpRequest> req_protocol = std::make_shared<lightrpc::HttpRequest>();
+  // 获取msg_id
+  if (method_controller->GetMsgId().empty()) {
+    // 这样的目的是为了实现 msg_id 的透传，假设服务 A 调用了 B，那么同一个 msgid 可以在服务 A 和 B 之间串起来，方便日志追踪
+    req_protocol->m_msg_id_ = MsgIDUtil::GenMsgID();
+    RunTime::GetRunTime()->m_msgid_ = req_protocol->m_msg_id_;
+    method_controller->SetMsgId(req_protocol->m_msg_id_);
+  } else {
+    // 如果 controller 指定了 msgid, 直接使用
+    req_protocol->m_msg_id_ = method_controller->GetMsgId();
+    RunTime::GetRunTime()->m_msgid_ = req_protocol->m_msg_id_;
+  }
+  // 获取请求的方法
+  std::string method_full_name = method->full_name();
+  std::string service_name;
+  std::string method_name;
+  size_t i = method_full_name.find_first_of(".");
+  service_name = method_full_name.substr(0, i);
+  method_name = method_full_name.substr(i + 1, method_full_name.length() - i - 1);
+  req_protocol->m_request_path_ = "/" + service_name + "/" + method_name;
+  LOG_INFO("%s | call method name [%s]", req_protocol->m_msg_id_.c_str(), method_full_name.c_str());
+  // requeset 的序列化
+  if(method_controller->GetCallMethod() == HttpMethod::POST){
+    req_protocol->m_request_method_ = HttpMethod::POST;
+    if (!request->SerializeToString(&(req_protocol->m_request_body_))) {
+      std::string err_info = "failde to serialize";
+      method_controller->SetError(ERROR_FAILED_SERIALIZE, err_info);
+      LOG_ERROR("%s | %s, origin requeset [%s] ", req_protocol->m_msg_id_.c_str(), err_info.c_str(), request->ShortDebugString().c_str());
+      CallBack();
+      return;
+    }
+  }else{
+    req_protocol->m_request_method_ = HttpMethod::GET;
+    std::string tmp;
+    if (!request->SerializeToString(&tmp)) {
+      std::string err_info = "failde to serialize";
+      method_controller->SetError(ERROR_FAILED_SERIALIZE, err_info);
+      LOG_ERROR("%s | %s, origin requeset [%s] ", req_protocol->m_msg_id_.c_str(), err_info.c_str(), request->ShortDebugString().c_str());
+      CallBack();
+      return;
+    }
+    req_protocol->m_request_path_ += ("?" + tmp);
+  }
+  s_ptr channel = shared_from_this(); 
+  // 设置超时事件
+  TimerEvent::s_ptr timer_event = std::make_shared<TimerEvent>(method_controller->GetTimeout(), false, [channel, method_controller, done]() mutable {
+    LOG_INFO("%s | call rpc timeout arrive", method_controller->GetMsgId().c_str());
+    if (method_controller->Finished()) {
+      return;
+    }
+
+    method_controller->StartCancel();
+    method_controller->SetError(ERROR_RPC_CALL_TIMEOUT, "rpc call timeout " + std::to_string(method_controller->GetTimeout()));
+
+    channel->CallBack();
+  });
+  // 先调用 writeMessage 发送 req_protocol, 然后调用 readMessage 等待回包
+  // 发送请求并设置回调函数
+  GetTcpClient()->WriteMessage(req_protocol, [method_controller, req_protocol, this](AbstractProtocol::s_ptr) mutable {
+    // 发送请求成功，输出日志
+    LOG_INFO("%s | send rpc request success. call method name[%s], peer addr[%s], local addr[%s]", 
+      req_protocol->m_msg_id_.c_str(), req_protocol->m_request_path_.c_str(),
+      GetTcpClient()->GetPeerAddr()->ToString().c_str(), GetTcpClient()->GetLocalAddr()->ToString().c_str());
+
+    // 读取响应并设置回调函数
+    GetTcpClient()->ReadMessage(req_protocol->m_msg_id_, [method_controller, req_protocol, this](AbstractProtocol::s_ptr msg) mutable {
+      std::shared_ptr<lightrpc::HttpResponse> rsp_protocol = std::dynamic_pointer_cast<lightrpc::HttpResponse>(msg);
+      rsp_protocol->m_msg_id_ = req_protocol->m_msg_id_;
+      // 读取响应成功，输出日志
+      LOG_INFO("%s | success get rpc response, call method name[%s], peer addr[%s], local addr[%s]", 
+        rsp_protocol->m_msg_id_.c_str(), req_protocol->m_request_path_.c_str(),
+        GetTcpClient()->GetPeerAddr()->ToString().c_str(), GetTcpClient()->GetLocalAddr()->ToString().c_str());
+      // 连接错误
+      if (rsp_protocol->m_response_code_ != HttpCode::HTTP_OK) {
+        LOG_ERROR("%s | call rpc methood[%s] failed, error code[%d], error info[%s]", 
+          rsp_protocol->m_msg_id_.c_str(), req_protocol->m_request_path_.c_str(),
+          rsp_protocol->m_response_code_, HttpCodeToString(rsp_protocol->m_response_code_));
+
+        method_controller->SetError(rsp_protocol->m_response_code_, HttpCodeToString(rsp_protocol->m_response_code_));
+        
+        CallBack();
+        return;
+      }
+      // 反序列化响应
+      if (!(m_response_->ParseFromString(rsp_protocol->m_response_body_))){
+        LOG_ERROR("%s | serialize error", rsp_protocol->m_msg_id_.c_str());
+        method_controller->SetError(ERROR_FAILED_SERIALIZE, "serialize error");
+        
+        CallBack();
+        return;
+      }
+      
+      // 调用rpc成功
+      LOG_INFO("%s | call rpc success, call method name[%s], peer addr[%s], local addr[%s]",
+        rsp_protocol->m_msg_id_.c_str(), req_protocol->m_request_path_.c_str(),
+        GetTcpClient()->GetPeerAddr()->ToString().c_str(), GetTcpClient()->GetLocalAddr()->ToString().c_str())
+
+      CallBack();
+    });
+  });
+
+}
+
+
+void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
+                        google::protobuf::RpcController* controller, const google::protobuf::Message* request,
+                        google::protobuf::Message* response, google::protobuf::Closure* done){
+  // 初始化
+  Init(controller, request, response, done);
+  // 依据协议进行不同的服务调用
+  if(dynamic_cast<RpcController*>(controller)->GetProtocol() == ProtocalType::TINYPB){
+    CallTinyPBService(method, controller, request, response, done);
+  }else{
+    CallHttpService(method, controller, request, response, done);
+  }  
 }
 
 TcpClient* RpcChannel::GetTcpClient() {

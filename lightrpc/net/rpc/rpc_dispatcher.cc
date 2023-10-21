@@ -74,7 +74,6 @@ void RpcDispatcher::CallTinyPBService(AbstractProtocol::s_ptr request, AbstractP
   rpc_controller->SetLocalAddr(connection->GetLocalAddr());
   rpc_controller->SetPeerAddr(connection->GetPeerAddr());
   rpc_controller->SetMsgId(req_protocol->m_msg_id_);
-  rpc_controller->SetProtocol(ProtocalType::TINYPB);
   RunTime::GetRunTime()->m_msgid_ = req_protocol->m_msg_id_;
   RunTime::GetRunTime()->m_method_name_ = method_name;
   // closure 就会把 response 对象再序列化，最终生成一个 TinyPBProtocol 的结构体，最后通过 TcpConnection::reply 函数，将数据再发送给客户端
@@ -99,7 +98,7 @@ void RpcDispatcher::CallTinyPBService(AbstractProtocol::s_ptr request, AbstractP
   service->CallMethod(method, rpc_controller, req_msg, rsp_msg, closure);
 }
 
-void RpcDispatcher::CallHttpServlet(AbstractProtocol::s_ptr request, AbstractProtocol::s_ptr response, TcpConnection* connection){
+void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, AbstractProtocol::s_ptr response, TcpConnection* connection){
   // 构造请求、响应信息
   std::shared_ptr<HttpRequest> req_protocol = std::dynamic_pointer_cast<HttpRequest>(request);
   std::shared_ptr<HttpResponse> rsp_protocol = std::dynamic_pointer_cast<HttpResponse>(response);
@@ -141,13 +140,32 @@ void RpcDispatcher::CallHttpServlet(AbstractProtocol::s_ptr request, AbstractPro
   }
   // 根据 method 对象反射出 request 和 response 对象
   google::protobuf::Message* req_msg = service->GetRequestPrototype(method).New();
+  if(req_protocol->m_request_method_ == HttpMethod::POST){
+    if (!req_msg->ParseFromString(req_protocol->m_request_body_)) {
+      LOG_ERROR("%s | deserilize error", req_protocol->m_msg_id_.c_str(), method_name.c_str(), service_name.c_str());
+      SetHttpCode(rsp_protocol, HTTP_INTERNALSERVERERROR);
+      SetInternalErrorHttp(rsp_protocol, "deserilize error");
+      Reply(rsp_protocol, connection);
+      DELETE_RESOURCE(req_msg);
+      return;
+    }
+  }else{
+    if (!req_msg->ParseFromString(req_protocol->m_request_query_)) {
+      LOG_ERROR("%s | deserilize error", req_protocol->m_msg_id_.c_str(), method_name.c_str(), service_name.c_str());
+      SetHttpCode(rsp_protocol, HTTP_INTERNALSERVERERROR);
+      SetInternalErrorHttp(rsp_protocol, "deserilize error");
+      Reply(rsp_protocol, connection);
+      DELETE_RESOURCE(req_msg);
+      return;
+    }
+  }
+  
   google::protobuf::Message* rsp_msg = service->GetResponsePrototype(method).New();
   // 设置相关信息，辅助对象
   RpcController* rpc_controller = new RpcController();
   rpc_controller->SetLocalAddr(connection->GetLocalAddr());
   rpc_controller->SetPeerAddr(connection->GetPeerAddr());
   rpc_controller->SetMsgId(req_protocol->m_msg_id_);
-  rpc_controller->SetProtocol(ProtocalType::HTTP);
   RunTime::GetRunTime()->m_msgid_ = req_protocol->m_msg_id_;
   RunTime::GetRunTime()->m_method_name_ = method_name;
   // closure 就会把 response 对象再序列化，最终生成一个 TinyPBProtocol 的结构体，最后通过 TcpConnection::reply 函数，将数据再发送给客户端
@@ -160,8 +178,13 @@ void RpcDispatcher::CallHttpServlet(AbstractProtocol::s_ptr request, AbstractPro
     else {
       SetHttpCode(rsp_protocol, lightrpc::HTTP_OK);
       SetHttpContentType(rsp_protocol, lightrpc::content_type_text);
-      SetHttpBody(rsp_protocol, rpc_controller->GetErrorInfo());
-      LOG_INFO("%s | http dispatch success", req_protocol->m_msg_id_.c_str());
+      // 将序列化内容存储到响应体中
+      if (!rsp_msg->SerializeToString(&(rsp_protocol->m_response_body_))) {
+        LOG_ERROR("%s | serilize error, origin message [%s]", req_protocol->m_msg_id_.c_str(), rsp_msg->ShortDebugString().c_str());
+        SetHttpCode(rsp_protocol, HTTP_INTERNALSERVERERROR);
+        SetInternalErrorHttp(rsp_protocol, rpc_controller->GetErrorInfo());
+      }
+      LOG_INFO("%s | http dispatch success, requesut[%s], response[%s]", req_protocol->m_msg_id_.c_str(), req_msg->ShortDebugString().c_str(), rsp_msg->ShortDebugString().c_str());
     }
 
     this->Reply(rsp_protocol, connection);
@@ -175,7 +198,7 @@ void RpcDispatcher::Dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::
   if(request->protocol_ == ProtocalType::TINYPB){
     CallTinyPBService(request, response, connection);
   }else{
-    CallHttpServlet(request, response, connection);
+    CallHttpService(request, response, connection);
   }
 }
 
