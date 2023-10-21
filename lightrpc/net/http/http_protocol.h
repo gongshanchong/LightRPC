@@ -72,7 +72,7 @@ public:
 public:
     HttpMethod m_request_method_;       // 请求的方法 
     std::string m_request_path_;        // 请求行请求的路径
-    std::string m_request_query_;       // 
+    std::string m_request_query_;       // 请求内容
     std::string m_request_version_;     // 请求的http版本
     HttpHeaderComm m_requeset_header_;  // 请求头
     std::string m_request_body_;        // 请求体
@@ -87,7 +87,7 @@ public:
 public:
     std::string m_response_version_;    // 响应版本
     int m_response_code_;               // 响应码
-    std::string m_response_info_;       // 
+    std::string m_response_info_;       // 响应消息
     HttpHeaderComm m_response_header_;  // 响应头
     std::string m_response_body_;       // 响应体
 };

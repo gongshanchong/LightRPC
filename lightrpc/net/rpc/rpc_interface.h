@@ -22,7 +22,7 @@ class RpcInterface : public std::enable_shared_from_this<RpcInterface> {
 
   virtual ~RpcInterface();
 
-  // reply to client
+  // run to client
   void Reply();
 
   // free resourse

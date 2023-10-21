@@ -9,23 +9,23 @@
 #include <memory>
 #include <unistd.h>
 #include <google/protobuf/service.h>
-#include "../lightrpc/common/log.h"
-#include "../lightrpc/common/config.h"
-#include "../lightrpc/common/log.h"
-#include "../lightrpc/net/tcp/tcp_client.h"
-#include "../lightrpc/net/tcp/net_addr.h"
-#include "../lightrpc/net/rpc/string_coder.h"
-#include "../lightrpc/net/rpc/abstract_protocol.h"
-#include "../lightrpc/net/tinypb/tinypb_coder.h"
-#include "../lightrpc/net/tinypb/tinypb_protocol.h"
-#include "../lightrpc/net/tcp/net_addr.h"
-#include "../lightrpc/net/tcp/tcp_server.h"
-#include "../lightrpc/net/rpc/rpc_dispatcher.h"
-#include "../lightrpc/net/rpc/rpc_controller.h"
-#include "../lightrpc/net/rpc/rpc_channel.h"
-#include "../lightrpc/net/rpc/rpc_closure.h"
+#include "../../lightrpc/common/log.h"
+#include "../../lightrpc/common/config.h"
+#include "../../lightrpc/common/log.h"
+#include "../../lightrpc/net/tcp/tcp_client.h"
+#include "../../lightrpc/net/tcp/net_addr.h"
+#include "../../lightrpc/net/rpc/string_coder.h"
+#include "../../lightrpc/net/rpc/abstract_protocol.h"
+#include "../../lightrpc/net/tinypb/tinypb_coder.h"
+#include "../../lightrpc/net/tinypb/tinypb_protocol.h"
+#include "../../lightrpc/net/tcp/net_addr.h"
+#include "../../lightrpc/net/tcp/tcp_server.h"
+#include "../../lightrpc/net/rpc/rpc_dispatcher.h"
+#include "../../lightrpc/net/rpc/rpc_controller.h"
+#include "../../lightrpc/net/rpc/rpc_channel.h"
+#include "../../lightrpc/net/rpc/rpc_closure.h"
 
-#include "order.pb.h"
+#include "../order.pb.h"
 
 void test_tcp_client() {
   lightrpc::IPNetAddr::s_ptr addr = std::make_shared<lightrpc::IPNetAddr>("127.0.0.1", 12345);

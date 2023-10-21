@@ -22,7 +22,7 @@
 #include "../lightrpc/net/tcp/tcp_server.h"
 #include "../lightrpc/net/rpc/rpc_dispatcher.h"
 
-#include "orderimpl.h"
+#include "./tinypb/orderimpl.h"
 
 int main(int argc, char* argv[]) {
 
@@ -33,16 +33,20 @@ int main(int argc, char* argv[]) {
     return 0;
   }
 
+  // 初始化日志和配置文件
   lightrpc::Config::SetGlobalConfig(argv[1]);
-
   lightrpc::Logger::InitGlobalLogger();
-
-  std::shared_ptr<OrderImpl> service = std::make_shared<OrderImpl>();
-  lightrpc::RpcDispatcher::GetRpcDispatcher()->RegisterService(service);
 
   lightrpc::TcpServer tcp_server(lightrpc::Config::GetGlobalConfig()->m_rpc_stubs_["default"].addr_, 
   lightrpc::Config::GetGlobalConfig()->m_rpc_stubs_["default"].protocal_, 
   lightrpc::Config::GetGlobalConfig()->m_rpc_stubs_["default"].timeout_);
+  // 依据配置文件中的服务的协议进行相关的操作
+  if(lightrpc::Config::GetGlobalConfig()->m_rpc_stubs_["default"].protocal_ == "HTTP"){
+
+  }else{
+    std::shared_ptr<OrderImpl> service = std::make_shared<OrderImpl>();
+    lightrpc::RpcDispatcher::GetRpcDispatcher()->RegisterService(service);
+  }
 
   tcp_server.Start();
 

@@ -1,9 +1,9 @@
 #ifndef LIGHTRPC_TESTCASES_ORDERIMPL_H
 #define LIGHTRPC_TESTCASES_ORDERIMPL_H
 
-#include "../lightrpc/net/rpc/rpc_interface.h"
-#include "../lightrpc/common/exception.h"
-#include "order.pb.h"
+#include "../../lightrpc/net/rpc/rpc_interface.h"
+#include "../../lightrpc/common/exception.h"
+#include "../order.pb.h"
 
 class MakeOrderInterface : public lightrpc::RpcInterface{
 public:
