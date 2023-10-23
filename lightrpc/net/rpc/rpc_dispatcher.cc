@@ -102,6 +102,7 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, AbstractPro
   // 构造请求、响应信息
   std::shared_ptr<HttpRequest> req_protocol = std::dynamic_pointer_cast<HttpRequest>(request);
   std::shared_ptr<HttpResponse> rsp_protocol = std::dynamic_pointer_cast<HttpResponse>(response);
+  rsp_protocol->http_type_ = HttpType::RESPONSE;
   LOG_INFO("begin to dispatch client http request, msgno = %s", request->m_msg_id_);
   std::string url_path = req_protocol->m_request_path_;
   std::string service_name;
@@ -143,7 +144,6 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, AbstractPro
   if(req_protocol->m_request_method_ == HttpMethod::POST){
     if (!req_msg->ParseFromString(req_protocol->m_request_body_)) {
       LOG_ERROR("%s | deserilize error", req_protocol->m_msg_id_.c_str(), method_name.c_str(), service_name.c_str());
-      SetHttpCode(rsp_protocol, HTTP_INTERNALSERVERERROR);
       SetInternalErrorHttp(rsp_protocol, "deserilize error");
       Reply(rsp_protocol, connection);
       DELETE_RESOURCE(req_msg);
@@ -152,7 +152,6 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, AbstractPro
   }else{
     if (!req_msg->ParseFromString(req_protocol->m_request_query_)) {
       LOG_ERROR("%s | deserilize error", req_protocol->m_msg_id_.c_str(), method_name.c_str(), service_name.c_str());
-      SetHttpCode(rsp_protocol, HTTP_INTERNALSERVERERROR);
       SetInternalErrorHttp(rsp_protocol, "deserilize error");
       Reply(rsp_protocol, connection);
       DELETE_RESOURCE(req_msg);
@@ -172,7 +171,6 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, AbstractPro
   RpcClosure* closure = new RpcClosure([req_msg, rsp_msg, req_protocol, rsp_protocol, connection, rpc_controller, this]() mutable {
     if (rpc_controller->GetErrorCode() != 0){
       LOG_ERROR("%s | run error [%s]", req_protocol->m_msg_id_.c_str(), rpc_controller->GetErrorInfo());
-      SetHttpCode(rsp_protocol, HTTP_INTERNALSERVERERROR);
       SetInternalErrorHttp(rsp_protocol, rpc_controller->GetErrorInfo());
     }
     else {
@@ -181,7 +179,6 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, AbstractPro
       // 将序列化内容存储到响应体中
       if (!rsp_msg->SerializeToString(&(rsp_protocol->m_response_body_))) {
         LOG_ERROR("%s | serilize error, origin message [%s]", req_protocol->m_msg_id_.c_str(), rsp_msg->ShortDebugString().c_str());
-        SetHttpCode(rsp_protocol, HTTP_INTERNALSERVERERROR);
         SetInternalErrorHttp(rsp_protocol, rpc_controller->GetErrorInfo());
       }
       LOG_INFO("%s | http dispatch success, requesut[%s], response[%s]", req_protocol->m_msg_id_.c_str(), req_msg->ShortDebugString().c_str(), rsp_msg->ShortDebugString().c_str());

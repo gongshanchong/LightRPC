@@ -106,9 +106,9 @@ namespace lightrpc {
                         return;
                     }
                     read_size = read_size + content_len;
-                  } else {
+                } else {
                     is_parse_request_content = true;
-                  }
+                }
             }
             if (is_parse_request_line && is_parse_request_header && is_parse_request_header) {
                 LOG_DEBUG("parse http request success, read size is %d bytes", read_size);

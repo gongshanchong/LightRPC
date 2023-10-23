@@ -1,4 +1,5 @@
 #include "rpc_channel.h"
+#include "abstract_protocol.h"
 
 namespace lightrpc {
 
@@ -167,6 +168,7 @@ void RpcChannel::CallHttpService(const google::protobuf::MethodDescriptor* metho
                         google::protobuf::Message* response, google::protobuf::Closure* done){
   RpcController* method_controller = dynamic_cast<RpcController*>(m_controller_);
   std::shared_ptr<lightrpc::HttpRequest> req_protocol = std::make_shared<lightrpc::HttpRequest>();
+  req_protocol->http_type_ = HttpType::REQUEST;
   // 获取msg_id
   if (method_controller->GetMsgId().empty()) {
     // 这样的目的是为了实现 msg_id 的透传，假设服务 A 调用了 B，那么同一个 msgid 可以在服务 A 和 B 之间串起来，方便日志追踪

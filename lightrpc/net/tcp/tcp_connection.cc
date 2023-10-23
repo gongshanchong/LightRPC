@@ -95,7 +95,7 @@ void TcpConnection::Excute() {
       // 1. 针对每一个请求，调用 rpc 方法，获取响应 message
       // 2. 将响应 message 放入到发送缓冲区，监听可写事件回包
       LOG_INFO("success get request[%s] from client[%s]", result[i]->m_msg_id_.c_str(), m_peer_addr_->ToString().c_str());
-      std::shared_ptr<TinyPBProtocol> message = std::make_shared<TinyPBProtocol>();
+      std::shared_ptr<AbstractProtocol> message = std::make_shared<AbstractProtocol>();
       // 3. 进行事件的分发并进行处理，最后将响应发送出去
       RpcDispatcher::GetRpcDispatcher()->Dispatch(result[i], message, this);
     }
