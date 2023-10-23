@@ -26,9 +26,15 @@ public:
 
 private:
     // 解析http请求
+    bool ParseHttpRequest(std::vector<AbstractProtocol::s_ptr>& out_messages, TcpBuffer::s_ptr buffer, const std::string& tmp);
     bool ParseHttpRequestLine(std::shared_ptr<HttpRequest> requset, const std::string& tmp);
     bool ParseHttpRequestHeader(std::shared_ptr<HttpRequest> requset, const std::string& tmp);
     bool ParseHttpRequestContent(std::shared_ptr<HttpRequest> requset, const std::string& tmp);
+    // 解析http响应
+    bool ParseHttpResponse(std::vector<AbstractProtocol::s_ptr>& out_messages, TcpBuffer::s_ptr buffer, const std::string& tmp);
+    bool ParseHttpResponseLine(std::shared_ptr<HttpResponse> response, const std::string& tmp);
+    bool ParseHttpResponseHeader(std::shared_ptr<HttpResponse> response, const std::string& tmp);
+    bool ParseHttpResponseContent(std::shared_ptr<HttpResponse> response, const std::string& tmp);
 };
 
 } 

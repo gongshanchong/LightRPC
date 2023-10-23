@@ -115,18 +115,18 @@ void SetHttpCode(std::shared_ptr<HttpResponse> res, const int code) {
 }
 
 void SetHttpContentType(std::shared_ptr<HttpResponse> res, const std::string& content_type) {
-    res->m_response_header_.m_maps_["Content-Type"] = content_type;
+    res->m_header_.m_maps_["Content-Type"] = content_type;
 }
 
 void SetHttpBody(std::shared_ptr<HttpResponse> res, const std::string& body) {
-    res->m_response_body_ = body;
-    res->m_response_header_.m_maps_["Content-Length"]= std::to_string(res->m_response_body_.length());
+    res->m_body_ = body;
+    res->m_header_.m_maps_["Content-Length"]= std::to_string(res->m_body_.length());
 }
 
 void SetCommParam(std::shared_ptr<HttpRequest> req, std::shared_ptr<HttpResponse> res) {
     LOG_DEBUG("set response version = %s", req->m_request_version_.c_str());
     res->m_response_version_ = req->m_request_version_;
-    res->m_response_header_.m_maps_["Connection"]= req->m_requeset_header_.m_maps_["Connection"];
+    res->m_header_.m_maps_["Connection"]= req->m_header_.m_maps_["Connection"];
 }
 
 void SetNotFoundHttp(std::shared_ptr<HttpResponse> res){

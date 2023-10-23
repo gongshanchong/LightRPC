@@ -141,7 +141,7 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, TcpConnecti
   // 根据 method 对象反射出 request 和 response 对象
   google::protobuf::Message* req_msg = service->GetRequestPrototype(method).New();
   if(req_protocol->m_request_method_ == HttpMethod::POST){
-    if (!req_msg->ParseFromString(req_protocol->m_request_body_)) {
+    if (!req_msg->ParseFromString(req_protocol->m_body_)) {
       LOG_ERROR("%s | deserilize error", req_protocol->m_msg_id_.c_str(), method_name.c_str(), service_name.c_str());
       SetInternalErrorHttp(rsp_protocol, "deserilize error");
       Reply(rsp_protocol, connection);
@@ -174,10 +174,11 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, TcpConnecti
       SetHttpCode(rsp_protocol, lightrpc::HTTP_OK);
       SetHttpContentType(rsp_protocol, lightrpc::content_type_text);
       // 将序列化内容存储到响应体中
-      if (!rsp_msg->SerializeToString(&(rsp_protocol->m_response_body_))) {
+      if (!rsp_msg->SerializeToString(&(rsp_protocol->m_body_))) {
         LOG_ERROR("%s | serilize error, origin message [%s]", req_protocol->m_msg_id_.c_str(), rsp_msg->ShortDebugString().c_str());
         SetInternalErrorHttp(rsp_protocol, rpc_controller->GetInfo());
       }
+      rsp_protocol->m_header_.SetKeyValue("Content-Length", std::to_string(rsp_protocol->m_body_.size()));
       LOG_INFO("%s | http dispatch success, requesut[%s], response[%s]", req_protocol->m_msg_id_.c_str(), req_msg->ShortDebugString().c_str(), rsp_msg->ShortDebugString().c_str());
     }
 
@@ -225,10 +226,14 @@ bool RpcDispatcher::ParseUrlPathToervice(const std::string& url, std::string& se
     return false;
   }
   else if(i == 0){
-    service_name = url.substr(1, url.size()-1);
+    if(url.size() == 1){
+      service_name = url;
+    }else{
+      service_name = url.substr(1, url.size()-1);
+    }
   }
   else{
-    service_name = url.substr(0, i);
+    service_name = url.substr(1, i-1);
     method_name = url.substr(i + 1, url.length() - i - 1);
   }
   

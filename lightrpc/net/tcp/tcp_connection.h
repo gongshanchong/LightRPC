@@ -30,7 +30,7 @@ class TcpConnection {
   typedef std::shared_ptr<TcpConnection> s_ptr;
 
  public:
-  TcpConnection(EventLoop* event_loop, int fd, int buffer_size, NetAddr::s_ptr peer_addr, NetAddr::s_ptr local_addr, std::string protocol, TcpConnectionType type = TcpConnectionByServer);
+  TcpConnection(EventLoop* event_loop, int fd, int buffer_size, NetAddr::s_ptr peer_addr, NetAddr::s_ptr local_addr, ProtocalType protocol, TcpConnectionType type = TcpConnectionByServer);
 
   ~TcpConnection();
 

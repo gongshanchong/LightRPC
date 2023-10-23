@@ -6,9 +6,9 @@
 
 namespace lightrpc {
 
-TcpServer::TcpServer(NetAddr::s_ptr local_addr, std::string protocol, int timeout) : m_local_addr_(local_addr), protocol_(protocol), timeout_(timeout){
+TcpServer::TcpServer(NetAddr::s_ptr local_addr, ProtocalType protocol, int timeout) : m_local_addr_(local_addr), protocol_(protocol), timeout_(timeout){
   Init(); 
-  LOG_INFO("rocket TcpServer listen sucess on [%s]", m_local_addr_->ToString().c_str());
+  LOG_INFO("lightrpc TcpServer listen sucess on [%s]", m_local_addr_->ToString().c_str());
 }
 
 TcpServer::~TcpServer() {

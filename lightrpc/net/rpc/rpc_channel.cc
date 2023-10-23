@@ -1,9 +1,10 @@
 #include "rpc_channel.h"
 #include "abstract_protocol.h"
+#include <string>
 
 namespace lightrpc {
 
-RpcChannel::RpcChannel(NetAddr::s_ptr peer_addr, std::string protocol) : m_peer_addr_(peer_addr), protocol_(protocol){
+RpcChannel::RpcChannel(NetAddr::s_ptr peer_addr) : m_peer_addr_(peer_addr){
   LOG_INFO("RpcChannel");
 }
 
@@ -34,7 +35,7 @@ void RpcChannel::Init(google::protobuf::RpcController* controller, const google:
       CallBack();
       return;
     }
-    m_client_ = std::make_shared<TcpClient>(m_peer_addr_, protocol_);
+    m_client_ = std::make_shared<TcpClient>(m_peer_addr_, method_controller->GetProtocol());
 }
 
 void RpcChannel::CallBack() {
@@ -167,6 +168,9 @@ void RpcChannel::CallHttpService(const google::protobuf::MethodDescriptor* metho
   RpcController* method_controller = dynamic_cast<RpcController*>(m_controller_);
   std::shared_ptr<lightrpc::HttpRequest> req_protocol = std::make_shared<lightrpc::HttpRequest>();
   req_protocol->http_type_ = HttpType::REQUEST;
+  // req_protocol的初始设置
+  req_protocol->m_request_version_ = method_controller->GetHttpVersion();
+  req_protocol->m_header_ = method_controller->GetHttpHeader();
   // 获取msg_id
   if (method_controller->GetMsgId().empty()) {
     // 这样的目的是为了实现 msg_id 的透传，假设服务 A 调用了 B，那么同一个 msgid 可以在服务 A 和 B 之间串起来，方便日志追踪
@@ -188,13 +192,14 @@ void RpcChannel::CallHttpService(const google::protobuf::MethodDescriptor* metho
   // requeset 的序列化
   if(method_controller->GetCallMethod() == HttpMethod::POST){
     req_protocol->m_request_method_ = HttpMethod::POST;
-    if (!request->SerializeToString(&(req_protocol->m_request_body_))) {
+    if (!request->SerializeToString(&(req_protocol->m_body_))) {
       std::string err_info = "failde to serialize";
       method_controller->SetError(ERROR_FAILED_SERIALIZE, err_info);
       LOG_ERROR("%s | %s, origin requeset [%s] ", req_protocol->m_msg_id_.c_str(), err_info.c_str(), request->ShortDebugString().c_str());
       CallBack();
       return;
     }
+    req_protocol->m_header_.SetKeyValue("Content-Length", std::to_string(req_protocol->m_body_.size()));
   }else{
     req_protocol->m_request_method_ = HttpMethod::GET;
     std::string tmp;
@@ -220,53 +225,70 @@ void RpcChannel::CallHttpService(const google::protobuf::MethodDescriptor* metho
 
     channel->CallBack();
   });
-  // 先调用 writeMessage 发送 req_protocol, 然后调用 readMessage 等待回包
-  // 发送请求并设置回调函数
-  GetTcpClient()->WriteMessage(req_protocol, [method_controller, req_protocol, this](AbstractProtocol::s_ptr) mutable {
-    // 发送请求成功，输出日志
-    LOG_INFO("%s | send rpc request success. call method name[%s], peer addr[%s], local addr[%s]", 
-      req_protocol->m_msg_id_.c_str(), req_protocol->m_request_path_.c_str(),
-      GetTcpClient()->GetPeerAddr()->ToString().c_str(), GetTcpClient()->GetLocalAddr()->ToString().c_str());
-
-    // 读取响应并设置回调函数
-    GetTcpClient()->ReadMessage(req_protocol->m_msg_id_, [method_controller, req_protocol, this](AbstractProtocol::s_ptr msg) mutable {
-      std::shared_ptr<lightrpc::HttpResponse> rsp_protocol = std::dynamic_pointer_cast<lightrpc::HttpResponse>(msg);
-      rsp_protocol->m_msg_id_ = req_protocol->m_msg_id_;
-      // 读取响应成功，输出日志
-      LOG_INFO("%s | success get rpc response, call method name[%s], peer addr[%s], local addr[%s]", 
-        rsp_protocol->m_msg_id_.c_str(), req_protocol->m_request_path_.c_str(),
-        GetTcpClient()->GetPeerAddr()->ToString().c_str(), GetTcpClient()->GetLocalAddr()->ToString().c_str());
-      // 连接错误
-      if (rsp_protocol->m_response_code_ != HttpCode::HTTP_OK) {
-        LOG_ERROR("%s | call rpc methood[%s] failed, error code[%d], error info[%s]", 
-          rsp_protocol->m_msg_id_.c_str(), req_protocol->m_request_path_.c_str(),
-          rsp_protocol->m_response_code_, HttpCodeToString(rsp_protocol->m_response_code_));
-
-        method_controller->SetError(rsp_protocol->m_response_code_, HttpCodeToString(rsp_protocol->m_response_code_));
-        
-        CallBack();
-        return;
-      }
-      // 反序列化响应
-      if (!(m_response_->ParseFromString(rsp_protocol->m_response_body_))){
-        LOG_ERROR("%s | serialize error", rsp_protocol->m_msg_id_.c_str());
-        method_controller->SetError(ERROR_FAILED_SERIALIZE, "serialize error");
-        
-        CallBack();
-        return;
-      }
+  m_client_->AddTimerEvent(timer_event);
+  // 设置connnect的回调函数，连接成功后发送请求并接受响应
+  m_client_->Connect([method_controller, req_protocol, this]() mutable {
+    // 连接错误
+    if (GetTcpClient()->GetConnectErrorCode() != 0) {
+      method_controller->SetError(GetTcpClient()->GetConnectErrorCode(), GetTcpClient()->GetConnectErrorInfo());
+      LOG_ERROR("%s | connect error, error coode[%d], error info[%s], peer addr[%s]", 
+        req_protocol->m_msg_id_.c_str(), method_controller->GetErrorCode(), 
+        method_controller->GetInfo().c_str(), GetTcpClient()->GetPeerAddr()->ToString().c_str());
       
-      // 调用rpc成功
-      LOG_INFO("%s | call rpc success, call method name[%s], peer addr[%s], local addr[%s]",
-        rsp_protocol->m_msg_id_.c_str(), req_protocol->m_request_path_.c_str(),
-        GetTcpClient()->GetPeerAddr()->ToString().c_str(), GetTcpClient()->GetLocalAddr()->ToString().c_str())
-
       CallBack();
+      return;
+    }
+    // 连接成功，输出日志信息
+    LOG_INFO("%s | connect success, peer addr[%s], local addr[%s]",
+      req_protocol->m_msg_id_.c_str(), 
+      GetTcpClient()->GetPeerAddr()->ToString().c_str(), 
+      GetTcpClient()->GetPeerAddr()->ToString().c_str());
+    // 先调用 writeMessage 发送 req_protocol, 然后调用 readMessage 等待回包
+    // 发送请求并设置回调函数
+    GetTcpClient()->WriteMessage(req_protocol, [method_controller, req_protocol, this](AbstractProtocol::s_ptr) mutable {
+      // 发送请求成功，输出日志
+      LOG_INFO("%s | send rpc request success. call method name[%s], peer addr[%s], local addr[%s]", 
+        req_protocol->m_msg_id_.c_str(), req_protocol->m_request_path_.c_str(),
+        GetTcpClient()->GetPeerAddr()->ToString().c_str(), GetTcpClient()->GetLocalAddr()->ToString().c_str());
+
+      // 读取响应并设置回调函数
+      GetTcpClient()->ReadMessage(req_protocol->m_msg_id_, [method_controller, req_protocol, this](AbstractProtocol::s_ptr msg) mutable {
+        std::shared_ptr<lightrpc::HttpResponse> rsp_protocol = std::dynamic_pointer_cast<lightrpc::HttpResponse>(msg);
+        rsp_protocol->m_msg_id_ = req_protocol->m_msg_id_;
+        // 读取响应成功，输出日志
+        LOG_INFO("%s | success get rpc response, call method name[%s], peer addr[%s], local addr[%s]", 
+          rsp_protocol->m_msg_id_.c_str(), req_protocol->m_request_path_.c_str(),
+          GetTcpClient()->GetPeerAddr()->ToString().c_str(), GetTcpClient()->GetLocalAddr()->ToString().c_str());
+        // 连接错误
+        if (rsp_protocol->m_response_code_ != HttpCode::HTTP_OK) {
+          LOG_ERROR("%s | call rpc methood[%s] failed, error code[%d], error info[%s]", 
+            rsp_protocol->m_msg_id_.c_str(), req_protocol->m_request_path_.c_str(),
+            rsp_protocol->m_response_code_, HttpCodeToString(rsp_protocol->m_response_code_));
+
+          method_controller->SetError(rsp_protocol->m_response_code_, HttpCodeToString(rsp_protocol->m_response_code_));
+          
+          CallBack();
+          return;
+        }
+        // 反序列化响应
+        if (!(m_response_->ParseFromString(rsp_protocol->m_body_))){
+          LOG_ERROR("%s | serialize error", rsp_protocol->m_msg_id_.c_str());
+          method_controller->SetError(ERROR_FAILED_SERIALIZE, "serialize error");
+          
+          CallBack();
+          return;
+        }
+        
+        // 调用rpc成功
+        LOG_INFO("%s | call rpc success, call method name[%s], peer addr[%s], local addr[%s]",
+          rsp_protocol->m_msg_id_.c_str(), req_protocol->m_request_path_.c_str(),
+          GetTcpClient()->GetPeerAddr()->ToString().c_str(), GetTcpClient()->GetLocalAddr()->ToString().c_str())
+
+        CallBack();
+      });
     });
   });
-
 }
-
 
 void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
                         google::protobuf::RpcController* controller, const google::protobuf::Message* request,

@@ -68,6 +68,14 @@ class RpcController : public google::protobuf::RpcController {
 
   void SetCallMethod(HttpMethod call_method);
 
+  void SetHttpHeader(HttpHeaderComm http_header);
+
+  HttpHeaderComm GetHttpHeader();
+
+  void SetHttpVersion(const std::string& http_version);
+
+  std::string GetHttpVersion();
+
   bool Finished();
 
   void SetFinished(bool value);
@@ -85,6 +93,8 @@ class RpcController : public google::protobuf::RpcController {
   NetAddr::s_ptr m_peer_addr_;
 
   ProtocalType protocol_;    // 协议类型
+  HttpHeaderComm http_header_; // http头部消息
+  std::string http_version_;  // http版本
   HttpMethod call_method_;   // http请求类型类型
   int m_timeout_ {1000};     // ms
 };

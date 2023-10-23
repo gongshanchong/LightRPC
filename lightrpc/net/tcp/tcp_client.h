@@ -14,7 +14,7 @@ class TcpClient {
  public:
   typedef std::shared_ptr<TcpClient> s_ptr;
 
-  TcpClient(NetAddr::s_ptr peer_addr, std::string protocol);
+  TcpClient(NetAddr::s_ptr peer_addr, ProtocalType protocol);
 
   ~TcpClient();
 
@@ -53,7 +53,7 @@ class TcpClient {
   int m_fd_ {-1};
   FdEvent* m_fd_event_ {NULL};
 
-  std::string protocol_;              // 通信协议
+  ProtocalType protocol_;              // 通信协议
   TcpConnection::s_ptr m_connection_; // 连接
 
   // 连接的错误信息

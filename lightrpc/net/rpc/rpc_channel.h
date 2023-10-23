@@ -43,7 +43,7 @@ class RpcChannel : public google::protobuf::RpcChannel, public std::enable_share
   static NetAddr::s_ptr FindAddr(const std::string& str);
 
  public:
-  RpcChannel(NetAddr::s_ptr peer_addr, std::string protocol);
+  RpcChannel(NetAddr::s_ptr peer_addr);
 
   ~RpcChannel();
 
@@ -69,7 +69,6 @@ class RpcChannel : public google::protobuf::RpcChannel, public std::enable_share
 
  private:
   NetAddr::s_ptr m_peer_addr_ {nullptr};
-  std::string protocol_;
   TcpClient::s_ptr m_client_ {nullptr};
 
   controller_ptr m_controller_ {nullptr};

@@ -89,7 +89,12 @@ Config::Config(const char* xmlfile) {
             stub.timeout_ = std::atoi(node->FirstChildElement("timeout")->GetText());
             std::string protocal = std::string(node->FirstChildElement("protocal")->GetText());
             std::transform(protocal.begin(), protocal.end(), protocal.begin(), toupper);
-            stub.protocal_ = protocal;
+            if(protocal == "HTTP"){
+                stub.protocal_ = ProtocalType::HTTP;
+            }
+            else{
+                stub.protocal_ = ProtocalType::TINYPB;
+            }
 
             std::string ip = std::string(node->FirstChildElement("ip")->GetText());
             uint16_t port = std::atoi(node->FirstChildElement("port")->GetText());

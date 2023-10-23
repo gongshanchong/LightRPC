@@ -10,7 +10,7 @@
 
 namespace lightrpc {
 
-TcpClient::TcpClient(NetAddr::s_ptr peer_addr, std::string protocol) : m_peer_addr_(peer_addr), protocol_(protocol){
+TcpClient::TcpClient(NetAddr::s_ptr peer_addr, ProtocalType protocol) : m_peer_addr_(peer_addr), protocol_(protocol){
   m_event_loop_ = EventLoop::GetCurrentEventLoop();
   m_fd_ = socket(peer_addr->GetFamily(), SOCK_STREAM, 0);
 

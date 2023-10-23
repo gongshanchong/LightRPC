@@ -117,6 +117,22 @@ void RpcController::SetCallMethod(HttpMethod call_method){
   call_method_ = call_method;
 }
 
+void RpcController::SetHttpHeader(HttpHeaderComm http_header){
+  http_header_ = http_header;
+}
+
+HttpHeaderComm RpcController::GetHttpHeader(){
+  return http_header_;
+}
+
+void RpcController::SetHttpVersion(const std::string& http_version){
+  http_version_ = http_version;
+}
+
+std::string RpcController::GetHttpVersion(){
+  return http_version_;
+}
+
 bool RpcController::Finished() {
   return m_is_finished_;
 }

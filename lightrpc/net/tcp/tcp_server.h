@@ -12,7 +12,7 @@ namespace lightrpc {
 
 class TcpServer {
  public:
-  TcpServer(NetAddr::s_ptr local_addr, std::string protocol, int timeout);
+  TcpServer(NetAddr::s_ptr local_addr, ProtocalType protocol, int timeout);
 
   ~TcpServer();
 
@@ -42,7 +42,7 @@ class TcpServer {
 
   int m_client_counts_ {0};                 // 客户端连接的数量
 
-  std::string protocol_;                    // 通信协议
+  ProtocalType protocol_;                    // 通信协议
 
   std::set<TcpConnection::s_ptr> m_client_; // 客户端连接
 

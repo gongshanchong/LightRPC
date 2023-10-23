@@ -29,7 +29,7 @@
 
 void test_tcp_client() {
   lightrpc::IPNetAddr::s_ptr addr = std::make_shared<lightrpc::IPNetAddr>("127.0.0.1", 12345);
-  lightrpc::TcpClient client(addr, "HTTP");
+  lightrpc::TcpClient client(addr, lightrpc::ProtocalType::TINYPB);
   client.Connect([addr, &client]() {
     LOG_DEBUG("conenct to [%s] success", addr->ToString().c_str());
     std::shared_ptr<lightrpc::TinyPBProtocol> message = std::make_shared<lightrpc::TinyPBProtocol>();
@@ -70,7 +70,7 @@ void test_rpc_channel() {
   NEWMESSAGE(makeOrderRequest, request);
   NEWMESSAGE(makeOrderResponse, response);
   // 获取服务端通信
-  std::shared_ptr<lightrpc::RpcChannel> channel = std::make_shared<lightrpc::RpcChannel>(lightrpc::RpcChannel::FindAddr("127.0.0.1:12345"), "TINYPB");
+  std::shared_ptr<lightrpc::RpcChannel> channel = std::make_shared<lightrpc::RpcChannel>(lightrpc::RpcChannel::FindAddr("127.0.0.1:12345"));
   std::shared_ptr<Order_Stub> stub = std::make_shared<Order_Stub>(channel.get());
   // 请求与响应
   request->set_price(100);
@@ -78,8 +78,12 @@ void test_rpc_channel() {
   // 相关辅助参数设置
   NEWRPCCONTROLLER(controller);
   controller->SetMsgId("99998888");
-  controller->SetTimeout(10000);
-  controller->SetProtocol(lightrpc::ProtocalType::TINYPB);
+  controller->SetTimeout(100000);
+  controller->SetProtocol(lightrpc::ProtocalType::HTTP);
+  controller->SetCallMethod(lightrpc::HttpMethod::GET);
+  lightrpc::HttpHeaderComm http_header;
+  http_header.SetKeyValue("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64)");
+  controller->SetHttpVersion("HTTP/1.1");
   // 回调函数设置
   std::shared_ptr<lightrpc::RpcClosure> closure = std::make_shared<lightrpc::RpcClosure>([request, response]() mutable {
     LOG_INFO("call rpc success, request[%s], response[%s]", request->ShortDebugString().c_str(), response->ShortDebugString().c_str());
