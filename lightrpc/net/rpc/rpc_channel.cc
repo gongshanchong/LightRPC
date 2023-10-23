@@ -43,7 +43,7 @@ void RpcChannel::CallBack() {
     LOG_ERROR("call rpc failed, request[%s], error code[%d], error info[%s]", 
         m_request_->ShortDebugString().c_str(), 
         method_controller->GetErrorCode(), 
-        method_controller->GetErrorInfo().c_str());
+        method_controller->GetInfo().c_str());
     return;
   }
   if (method_controller->Finished()) {
@@ -106,7 +106,7 @@ void RpcChannel::CallTinyPBService(const google::protobuf::MethodDescriptor* met
       method_controller->SetError(GetTcpClient()->GetConnectErrorCode(), GetTcpClient()->GetConnectErrorInfo());
       LOG_ERROR("%s | connect error, error coode[%d], error info[%s], peer addr[%s]", 
         req_protocol->m_msg_id_.c_str(), method_controller->GetErrorCode(), 
-        method_controller->GetErrorInfo().c_str(), GetTcpClient()->GetPeerAddr()->ToString().c_str());
+        method_controller->GetInfo().c_str(), GetTcpClient()->GetPeerAddr()->ToString().c_str());
       
       CallBack();
       return;

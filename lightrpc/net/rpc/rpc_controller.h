@@ -40,7 +40,9 @@ class RpcController : public google::protobuf::RpcController {
 
   int32_t GetErrorCode();
 
-  std::string GetErrorInfo();
+  void SetInfo(const std::string info);
+
+  std::string GetInfo();
 
   void SetMsgId(const std::string& msg_id);
 
@@ -72,7 +74,7 @@ class RpcController : public google::protobuf::RpcController {
  
  private:
   int32_t m_error_code_ {0};   // RPC 框架级错误码
-  std::string m_error_info_;
+  std::string m_info_;
   std::string m_msg_id_;
 
   bool m_is_failed_ {false};

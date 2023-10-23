@@ -6,7 +6,7 @@ namespace lightrpc {
 // 将RpcController重置为初始状态，以便可以在新的调用中重用它。RPC正在进行时不能被调用。
 void RpcController::Reset() {
   m_error_code_ = 0;
-  m_error_info_ = "";
+  m_info_ = "";
   m_msg_id_ = "";
   m_is_failed_ = false;
   m_is_cancled_ = false;
@@ -23,7 +23,7 @@ bool RpcController::Failed() const {
 
 // 如果Failed为true，则返回可读的错误描述。
 std::string RpcController::ErrorText() const {
-  return m_error_info_;
+  return m_info_;
 }
 
 // 建议RPC系统调用者希望RPC调用被取消。RPC系统可能会立即取消它，可能会等待一段时间然后取消它，甚至可能根本不会取消该调用。  
@@ -36,7 +36,7 @@ void RpcController::StartCancel() {
 
 // 使得Failed在客户端返回true。
 void RpcController::SetFailed(const std::string& reason) {
-  m_error_info_ = reason;
+  m_info_ = reason;
   m_is_failed_ = true;
 }
 
@@ -53,7 +53,7 @@ void RpcController::NotifyOnCancel(google::protobuf::Closure* callback) {
 
 void RpcController::SetError(int32_t error_code, const std::string error_info) {
   m_error_code_ = error_code;
-  m_error_info_ = error_info;
+  m_info_ = error_info;
   m_is_failed_ = true;
 }
 
@@ -61,8 +61,12 @@ int32_t RpcController::GetErrorCode() {
   return m_error_code_;
 }
 
-std::string RpcController::GetErrorInfo() {
-  return m_error_info_;
+void RpcController::SetInfo(const std::string info){
+  m_info_ = info;
+}
+
+std::string RpcController::GetInfo() {
+  return m_info_;
 }
 
 void RpcController::SetMsgId(const std::string& msg_id) {

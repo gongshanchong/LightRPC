@@ -81,8 +81,8 @@ void RpcDispatcher::CallTinyPBService(AbstractProtocol::s_ptr request, TcpConnec
       rsp_protocol->SetTinyPBError(ERROR_FAILED_SERIALIZE, "serilize error");
     } 
     else if (rpc_controller->GetErrorCode() != 0){
-      LOG_ERROR("%s | run error [%s]", req_protocol->m_msg_id_.c_str(), rpc_controller->GetErrorInfo().c_str());
-      rsp_protocol->SetTinyPBError(rpc_controller->GetErrorCode(), rpc_controller->GetErrorInfo());
+      LOG_ERROR("%s | run error [%s]", req_protocol->m_msg_id_.c_str(), rpc_controller->GetInfo().c_str());
+      rsp_protocol->SetTinyPBError(rpc_controller->GetErrorCode(), rpc_controller->GetInfo());
     }
     else {
       rsp_protocol->m_err_code_ = 0;
@@ -128,6 +128,7 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, TcpConnecti
     return;
   }
   // 找到对应的 method
+  if(service_name == "/" && method_name.empty()){ method_name = "Begin"; }
   service_s_ptr service = (*it).second;
   const google::protobuf::MethodDescriptor* method = service->GetDescriptor()->FindMethodByName(method_name);
   if (method == NULL) {
@@ -166,8 +167,8 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, TcpConnecti
   // closure 就会把 response 对象再序列化，最终生成一个 TinyPBProtocol 的结构体，最后通过 TcpConnection::reply 函数，将数据再发送给客户端
   RpcClosure* closure = new RpcClosure([req_msg, rsp_msg, req_protocol, rsp_protocol, connection, rpc_controller, this]() mutable {
     if (rpc_controller->GetErrorCode() != 0){
-      LOG_ERROR("%s | run error [%s]", req_protocol->m_msg_id_.c_str(), rpc_controller->GetErrorInfo().c_str());
-      SetInternalErrorHttp(rsp_protocol, rpc_controller->GetErrorInfo());
+      LOG_ERROR("%s | run error [%s]", req_protocol->m_msg_id_.c_str(), rpc_controller->GetInfo().c_str());
+      SetInternalErrorHttp(rsp_protocol, rpc_controller->GetInfo());
     }
     else {
       SetHttpCode(rsp_protocol, lightrpc::HTTP_OK);
@@ -175,7 +176,7 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, TcpConnecti
       // 将序列化内容存储到响应体中
       if (!rsp_msg->SerializeToString(&(rsp_protocol->m_response_body_))) {
         LOG_ERROR("%s | serilize error, origin message [%s]", req_protocol->m_msg_id_.c_str(), rsp_msg->ShortDebugString().c_str());
-        SetInternalErrorHttp(rsp_protocol, rpc_controller->GetErrorInfo());
+        SetInternalErrorHttp(rsp_protocol, rpc_controller->GetInfo());
       }
       LOG_INFO("%s | http dispatch success, requesut[%s], response[%s]", req_protocol->m_msg_id_.c_str(), req_msg->ShortDebugString().c_str(), rsp_msg->ShortDebugString().c_str());
     }

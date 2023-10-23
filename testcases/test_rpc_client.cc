@@ -79,6 +79,7 @@ void test_rpc_channel() {
   NEWRPCCONTROLLER(controller);
   controller->SetMsgId("99998888");
   controller->SetTimeout(10000);
+  controller->SetProtocol(lightrpc::ProtocalType::TINYPB);
   // 回调函数设置
   std::shared_ptr<lightrpc::RpcClosure> closure = std::make_shared<lightrpc::RpcClosure>([request, response]() mutable {
     LOG_INFO("call rpc success, request[%s], response[%s]", request->ShortDebugString().c_str(), response->ShortDebugString().c_str());
