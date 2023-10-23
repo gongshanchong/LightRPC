@@ -16,7 +16,6 @@
 #include <condition_variable>
 
 #include "util.h"
-#include "run_time.h"
 #include "config.h"
 #include "../net/eventloop.h"
 #include "../net/timer_event.h"

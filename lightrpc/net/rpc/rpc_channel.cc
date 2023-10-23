@@ -68,12 +68,10 @@ void RpcChannel::CallTinyPBService(const google::protobuf::MethodDescriptor* met
   if (method_controller->GetMsgId().empty()) {
     // 这样的目的是为了实现 msg_id 的透传，假设服务 A 调用了 B，那么同一个 msgid 可以在服务 A 和 B 之间串起来，方便日志追踪
     req_protocol->m_msg_id_ = MsgIDUtil::GenMsgID();
-    RunTime::GetRunTime()->m_msgid_ = req_protocol->m_msg_id_;
     method_controller->SetMsgId(req_protocol->m_msg_id_);
   } else {
     // 如果 controller 指定了 msgid, 直接使用
     req_protocol->m_msg_id_ = method_controller->GetMsgId();
-    RunTime::GetRunTime()->m_msgid_ = req_protocol->m_msg_id_;
   }
   // 获取请求的方法
   req_protocol->m_method_name_ = method->full_name();
@@ -173,12 +171,10 @@ void RpcChannel::CallHttpService(const google::protobuf::MethodDescriptor* metho
   if (method_controller->GetMsgId().empty()) {
     // 这样的目的是为了实现 msg_id 的透传，假设服务 A 调用了 B，那么同一个 msgid 可以在服务 A 和 B 之间串起来，方便日志追踪
     req_protocol->m_msg_id_ = MsgIDUtil::GenMsgID();
-    RunTime::GetRunTime()->m_msgid_ = req_protocol->m_msg_id_;
     method_controller->SetMsgId(req_protocol->m_msg_id_);
   } else {
     // 如果 controller 指定了 msgid, 直接使用
     req_protocol->m_msg_id_ = method_controller->GetMsgId();
-    RunTime::GetRunTime()->m_msgid_ = req_protocol->m_msg_id_;
   }
   // 获取请求的方法
   std::string method_full_name = method->full_name();

@@ -41,12 +41,8 @@ int main(int argc, char* argv[]) {
   lightrpc::Config::GetGlobalConfig()->m_rpc_stubs_["default"].protocal_, 
   lightrpc::Config::GetGlobalConfig()->m_rpc_stubs_["default"].timeout_);
   // 依据配置文件中的服务的协议进行相关的操作
-  if(lightrpc::Config::GetGlobalConfig()->m_rpc_stubs_["default"].protocal_ == "HTTP"){
-
-  }else{
-    std::shared_ptr<OrderImpl> service = std::make_shared<OrderImpl>();
-    lightrpc::RpcDispatcher::GetRpcDispatcher()->RegisterService(service);
-  }
+  std::shared_ptr<OrderImpl> service = std::make_shared<OrderImpl>();
+  lightrpc::RpcDispatcher::GetRpcDispatcher()->RegisterService(service);
 
   tcp_server.Start();
 

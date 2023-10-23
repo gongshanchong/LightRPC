@@ -11,4 +11,4 @@ create_dir 'log'
 create_dir 'obj'
 create_dir 'lib'
 
-make clean && make
+make clean && make -j4

@@ -4,7 +4,6 @@
 #include <google/protobuf/stubs/callback.h>
 #include <functional>
 #include <memory>
-#include "../../common/run_time.h"
 #include "../../common/log.h"
 #include "rpc_interface.h"
 

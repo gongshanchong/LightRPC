@@ -21,10 +21,10 @@ RpcDispatcher* RpcDispatcher::GetRpcDispatcher() {
   return g_rpc_dispatcher;
 }
 
-void RpcDispatcher::CallTinyPBService(AbstractProtocol::s_ptr request, AbstractProtocol::s_ptr response, TcpConnection* connection){
+void RpcDispatcher::CallTinyPBService(AbstractProtocol::s_ptr request, TcpConnection* connection){
   // 构造请求、响应信息
   std::shared_ptr<TinyPBProtocol> req_protocol = std::dynamic_pointer_cast<TinyPBProtocol>(request);
-  std::shared_ptr<TinyPBProtocol> rsp_protocol = std::dynamic_pointer_cast<TinyPBProtocol>(response);
+  std::shared_ptr<TinyPBProtocol> rsp_protocol = std::make_shared<TinyPBProtocol>();
   std::string method_full_name = req_protocol->m_method_name_;
   std::string service_name;
   std::string method_name;
@@ -74,8 +74,6 @@ void RpcDispatcher::CallTinyPBService(AbstractProtocol::s_ptr request, AbstractP
   rpc_controller->SetLocalAddr(connection->GetLocalAddr());
   rpc_controller->SetPeerAddr(connection->GetPeerAddr());
   rpc_controller->SetMsgId(req_protocol->m_msg_id_);
-  RunTime::GetRunTime()->m_msgid_ = req_protocol->m_msg_id_;
-  RunTime::GetRunTime()->m_method_name_ = method_name;
   // closure 就会把 response 对象再序列化，最终生成一个 TinyPBProtocol 的结构体，最后通过 TcpConnection::reply 函数，将数据再发送给客户端
   RpcClosure* closure = new RpcClosure([req_msg, rsp_msg, req_protocol, rsp_protocol, connection, rpc_controller, this]() mutable {
     if (!rsp_msg->SerializeToString(&(rsp_protocol->m_pb_data_))) {
@@ -83,7 +81,7 @@ void RpcDispatcher::CallTinyPBService(AbstractProtocol::s_ptr request, AbstractP
       rsp_protocol->SetTinyPBError(ERROR_FAILED_SERIALIZE, "serilize error");
     } 
     else if (rpc_controller->GetErrorCode() != 0){
-      LOG_ERROR("%s | run error [%s]", req_protocol->m_msg_id_.c_str(), rpc_controller->GetErrorInfo());
+      LOG_ERROR("%s | run error [%s]", req_protocol->m_msg_id_.c_str(), rpc_controller->GetErrorInfo().c_str());
       rsp_protocol->SetTinyPBError(rpc_controller->GetErrorCode(), rpc_controller->GetErrorInfo());
     }
     else {
@@ -98,12 +96,12 @@ void RpcDispatcher::CallTinyPBService(AbstractProtocol::s_ptr request, AbstractP
   service->CallMethod(method, rpc_controller, req_msg, rsp_msg, closure);
 }
 
-void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, AbstractProtocol::s_ptr response, TcpConnection* connection){
+void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, TcpConnection* connection){
   // 构造请求、响应信息
   std::shared_ptr<HttpRequest> req_protocol = std::dynamic_pointer_cast<HttpRequest>(request);
-  std::shared_ptr<HttpResponse> rsp_protocol = std::dynamic_pointer_cast<HttpResponse>(response);
+  std::shared_ptr<HttpResponse> rsp_protocol = std::make_shared<HttpResponse>();
   rsp_protocol->http_type_ = HttpType::RESPONSE;
-  LOG_INFO("begin to dispatch client http request, msgno = %s", request->m_msg_id_);
+  LOG_INFO("begin to dispatch client http request, msgno = %s", request->m_msg_id_.c_str());
   std::string url_path = req_protocol->m_request_path_;
   std::string service_name;
   std::string method_name;
@@ -113,7 +111,7 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, AbstractPro
   // 解析完整的 rpc 方法名
   if (!ParseUrlPathToervice(url_path, service_name, method_name)) {
     // 解析失败，返回对应错误码, 不进行其他的处理
-    LOG_ERROR("404, url path{%s}, msgno= %s", url_path, request->m_msg_id_);
+    LOG_ERROR("404, url path{%s}, msgno= %s", url_path.c_str(), request->m_msg_id_.c_str());
     // 设置未发现响应报文
     SetNotFoundHttp(rsp_protocol);
     // 回复客户端
@@ -165,12 +163,10 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, AbstractPro
   rpc_controller->SetLocalAddr(connection->GetLocalAddr());
   rpc_controller->SetPeerAddr(connection->GetPeerAddr());
   rpc_controller->SetMsgId(req_protocol->m_msg_id_);
-  RunTime::GetRunTime()->m_msgid_ = req_protocol->m_msg_id_;
-  RunTime::GetRunTime()->m_method_name_ = method_name;
   // closure 就会把 response 对象再序列化，最终生成一个 TinyPBProtocol 的结构体，最后通过 TcpConnection::reply 函数，将数据再发送给客户端
   RpcClosure* closure = new RpcClosure([req_msg, rsp_msg, req_protocol, rsp_protocol, connection, rpc_controller, this]() mutable {
     if (rpc_controller->GetErrorCode() != 0){
-      LOG_ERROR("%s | run error [%s]", req_protocol->m_msg_id_.c_str(), rpc_controller->GetErrorInfo());
+      LOG_ERROR("%s | run error [%s]", req_protocol->m_msg_id_.c_str(), rpc_controller->GetErrorInfo().c_str());
       SetInternalErrorHttp(rsp_protocol, rpc_controller->GetErrorInfo());
     }
     else {
@@ -190,12 +186,12 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, AbstractPro
   service->CallMethod(method, rpc_controller, req_msg, rsp_msg, closure);
 }
 
-void RpcDispatcher::Dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::s_ptr response, TcpConnection* connection) {
+void RpcDispatcher::Dispatch(AbstractProtocol::s_ptr request, TcpConnection* connection) {
   // 依据协议进行不同的服务分发
   if(request->protocol_ == ProtocalType::TINYPB){
-    CallTinyPBService(request, response, connection);
+    CallTinyPBService(request, connection);
   }else{
-    CallHttpService(request, response, connection);
+    CallHttpService(request, connection);
   }
 }
 
@@ -227,9 +223,14 @@ bool RpcDispatcher::ParseUrlPathToervice(const std::string& url, std::string& se
     LOG_ERROR("not find / in full name [%s]", url.c_str());
     return false;
   }
-  service_name = url.substr(0, i);
-  method_name = url.substr(i + 1, url.length() - i - 1);
-
+  else if(i == 0){
+    service_name = url.substr(1, url.size()-1);
+  }
+  else{
+    service_name = url.substr(0, i);
+    method_name = url.substr(i + 1, url.length() - i - 1);
+  }
+  
   LOG_INFO("parse sericve_name[%s] and method_name[%s] from url [%s]", service_name.c_str(), method_name.c_str(), url.c_str());
 
   return true;

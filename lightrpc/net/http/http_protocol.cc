@@ -74,7 +74,7 @@ void SplitStrToMap(const std::string& str, const std::string& split_str,
       if (j != i.npos && j != 0) {
         std::string key = i.substr(0, j);
         std::string value = i.substr(j + joiner.length(), i.length() - j - joiner.length());
-        LOG_DEBUG("insert key = %s, value = %s", key, value);
+        LOG_DEBUG("insert key = %s, value = %s", key.c_str(), value.c_str());
         res[key.c_str()] = value;
       }
     }
@@ -124,7 +124,7 @@ void SetHttpBody(std::shared_ptr<HttpResponse> res, const std::string& body) {
 }
 
 void SetCommParam(std::shared_ptr<HttpRequest> req, std::shared_ptr<HttpResponse> res) {
-    LOG_DEBUG("set response version = %s", req->m_request_version_);
+    LOG_DEBUG("set response version = %s", req->m_request_version_.c_str());
     res->m_response_version_ = req->m_request_version_;
     res->m_response_header_.m_maps_["Connection"]= req->m_requeset_header_.m_maps_["Connection"];
 }

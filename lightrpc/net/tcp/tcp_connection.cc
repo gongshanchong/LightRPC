@@ -87,23 +87,19 @@ void TcpConnection::OnRead() {
 }
 
 void TcpConnection::Excute() {
+  // 从 buffer 里 decode 得到响应 message 对象, 执行其回调
+  std::vector<AbstractProtocol::s_ptr> result;
+  m_coder_->Decode(result, m_in_buffer_);
+
   if (m_connection_type_ == TcpConnectionByServer) {
-    // 将 RPC 请求执行业务逻辑，获取 RPC 响应, 再把 RPC 响应发送回去
-    std::vector<AbstractProtocol::s_ptr> result;
-    m_coder_->Decode(result, m_in_buffer_);
     for (size_t i = 0;  i < result.size(); ++i) {
       // 1. 针对每一个请求，调用 rpc 方法，获取响应 message
       // 2. 将响应 message 放入到发送缓冲区，监听可写事件回包
       LOG_INFO("success get request[%s] from client[%s]", result[i]->m_msg_id_.c_str(), m_peer_addr_->ToString().c_str());
-      std::shared_ptr<AbstractProtocol> message = std::make_shared<AbstractProtocol>();
       // 3. 进行事件的分发并进行处理，最后将响应发送出去
-      RpcDispatcher::GetRpcDispatcher()->Dispatch(result[i], message, this);
+      RpcDispatcher::GetRpcDispatcher()->Dispatch(result[i], this);
     }
   } else {
-    // 从 buffer 里 decode 得到响应 message 对象, 执行其回调
-    std::vector<AbstractProtocol::s_ptr> result;
-    m_coder_->Decode(result, m_in_buffer_);
-
     // 如果读取响应 message 成功，会调用 done 函数
     for (size_t i = 0; i < result.size(); ++i) {
       std::string msg_id = result[i]->m_msg_id_;

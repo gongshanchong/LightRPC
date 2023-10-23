@@ -9,8 +9,8 @@ TcpBuffer::TcpBuffer(int size) : m_size_(size) {
 }
 
 std::string TcpBuffer::GetBufferString(){
-  std::string re(readAble(), '0');
-  memcpy(&re[0],  &m_buffer[m_read_index], ReadAble());
+  std::string re(ReadAble(), '0');
+  memcpy(&re[0],  &m_buffer_[m_read_index_], ReadAble());
   return re;
 }
 
@@ -87,7 +87,7 @@ void TcpBuffer::AdjustBuffer() {
 
 void TcpBuffer::MoveReadIndex(int size) {
   size_t j = m_read_index_ + size;
-  if (j >= m_buffer_.size()) {
+  if (j > m_buffer_.size()) {
     LOG_ERROR("moveReadIndex error, invalid size %d, old_read_index %d, buffer size %d", size, m_read_index_, m_buffer_.size());
     return;
   }
@@ -97,7 +97,7 @@ void TcpBuffer::MoveReadIndex(int size) {
 
 void TcpBuffer::MoveWriteIndex(int size) {
   size_t j = m_write_index_ + size;
-  if (j >= m_buffer_.size()) {
+  if (j > m_buffer_.size()) {
     LOG_ERROR("moveWriteIndex error, invalid size %d, old_read_index %d, buffer size %d", size, m_read_index_, m_buffer_.size());
     return;
   }

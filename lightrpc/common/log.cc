@@ -146,16 +146,6 @@ std::string LogEvent::ToString() {
       << "[" << time_str << "]\t"
       << "[" << m_pid_ << ":" << m_thread_id_ << "]\t";
 
-    // 获取当前线程处理的请求的 msgid
-    std::string msgid = RunTime::GetRunTime()->m_msgid_;
-    std::string method_name = RunTime::GetRunTime()->m_method_name_;
-    if (!msgid.empty()) {
-      ss << "[" << msgid << "]\t";
-    }
-
-    if (!method_name.empty()) {
-      ss << "[" << method_name << "]\t";
-    }
     return ss.str();
 }
 
@@ -236,6 +226,7 @@ void* AsyncLogger::Loop(void* arg) {
       if (logger->m_file_hanlder_) {
         fclose(logger->m_file_hanlder_);
       }
+      // a 以附加的方式打开只写文件。若文件不存在，则会建立该文件，如果文件存在，写入的数据会被加到文件尾，即文件原先的内容会被保留。（EOF符保留）
       logger->m_file_hanlder_ = fopen(log_file_name.c_str(), "a");
       logger->m_reopen_flag_ = false;
     }

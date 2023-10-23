@@ -1,6 +1,7 @@
 #include "http_coder.h"
 #include "http_protocol.h"
 #include <algorithm>
+#include <cstdio>
 
 namespace lightrpc {
     // 将 message 对象转化为字节流，写入到 buffer
@@ -16,7 +17,7 @@ namespace lightrpc {
                     << response->m_response_info_ << "\r\n" << response->m_response_header_.ToHttpString()
                     << "\r\n" << response->m_response_body_;
                 http_content = ss.str();
-                LOG_DEBUG("succ encode and write http response [%s] to buffer, writeindex = %d", response->m_msg_id_.c_str(), out_buffer->WriteIndex());
+                LOG_DEBUG("msg_id = %s | succ encode and write http response [%s] to buffer, writeindex = %d", i->m_msg_id_.c_str(), response->m_msg_id_.c_str(), out_buffer->WriteIndex());
             }else{
                 std::shared_ptr<HttpRequest> resquest = std::dynamic_pointer_cast<HttpRequest>(i);
                 resquest->protocol_ = ProtocalType::HTTP;
@@ -25,10 +26,9 @@ namespace lightrpc {
                     << resquest->m_request_version_ << "\r\n" << resquest->m_requeset_header_.ToHttpString()
                     << "\r\n" << resquest->m_request_body_;
                 http_content = ss.str();
-                LOG_DEBUG("succ encode and write http request [%s] to buffer, writeindex = %d", resquest->m_msg_id_.c_str(), out_buffer->WriteIndex());
+                LOG_DEBUG("msg_id = %s | succ encode and write http request [%s] to buffer, writeindex = %d", i->m_msg_id_.c_str(), resquest->m_msg_id_.c_str(), out_buffer->WriteIndex());
             }
             
-            LOG_DEBUG("msg_id = %s", i->m_msg_id_.c_str());
             // 将响应写入写缓冲区
             out_buffer->WriteToBuffer(http_content.c_str(), http_content.length());
         }
@@ -36,14 +36,9 @@ namespace lightrpc {
 
     // 将 buffer 里面的字节流转换为 message 对象
     void HttpCoder::Decode(std::vector<AbstractProtocol::s_ptr>& out_messages, TcpBuffer::s_ptr buffer){
-        std::string strs = "";
-        if (!buffer || out_messages.empty()) {
-            LOG_ERROR("decode error! buf or data nullptr");
-            return;
-        }
-        
         while (1) {
             std::string strs = buffer->GetBufferString();
+            if(strs.empty()){ break; }
             // 记录已读的长度
             int read_size = 0;
             std::string tmp(strs);
@@ -54,6 +49,8 @@ namespace lightrpc {
             bool is_parse_request_content = false;
             std::shared_ptr<HttpRequest> request = std::make_shared<HttpRequest>();
             request->protocol_ = ProtocalType::HTTP;
+            // 生成个msg_id，便于跟踪
+            request->m_msg_id_ = MsgIDUtil::GenMsgID();
             if (!request) {
                 LOG_ERROR("not httprequest type");
                 return;
@@ -111,11 +108,8 @@ namespace lightrpc {
                 }
             }
             if (is_parse_request_line && is_parse_request_header && is_parse_request_header) {
-                LOG_DEBUG("parse http request success, read size is %d bytes", read_size);
+                LOG_DEBUG("parse http request[%s] success, read size is %d bytes", request->m_msg_id_.c_str(), read_size);
                 buffer->MoveReadIndex(read_size);
-                // 生成个msg_id，便于跟踪
-                request->m_msg_id_ = MsgIDUtil::GenMsgID();
-                RunTime::GetRunTime()->m_msgid_ = request->m_msg_id_;
                 out_messages.push_back(request);
                 continue;
             }
@@ -124,15 +118,16 @@ namespace lightrpc {
 
     // 解析http请求
     bool HttpCoder::ParseHttpRequestLine(std::shared_ptr<HttpRequest> requset, const std::string& tmp){
-        size_t s1 = tmp.find_first_of(" ");
-        size_t s2 = tmp.find_last_of(" ");
-
-        if (s1 == tmp.npos || s2 == tmp.npos || s1 == s2) {
-            LOG_ERROR("error read Http Requser Line, space is not 2");
-            return false;
-        }
+        LOG_DEBUG("request line: %s", tmp.c_str());
+        std::istringstream lineStream(tmp);
+        std::string method;
+        std::string rquest_resourse;
+        std::string http_version;
+        lineStream >> method;
+        lineStream >> rquest_resourse;
+        lineStream >> http_version;
         // 获取请求方法
-        std::string method = tmp.substr(0, s1);
+        std::transform(method.begin(), method.end(), method.begin(), toupper);
         std::transform(method.begin(), method.end(), method.begin(), toupper);
         if (method == "GET") {
             requset->m_request_method_ = HttpMethod::GET;
@@ -142,49 +137,28 @@ namespace lightrpc {
             LOG_ERROR("parse http request request line error, not support http method: %s", method)
             return false;
         }
-        // 获取请求版本
-        std::string version = tmp.substr(s2 + 1, tmp.length() - s2 - 1);
-        std::transform(version.begin(), version.end(), version.begin(), toupper);
-        if (version != "HTTP/1.1" && version != "HTTP/1.0") {
-            LOG_ERROR("parse http request request line error, not support http version: %s", version);
+        // 获取http版本
+        std::transform(http_version.begin(), http_version.end(), http_version.begin(), toupper);
+        if (http_version != "HTTP/1.1" && http_version != "HTTP/1.0") {
+            LOG_ERROR("parse http request request line error, not support http version: %s", http_version.c_str());
             return false;
         }
-        requset->m_request_version_ = version;
-        // 获取请求行中的请求url
-        std::string url = tmp.substr(s1 + 1, s2 - s1 - 1);
-        size_t j = url.find("://");
-
-        if (j != url.npos && j + 3 >= url.length()) {
-            LOG_ERROR("parse http request request line error, bad url: %s", url);
-            return false;
-        }
+        requset->m_request_version_ = http_version;
+        // 获取请求资源
         int l = 0;
-        // 请求根路径，或者根路径下的其他
-        if (j == url.npos) {
-            LOG_DEBUG("url only have path, url is %s", url);
-        } else {
-            url = url.substr(j + 3, s2 - s1  - j - 4);
-            LOG_DEBUG("delete http prefix, url = %s", url);
-            j = url.find_first_of("/");
-            l = url.length();
-            if (j == url.npos || j == url.length() - 1) {
-                LOG_DEBUG("http request root path, and query is empty");
-                return true;
-            }
-            url = url.substr(j + 1, l - j - 1);
-        }
-        // 请求根路径下的其他
-        l = url.length();
-        j = url.find_first_of("?");
-        if (j == url.npos) {
-            requset->m_request_path_ = url;
-            LOG_DEBUG("http request path: %s and query is empty", requset->m_request_path_);
+        size_t j;
+        l = rquest_resourse.length();
+        j = rquest_resourse.find_first_of("?");
+        if (j == rquest_resourse.npos) {
+            requset->m_request_path_ = rquest_resourse;
+            LOG_DEBUG("http request path: %s and query is empty", requset->m_request_path_.c_str());
             return true;
         }
-        requset->m_request_path_ = url.substr(0, j);
-        requset->m_request_query_ = url.substr(j + 1, l - j - 1);
-        LOG_DEBUG("http request path: %s and query is %s", requset->m_request_path_, requset->m_request_query_);
+        requset->m_request_path_ = rquest_resourse.substr(0, j);
+        requset->m_request_query_ = rquest_resourse.substr(j + 1, l - j - 1);
+        LOG_DEBUG("http request path: %s and query is %s", requset->m_request_path_.c_str(), requset->m_request_query_.c_str());
         SplitStrToMap(requset->m_request_query_, "&", "=", requset->m_query_maps_);
+
         return true;
     }
 

@@ -22,7 +22,7 @@ TcpClient::TcpClient(NetAddr::s_ptr peer_addr, std::string protocol) : m_peer_ad
   m_fd_event_ = FdEventPool::GetFdEventPool()->GetFdEvent(m_fd_);
   m_fd_event_->SetNonBlock();
   // 创建客户端的链接
-  m_connection_ = std::make_shared<TcpConnection>(m_event_loop_, m_fd_, 128, peer_addr, nullptr, TcpConnectionByClient);
+  m_connection_ = std::make_shared<TcpConnection>(m_event_loop_, m_fd_, 128, peer_addr, nullptr, protocol_, TcpConnectionByClient);
   m_connection_->SetConnectionType(TcpConnectionByClient);
 }
 
