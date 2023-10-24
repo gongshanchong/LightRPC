@@ -10,7 +10,7 @@ class TimerEvent {
  public:
   typedef std::shared_ptr<TimerEvent> s_ptr;
   // 时间事件初始化
-  TimerEvent(int interval, bool is_repeated, int fd, std::function<void(int fd)> cb);
+  TimerEvent(int interval, bool is_repeated, std::function<void(int fd)> cb, int fd = -1);
 
   int64_t GetArriveTime() const {
     return m_arrive_time_;

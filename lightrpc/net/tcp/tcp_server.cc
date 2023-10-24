@@ -50,7 +50,7 @@ void TcpServer::OnAccept() {
   // 将客服端放入到线程中的loop中进行监听
   // 间隔为timeout_
   TcpConnection::s_ptr connetion = std::make_shared<TcpConnection>(io_thread->GetEventLoop(), client_fd, 128, peer_addr, m_local_addr_, protocol_);
-  TimerEvent::s_ptr timer_event = std::make_shared<TimerEvent>(timeout_, false, client_fd, std::bind(&TcpServer::ClearClientTimerFunc, this, std::placeholders::_1));
+  TimerEvent::s_ptr timer_event = std::make_shared<TimerEvent>(timeout_, false, std::bind(&TcpServer::ClearClientTimerFunc, this, std::placeholders::_1), client_fd);
 	m_main_event_loop_->AddTimerEvent(timer_event);
   connetion->SetState(Connected);
   // 添加到链接组中

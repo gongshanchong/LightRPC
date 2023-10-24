@@ -160,7 +160,8 @@ public:
         return m_asnyc_logger_;
     }
 
-    void SyncLoop();
+    // 参数无意义，为了绑定time_event而设定的
+    void SyncLoop(int fd = -1);
 
     void Flush();
 

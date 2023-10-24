@@ -55,7 +55,7 @@ void Logger::Init() {
         return;
     }
     // 为日志生成时间事件并监听
-    m_timer_event_ = std::make_shared<TimerEvent>(Config::GetGlobalConfig()->m_log_sync_inteval_, true, std::bind(&Logger::SyncLoop, this));
+    m_timer_event_ = std::make_shared<TimerEvent>(Config::GetGlobalConfig()->m_log_sync_inteval_, true, std::bind(&Logger::SyncLoop, this, std::placeholders::_1));
     EventLoop::GetCurrentEventLoop()->AddTimerEvent(m_timer_event_);
     // 为日志绑定信号的处理函数，便于可以将终止时的错误写入日志
     signal(SIGSEGV, CoredumpHandler);
@@ -67,7 +67,7 @@ void Logger::Init() {
 }
 
 // 同步消息到异步写缓冲区
-void Logger::SyncLoop() {
+void Logger::SyncLoop(int fd) {
     // 同步 m_buffer 到 async_logger 的buffer队尾
     std::vector<std::string> tmp_vec;
     std::unique_lock<std::mutex> lock(m_mutex_);

@@ -89,7 +89,7 @@ void RpcChannel::CallTinyPBService(const google::protobuf::MethodDescriptor* met
 
   s_ptr channel = shared_from_this(); 
   // 设置超时事件
-  TimerEvent::s_ptr timer_event = std::make_shared<TimerEvent>(method_controller->GetTimeout(), false, m_client_->GetFd(), [channel, method_controller, done](int) mutable {
+  TimerEvent::s_ptr timer_event = std::make_shared<TimerEvent>(method_controller->GetTimeout(), false, [channel, method_controller, done](int) mutable {
     LOG_INFO("%s | call rpc timeout arrive", method_controller->GetMsgId().c_str());
     if (method_controller->Finished()) {
       return;
@@ -99,7 +99,7 @@ void RpcChannel::CallTinyPBService(const google::protobuf::MethodDescriptor* met
     method_controller->SetError(ERROR_RPC_CALL_TIMEOUT, "rpc call timeout " + std::to_string(method_controller->GetTimeout()));
 
     channel->CallBack();
-  });
+  }, m_client_->GetFd());
   m_client_->AddTimerEvent(timer_event);
   // 设置connnect的回调函数，连接成功后发送请求并接受响应
   m_client_->Connect([method_controller, req_protocol, this]() mutable {
@@ -216,7 +216,7 @@ void RpcChannel::CallHttpService(const google::protobuf::MethodDescriptor* metho
   }
   s_ptr channel = shared_from_this(); 
   // 设置超时事件
-  TimerEvent::s_ptr timer_event = std::make_shared<TimerEvent>(method_controller->GetTimeout(), false, [channel, method_controller, done]() mutable {
+  TimerEvent::s_ptr timer_event = std::make_shared<TimerEvent>(method_controller->GetTimeout(), false, [channel, method_controller, done](int) mutable {
     LOG_INFO("%s | call rpc timeout arrive", method_controller->GetMsgId().c_str());
     if (method_controller->Finished()) {
       return;
