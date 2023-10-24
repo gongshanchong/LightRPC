@@ -16,17 +16,17 @@ namespace lightrpc {
 
                 ss << response->m_response_version_ << " " << response->m_response_code_ << " "
                     << response->m_response_info_ << g_CRLF << response->m_header_.ToHttpString()
-                    << g_CRLF_DOUBLE << response->m_body_;
+                    << g_CRLF << response->m_body_;
                 http_content = ss.str();
                 LOG_DEBUG("msg_id = %s | succ encode and write http response to buffer", i->m_msg_id_.c_str());
             }else{
-                std::shared_ptr<HttpRequest> resquest = std::dynamic_pointer_cast<HttpRequest>(i);
-                std::string mehtod = (resquest->m_request_method_ == HttpMethod::GET)?"GET":"POST";
-                resquest->protocol_ = ProtocalType::HTTP;
+                std::shared_ptr<HttpRequest> request = std::dynamic_pointer_cast<HttpRequest>(i);
+                std::string mehtod = (request->m_request_method_ == HttpMethod::GET)?"GET":"POST";
+                request->protocol_ = ProtocalType::HTTP;
                
-                ss << mehtod << " " << resquest->m_request_path_ << " "
-                    << resquest->m_request_version_ << g_CRLF << resquest->m_header_.ToHttpString()
-                    << g_CRLF_DOUBLE << resquest->m_body_;
+                ss << mehtod << " " << request->m_request_path_ << " "
+                    << request->m_request_version_ << g_CRLF << request->m_header_.ToHttpString()
+                    << g_CRLF << request->m_body_;
                 http_content = ss.str();
                 LOG_DEBUG("msg_id = %s | succ encode and write http request to buffer", i->m_msg_id_.c_str());
             }

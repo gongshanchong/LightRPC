@@ -45,6 +45,7 @@ void RpcChannel::CallBack() {
         m_request_->ShortDebugString().c_str(), 
         method_controller->GetErrorCode(), 
         method_controller->GetInfo().c_str());
+    method_controller->StartCancel();
     return;
   }
   if (method_controller->Finished()) {
