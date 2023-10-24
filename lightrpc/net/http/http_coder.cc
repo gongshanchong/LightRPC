@@ -15,20 +15,20 @@ namespace lightrpc {
                 response->protocol_ = ProtocalType::HTTP;
 
                 ss << response->m_response_version_ << " " << response->m_response_code_ << " "
-                    << response->m_response_info_ << "\r\n" << response->m_header_.ToHttpString()
+                    << response->m_response_info_ << g_CRLF << response->m_header_.ToHttpString()
                     << g_CRLF_DOUBLE << response->m_body_;
                 http_content = ss.str();
-                LOG_DEBUG("msg_id = %s | succ encode and write http response to buffer, writeindex = %d", i->m_msg_id_.c_str(), out_buffer->WriteIndex());
+                LOG_DEBUG("msg_id = %s | succ encode and write http response to buffer", i->m_msg_id_.c_str());
             }else{
                 std::shared_ptr<HttpRequest> resquest = std::dynamic_pointer_cast<HttpRequest>(i);
                 std::string mehtod = (resquest->m_request_method_ == HttpMethod::GET)?"GET":"POST";
                 resquest->protocol_ = ProtocalType::HTTP;
                
                 ss << mehtod << " " << resquest->m_request_path_ << " "
-                    << resquest->m_request_version_ << "\r\n" << resquest->m_header_.ToHttpString()
+                    << resquest->m_request_version_ << g_CRLF << resquest->m_header_.ToHttpString()
                     << g_CRLF_DOUBLE << resquest->m_body_;
                 http_content = ss.str();
-                LOG_DEBUG("msg_id = %s | succ encode and write http request to buffer, writeindex = %d", i->m_msg_id_.c_str(), out_buffer->WriteIndex());
+                LOG_DEBUG("msg_id = %s | succ encode and write http request to buffer", i->m_msg_id_.c_str());
             }
             
             // 将响应写入写缓冲区
@@ -44,12 +44,7 @@ namespace lightrpc {
             bool flag;
             if(strs.empty()){ break; }
             size_t i = strs.find(g_CRLF);
-            if (i == strs.npos) {
-                LOG_DEBUG("not found CRLF in buffer");
-                break;
-            }
-            if (i == strs.length() - 2) {
-                LOG_DEBUG("need to read more data");
+            if ((i == strs.npos) || (i == strs.length() - 2)) {
                 break;
             }
             std::string temp = strs.substr(0, i);
@@ -73,8 +68,6 @@ namespace lightrpc {
         bool is_parse_request_content = false;
         std::shared_ptr<HttpRequest> request = std::make_shared<HttpRequest>();
         request->protocol_ = ProtocalType::HTTP;
-        // 生成个msg_id，便于跟踪
-        request->m_msg_id_ = MsgIDUtil::GenMsgID();
         if (!request) {
             LOG_ERROR("not httprequest type");
             return false;
@@ -124,6 +117,7 @@ namespace lightrpc {
             }
         }
         if (is_parse_request_line && is_parse_request_header && is_parse_request_header) {
+            request->m_msg_id_ = request->m_header_.GetValue("Msg-Id");
             LOG_DEBUG("parse http request[%s] success, read size is %d bytes", request->m_msg_id_.c_str(), read_size);
             buffer->MoveReadIndex(read_size);
             out_messages.push_back(request);
@@ -204,8 +198,6 @@ namespace lightrpc {
         bool is_parse_request_content = false;
         std::shared_ptr<HttpResponse> response = std::make_shared<HttpResponse>();
         response->protocol_ = ProtocalType::HTTP;
-        // 生成个msg_id，便于跟踪
-        response->m_msg_id_ = MsgIDUtil::GenMsgID();
         if (!response) {
             LOG_ERROR("not httpresponse type");
             return false;
@@ -228,7 +220,7 @@ namespace lightrpc {
                 LOG_DEBUG("not found CRLF CRLF in buffer");
                 return false;
             }
-            is_parse_request_header = ParseHttpResponseContent(response, tmp.substr(0, j));
+            is_parse_request_header = ParseHttpResponseHeader(response, tmp.substr(0, j));
             if (!is_parse_request_header) {
                 return false;
             }
@@ -238,11 +230,19 @@ namespace lightrpc {
         }
         // 解析响应体
         if (!is_parse_request_content) {
-            is_parse_request_content = ParseHttpResponseContent(response, tmp);
-            read_size = read_size + tmp.size();
+            int content_len = std::atoi(response->m_header_.m_maps_["Content-Length"].c_str());
+            if ((int)strs.length() - read_size < content_len) {
+                LOG_DEBUG("need to read more data");
+                return false;
+            }
+            is_parse_request_content = ParseHttpResponseContent(response, tmp.substr(0, content_len));
+            if (!is_parse_request_content) {
+                return false;
+            }
+            read_size = read_size + content_len;
         }
         if (is_parse_request_line && is_parse_request_header && is_parse_request_header) {
-            LOG_INFO("DEBUG: %s", response->m_body_);
+            response->m_msg_id_ = response->m_header_.GetValue("Msg-Id");
             LOG_DEBUG("parse http response[%s] success, read size is %d bytes", response->m_msg_id_.c_str(), read_size);
             buffer->MoveReadIndex(read_size);
             out_messages.push_back(response);
@@ -251,6 +251,7 @@ namespace lightrpc {
 
         return false;
     }
+
     bool HttpCoder::ParseHttpResponseLine(std::shared_ptr<HttpResponse> response, const std::string& tmp){
         LOG_DEBUG("response line: %s", tmp.c_str());
         std::istringstream lineStream(tmp);
@@ -272,6 +273,7 @@ namespace lightrpc {
         response->m_response_code_ = std::stoi(http_code);
         return true;
     }
+
     bool HttpCoder::ParseHttpResponseHeader(std::shared_ptr<HttpResponse> response, const std::string& tmp){
         if (tmp.empty() || tmp.length() < 4 || tmp == "\r\n\r\n") {
             return true;
@@ -279,6 +281,7 @@ namespace lightrpc {
         SplitStrToMap(tmp, "\r\n", ":", response->m_header_.m_maps_);
         return true;
     }
+
     bool HttpCoder::ParseHttpResponseContent(std::shared_ptr<HttpResponse> response, const std::string& tmp){
         if (tmp.empty()) {
             return true;

@@ -107,6 +107,7 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, TcpConnecti
   std::string method_name;
 
   rsp_protocol->m_msg_id_ = req_protocol->m_msg_id_;
+  rsp_protocol->m_header_.SetKeyValue("Msg-Id", rsp_protocol->m_msg_id_);
   SetCommParam(req_protocol, rsp_protocol);
   // 解析完整的 rpc 方法名
   if (!ParseUrlPathToervice(url_path, service_name, method_name)) {
@@ -164,6 +165,7 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, TcpConnecti
   rpc_controller->SetLocalAddr(connection->GetLocalAddr());
   rpc_controller->SetPeerAddr(connection->GetPeerAddr());
   rpc_controller->SetMsgId(req_protocol->m_msg_id_);
+  rpc_controller->SetHttpHeader(req_protocol->m_header_);
   // closure 就会把 response 对象再序列化，最终生成一个 TinyPBProtocol 的结构体，最后通过 TcpConnection::reply 函数，将数据再发送给客户端
   RpcClosure* closure = new RpcClosure([req_msg, rsp_msg, req_protocol, rsp_protocol, connection, rpc_controller, this]() mutable {
     if (rpc_controller->GetErrorCode() != 0){

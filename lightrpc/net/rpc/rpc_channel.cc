@@ -167,10 +167,6 @@ void RpcChannel::CallHttpService(const google::protobuf::MethodDescriptor* metho
                         google::protobuf::Message* response, google::protobuf::Closure* done){
   RpcController* method_controller = dynamic_cast<RpcController*>(m_controller_);
   std::shared_ptr<lightrpc::HttpRequest> req_protocol = std::make_shared<lightrpc::HttpRequest>();
-  req_protocol->http_type_ = HttpType::REQUEST;
-  // req_protocol的初始设置
-  req_protocol->m_request_version_ = method_controller->GetHttpVersion();
-  req_protocol->m_header_ = method_controller->GetHttpHeader();
   // 获取msg_id
   if (method_controller->GetMsgId().empty()) {
     // 这样的目的是为了实现 msg_id 的透传，假设服务 A 调用了 B，那么同一个 msgid 可以在服务 A 和 B 之间串起来，方便日志追踪
@@ -180,6 +176,11 @@ void RpcChannel::CallHttpService(const google::protobuf::MethodDescriptor* metho
     // 如果 controller 指定了 msgid, 直接使用
     req_protocol->m_msg_id_ = method_controller->GetMsgId();
   }
+  // req_protocol的初始设置
+  req_protocol->http_type_ = HttpType::REQUEST;
+  req_protocol->m_request_version_ = method_controller->GetHttpVersion();
+  req_protocol->m_header_ = method_controller->GetHttpHeader();
+  req_protocol->m_header_.SetKeyValue("Msg-Id", req_protocol->m_msg_id_);
   // 获取请求的方法
   std::string method_full_name = method->full_name();
   std::string service_name;
@@ -278,7 +279,6 @@ void RpcChannel::CallHttpService(const google::protobuf::MethodDescriptor* metho
           CallBack();
           return;
         }
-        
         // 调用rpc成功
         LOG_INFO("%s | call rpc success, call method name[%s], peer addr[%s], local addr[%s]",
           rsp_protocol->m_msg_id_.c_str(), req_protocol->m_request_path_.c_str(),

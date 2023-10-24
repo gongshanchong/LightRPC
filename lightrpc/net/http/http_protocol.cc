@@ -11,7 +11,7 @@ std::string content_type_text = "text/html;charset=utf-8";
 const char* default_html_template = "<html><body><h1>%s</h1><p>%s</p></body></html>";
 
 std::string HttpHeaderComm::GetValue(const std::string& key) {
-    return m_maps_[key.c_str()];
+    return (m_maps_.find(key) != m_maps_.end())?m_maps_[key.c_str()]:"";
 }
 
 int HttpHeaderComm::GetHeaderTotalLength() {
@@ -29,7 +29,7 @@ void HttpHeaderComm::SetKeyValue(const std::string& key, const std::string& valu
 std::string HttpHeaderComm::ToHttpString() {
     std::stringstream ss;
     for (auto it : m_maps_) {
-        ss << it.first << ":" << it.second << "\r\n";
+        ss << it.first << ":" << it.second << g_CRLF;
     }
     return ss.str();
 }

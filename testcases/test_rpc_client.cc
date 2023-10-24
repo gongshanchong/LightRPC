@@ -78,11 +78,14 @@ void test_rpc_channel() {
   // 相关辅助参数设置
   NEWRPCCONTROLLER(controller);
   controller->SetMsgId("99998888");
-  controller->SetTimeout(100000);
+  controller->SetTimeout(10000);
+  // 设置http请求报文的相关参数
   controller->SetProtocol(lightrpc::ProtocalType::HTTP);
   controller->SetCallMethod(lightrpc::HttpMethod::GET);
   lightrpc::HttpHeaderComm http_header;
   http_header.SetKeyValue("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64)");
+  http_header.SetKeyValue("Connection", "Keep-Alive");
+  controller->SetHttpHeader(http_header);
   controller->SetHttpVersion("HTTP/1.1");
   // 回调函数设置
   std::shared_ptr<lightrpc::RpcClosure> closure = std::make_shared<lightrpc::RpcClosure>([request, response]() mutable {
