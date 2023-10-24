@@ -133,6 +133,8 @@ void EventLoop::Loop() {
     // 此处会被阻塞
     int rt = epoll_wait(m_epoll_fd_, result_events, g_epoll_max_events, timeout);
     if (rt < 0) {
+      // 如果进程在一个慢系统调用(slow system call)中阻塞时，当捕获到某个信号且相应信号处理函数返回时，这个系统调用不再阻塞而是被中断，就会调用返回错误（一般为-1）&&设置errno为EINTR
+      if(errno == EINTR){ continue; }
       LOG_ERROR("epoll_wait error, errno=%d, error=%s", errno, strerror(errno));
     } else {
       // 便利返回的事件并进行处理
