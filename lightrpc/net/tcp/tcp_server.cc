@@ -48,7 +48,6 @@ void TcpServer::OnAccept() {
   int client_fd = re.first;
   NetAddr::s_ptr peer_addr = re.second;
 
-  m_client_counts_++;
   // 把 cleintfd 添加到任意 IO 线程里面，对线程池的线程进行轮流添加
   IOThread* io_thread = m_io_thread_pool_->GetIOThread();
   // 将客服端放入到线程中的loop中进行监听

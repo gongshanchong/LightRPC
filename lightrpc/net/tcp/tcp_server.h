@@ -40,8 +40,6 @@ class TcpServer {
 
   FdEvent* m_listen_fd_event_;              // 当前监听事件
 
-  int m_client_counts_ {0};                 // 客户端连接的数量
-
   ProtocalType protocol_;                    // 通信协议
 
   std::set<TcpConnection::s_ptr> m_client_; // 客户端连接
