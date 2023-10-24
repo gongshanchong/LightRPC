@@ -2,9 +2,9 @@
 #include "../../common/log.h"
 #include "../../net/fd_event_pool.h"
 #include "tcp_connection.h"
-#include "../rpc/string_coder.h"
-#include "../tinypb/tinypb_coder.h"
-#include "../http/http_coder.h"
+#include "../rpc/string_codec.h"
+#include "../tinypb/tinypb_codec.h"
+#include "../http/http_codec.h"
 
 namespace lightrpc {
 
@@ -18,9 +18,9 @@ TcpConnection::TcpConnection(EventLoop* event_loop, int fd, int buffer_size, Net
   m_fd_event_->SetNonBlock();
   // 协议的编解码
   if(protocol == ProtocalType::HTTP){
-    m_coder_ = new HttpCoder();
+    m_coder_ = new HttpCodec();
   }else{
-    m_coder_ = new TinyPBCoder();
+    m_coder_ = new TinyPBCodec();
   }
   // 判断连接的类型
   if (m_connection_type_ == TcpConnectionByServer) {
@@ -30,6 +30,7 @@ TcpConnection::TcpConnection(EventLoop* event_loop, int fd, int buffer_size, Net
 
 TcpConnection::~TcpConnection() {
   LOG_DEBUG("~TcpConnection");
+  Clear();
   if (m_coder_) {
     delete m_coder_;
     m_coder_ = NULL;

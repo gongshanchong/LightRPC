@@ -1,7 +1,7 @@
 #ifndef LIGHTRPC_NET_STRING_CODER_H
 #define LIGHTRPC_NET_STRING_CODER_H
 
-#include "abstract_coder.h"
+#include "abstract_codec.h"
 #include "abstract_protocol.h"
 
 namespace lightrpc {
@@ -11,7 +11,7 @@ class StringProtocol : public AbstractProtocol {
   std::string info_;
 };
 
-class StringCoder : public AbstractCoder {
+class StringCodec : public AbstractCodec {
   // 将 message 对象转化为字节流，写入到 buffer
   void Encode(std::vector<AbstractProtocol::s_ptr>& messages, TcpBuffer::s_ptr out_buffer) {
     for (size_t i = 0; i < messages.size(); ++i) {

@@ -7,7 +7,7 @@
 
 namespace lightrpc {
 
-class AbstractCoder {
+class AbstractCodec {
  public:
   // 将 message 对象转化为字节流，写入到 buffer
   virtual void Encode(std::vector<AbstractProtocol::s_ptr>& messages, TcpBuffer::s_ptr out_buffer) = 0;
@@ -15,7 +15,7 @@ class AbstractCoder {
   // 将 buffer 里面的字节流转换为 message 对象
   virtual void Decode(std::vector<AbstractProtocol::s_ptr>& out_messages, TcpBuffer::s_ptr buffer) = 0;
 
-  virtual ~AbstractCoder() {}
+  virtual ~AbstractCodec() {}
 };
 }
 #endif

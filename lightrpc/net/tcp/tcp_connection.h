@@ -7,7 +7,7 @@
 #include "net_addr.h"
 #include "tcp_buffer.h"
 #include "../io_thread.h"
-#include "../rpc/abstract_coder.h"
+#include "../rpc/abstract_codec.h"
 #include "../rpc/rpc_dispatcher.h"
 
 namespace lightrpc {
@@ -92,7 +92,7 @@ private:
   TcpConnectionType m_connection_type_ {TcpConnectionByServer};
 
   // 协议编解码
-  AbstractCoder* m_coder_ {NULL};
+  AbstractCodec* m_coder_ {NULL};
 
   // TinyPB协议的读写处理函数，回调函数
   // 如果发送 message 成功，会调用 done 函数， 函数的入参就是 message 对象 

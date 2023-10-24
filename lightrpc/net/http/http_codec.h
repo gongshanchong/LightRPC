@@ -5,18 +5,18 @@
 #include <string>
 #include <sstream>
 #include "../rpc/abstract_protocol.h"
-#include "../rpc/abstract_coder.h"
+#include "../rpc/abstract_codec.h"
 #include "../../common/log.h"
 #include "../../common/msg_id_util.h"
 #include "http_protocol.h"
 
 namespace lightrpc {
 
-class HttpCoder : public AbstractCoder {
+class HttpCodec : public AbstractCodec {
 public:
-    HttpCoder() = default;
+    HttpCodec() = default;
 
-    ~HttpCoder() = default;
+    ~HttpCodec() = default;
 
     // 将 message 对象转化为字节流，写入到 buffer
     void Encode(std::vector<AbstractProtocol::s_ptr>& messages, TcpBuffer::s_ptr out_buffer);

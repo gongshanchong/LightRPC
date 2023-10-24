@@ -1,4 +1,4 @@
-#include "http_coder.h"
+#include "http_codec.h"
 #include "http_protocol.h"
 #include <algorithm>
 #include <cstdio>
@@ -6,7 +6,7 @@
 
 namespace lightrpc {
     // 将 message 对象转化为字节流，写入到 buffer
-    void HttpCoder::Encode(std::vector<AbstractProtocol::s_ptr>& messages, TcpBuffer::s_ptr out_buffer){
+    void HttpCodec::Encode(std::vector<AbstractProtocol::s_ptr>& messages, TcpBuffer::s_ptr out_buffer){
         for (auto &i : messages) {
             std::stringstream ss;
             std::string http_content;
@@ -38,7 +38,7 @@ namespace lightrpc {
     }
 
     // 将 buffer 里面的字节流转换为 message 对象
-    void HttpCoder::Decode(std::vector<AbstractProtocol::s_ptr>& out_messages, TcpBuffer::s_ptr buffer){
+    void HttpCodec::Decode(std::vector<AbstractProtocol::s_ptr>& out_messages, TcpBuffer::s_ptr buffer){
         while (1) {
             std::string strs = buffer->GetBufferString();
             bool flag;
@@ -58,7 +58,7 @@ namespace lightrpc {
     }
 
     // 解析http请求
-    bool HttpCoder::ParseHttpRequest(std::vector<AbstractProtocol::s_ptr>& out_messages, TcpBuffer::s_ptr buffer, const std::string& strs){
+    bool HttpCodec::ParseHttpRequest(std::vector<AbstractProtocol::s_ptr>& out_messages, TcpBuffer::s_ptr buffer, const std::string& strs){
         // 记录已读的长度
         int read_size = 0;
         std::string tmp(strs);
@@ -127,7 +127,7 @@ namespace lightrpc {
         return false;
     }
 
-    bool HttpCoder::ParseHttpRequestLine(std::shared_ptr<HttpRequest> requset, const std::string& tmp){
+    bool HttpCodec::ParseHttpRequestLine(std::shared_ptr<HttpRequest> requset, const std::string& tmp){
         LOG_DEBUG("request line: %s", tmp.c_str());
         std::istringstream lineStream(tmp);
         std::string method;
@@ -172,7 +172,7 @@ namespace lightrpc {
         return true;
     }
 
-    bool HttpCoder::ParseHttpRequestHeader(std::shared_ptr<HttpRequest> requset, const std::string& tmp){
+    bool HttpCodec::ParseHttpRequestHeader(std::shared_ptr<HttpRequest> requset, const std::string& tmp){
         if (tmp.empty() || tmp.length() < 4 || tmp == "\r\n\r\n") {
             return true;
         }
@@ -180,7 +180,7 @@ namespace lightrpc {
         return true;
     }
 
-    bool HttpCoder::ParseHttpRequestContent(std::shared_ptr<HttpRequest> requset, const std::string& tmp){
+    bool HttpCodec::ParseHttpRequestContent(std::shared_ptr<HttpRequest> requset, const std::string& tmp){
         if (tmp.empty()) {
             return true;
         }
@@ -188,7 +188,7 @@ namespace lightrpc {
         return true;
     }
     // 解析http响应
-    bool HttpCoder::ParseHttpResponse(std::vector<AbstractProtocol::s_ptr>& out_messages, TcpBuffer::s_ptr buffer, const std::string& strs){
+    bool HttpCodec::ParseHttpResponse(std::vector<AbstractProtocol::s_ptr>& out_messages, TcpBuffer::s_ptr buffer, const std::string& strs){
         // 记录已读的长度
         int read_size = 0;
         std::string tmp(strs);
@@ -252,7 +252,7 @@ namespace lightrpc {
         return false;
     }
 
-    bool HttpCoder::ParseHttpResponseLine(std::shared_ptr<HttpResponse> response, const std::string& tmp){
+    bool HttpCodec::ParseHttpResponseLine(std::shared_ptr<HttpResponse> response, const std::string& tmp){
         LOG_DEBUG("response line: %s", tmp.c_str());
         std::istringstream lineStream(tmp);
         std::string http_version;
@@ -274,7 +274,7 @@ namespace lightrpc {
         return true;
     }
 
-    bool HttpCoder::ParseHttpResponseHeader(std::shared_ptr<HttpResponse> response, const std::string& tmp){
+    bool HttpCodec::ParseHttpResponseHeader(std::shared_ptr<HttpResponse> response, const std::string& tmp){
         if (tmp.empty() || tmp.length() < 4 || tmp == "\r\n\r\n") {
             return true;
         }
@@ -282,7 +282,7 @@ namespace lightrpc {
         return true;
     }
 
-    bool HttpCoder::ParseHttpResponseContent(std::shared_ptr<HttpResponse> response, const std::string& tmp){
+    bool HttpCodec::ParseHttpResponseContent(std::shared_ptr<HttpResponse> response, const std::string& tmp){
         if (tmp.empty()) {
             return true;
         }

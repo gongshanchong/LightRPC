@@ -1,4 +1,4 @@
-#include "tinypb_coder.h"
+#include "tinypb_codec.h"
 #include "../../common/log.h"
 #include "../../common/util.h"
 #include "tinypb_protocol.h"
@@ -9,7 +9,7 @@
 namespace lightrpc {
 
 // 将 message 对象转化为字节流，写入到 buffer
-void TinyPBCoder::Encode(std::vector<AbstractProtocol::s_ptr> &messages,
+void TinyPBCodec::Encode(std::vector<AbstractProtocol::s_ptr> &messages,
                          TcpBuffer::s_ptr out_buffer) {
   for (auto &i : messages) {
     std::shared_ptr<TinyPBProtocol> msg =
@@ -28,7 +28,7 @@ void TinyPBCoder::Encode(std::vector<AbstractProtocol::s_ptr> &messages,
 }
 
 // 将 buffer 里面的字节流转换为 message 对象
-void TinyPBCoder::Decode(std::vector<AbstractProtocol::s_ptr> &out_messages,
+void TinyPBCodec::Decode(std::vector<AbstractProtocol::s_ptr> &out_messages,
                          TcpBuffer::s_ptr buffer) {
   while (1) {
     // 遍历 buffer，找到
@@ -150,7 +150,7 @@ void TinyPBCoder::Decode(std::vector<AbstractProtocol::s_ptr> &out_messages,
   }
 }
 
-const char *TinyPBCoder::EncodeTinyPB(std::shared_ptr<TinyPBProtocol> message,
+const char *TinyPBCodec::EncodeTinyPB(std::shared_ptr<TinyPBProtocol> message,
                                       int &len) {
   if (message->m_msg_id_.empty()) {
     message->m_msg_id_ = "123456789";
