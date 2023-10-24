@@ -21,7 +21,7 @@
       <ip>127.0.0.1</ip>
       <port>12345</port>
       <protocal>HTTP</protocal>
-      <timeout>1000</timeout>
+      <timeout>5000</timeout>
     </rpc_server> 
   </stubs>
 

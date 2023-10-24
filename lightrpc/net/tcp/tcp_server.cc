@@ -37,7 +37,7 @@ void TcpServer::Init() {
   m_main_event_loop_->AddEpollEvent(m_listen_fd_event_);
 
   // 主loop添加服务器端的时间事件监听，定时去除已经关闭的连接
-  // 重复，间隔为5秒
+  // 重复，间隔为timeout_
   m_clear_client_timer_event_ = std::make_shared<TimerEvent>(timeout_, true, std::bind(&TcpServer::ClearClientTimerFunc, this));
 	m_main_event_loop_->AddTimerEvent(m_clear_client_timer_event_);
 }
