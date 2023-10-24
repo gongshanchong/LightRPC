@@ -10,10 +10,14 @@ class TimerEvent {
  public:
   typedef std::shared_ptr<TimerEvent> s_ptr;
   // 时间事件初始化
-  TimerEvent(int interval, bool is_repeated, std::function<void()> cb);
+  TimerEvent(int interval, bool is_repeated, int fd, std::function<void(int fd)> cb);
 
   int64_t GetArriveTime() const {
     return m_arrive_time_;
+  }
+
+  int GetFd() {
+    return m_fd_;
   }
 
   void SetCancled(bool value) {
@@ -28,7 +32,7 @@ class TimerEvent {
     return m_is_repeated_;
   }
 
-  std::function<void()> GetCallBack() {
+  std::function<void(int fd)> GetCallBack() {
     return m_task_;
   }
 
@@ -41,7 +45,8 @@ class TimerEvent {
   bool m_is_repeated_ {false};   // 是否重复通知
   bool m_is_cancled_ {false};    // 是否关闭
 
-  std::function<void()> m_task_; // 时间事件的处理函数
+  int m_fd_ {0};                 // 对应链接的fd
+  std::function<void(int fd)> m_task_; // 时间事件的处理函数
 };
 }
 #endif

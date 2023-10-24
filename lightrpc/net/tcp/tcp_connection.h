@@ -66,6 +66,9 @@ class TcpConnection {
   // 启动监听可读事件
   void ListenRead();
 
+  // 添加定时器事件
+  void AddTimerEvent(TimerEvent::s_ptr timer_event);
+
   // 添加TinyPB协议的写函数
   void PushSendMessage(AbstractProtocol::s_ptr message, std::function<void(AbstractProtocol::s_ptr)> done);
 
@@ -86,6 +89,8 @@ private:
 
   int m_fd_ {0};
   FdEvent* m_fd_event_ {NULL};        // 当前 fd_event 对象
+  TimerEvent::s_ptr m_timer_event_;   // 定时器事件
+
 
   // 服务器状态
   TcpState m_state_;

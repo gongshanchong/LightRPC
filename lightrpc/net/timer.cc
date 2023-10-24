@@ -34,7 +34,7 @@ void Timer::OnTimer() {
   int64_t now = GetNowMs();
   // 获取超时时间事件
   std::vector<TimerEvent::s_ptr> tmps;
-  std::vector<std::pair<int64_t, std::function<void()>>> tasks;
+  std::vector<std::pair<int64_t, std::function<void(int fd)>>> tasks;
   // 加锁保证安全访问公共资源
   std::unique_lock<std::mutex> lock(handle_mtx_);
   // 获取超时时间事件及时间事件的方法
@@ -43,7 +43,7 @@ void Timer::OnTimer() {
     if ((*it).first <= now) {
       if (!(*it).second->IsCancled()) {
         tmps.push_back((*it).second);
-        tasks.push_back(std::make_pair((*it).second->GetArriveTime(), (*it).second->GetCallBack()));
+        tasks.push_back(std::make_pair((*it).second->GetFd(), (*it).second->GetCallBack()));
       }
     } else {
       break;
@@ -68,7 +68,7 @@ void Timer::OnTimer() {
   // 执行时间事件的回调函数
   for (auto i: tasks) {
     if (i.second) {
-      i.second();
+      i.second(i.first);
     }
   }
 

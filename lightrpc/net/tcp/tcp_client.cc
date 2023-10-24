@@ -101,6 +101,10 @@ void TcpClient::Stop() {
   }
 }
 
+int TcpClient::GetFd() {
+  return m_fd_;
+}
+
 // 异步的发送 message
 // 如果发送 message 成功，会调用 done 函数， 函数的入参就是 message 对象 
 void TcpClient::WriteMessage(AbstractProtocol::s_ptr message, std::function<void(AbstractProtocol::s_ptr)> done) {
@@ -151,6 +155,6 @@ void TcpClient::InitLocalAddr() {
 }
 
 void TcpClient::AddTimerEvent(TimerEvent::s_ptr timer_event) {
-  m_event_loop_->AddTimerEvent(timer_event);
+  m_connection_->AddTimerEvent(timer_event);
 }
 }

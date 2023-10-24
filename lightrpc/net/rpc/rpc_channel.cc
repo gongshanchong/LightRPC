@@ -89,7 +89,7 @@ void RpcChannel::CallTinyPBService(const google::protobuf::MethodDescriptor* met
 
   s_ptr channel = shared_from_this(); 
   // 设置超时事件
-  TimerEvent::s_ptr timer_event = std::make_shared<TimerEvent>(method_controller->GetTimeout(), false, [channel, method_controller, done]() mutable {
+  TimerEvent::s_ptr timer_event = std::make_shared<TimerEvent>(method_controller->GetTimeout(), false, m_client_->GetFd(), [channel, method_controller, done](int) mutable {
     LOG_INFO("%s | call rpc timeout arrive", method_controller->GetMsgId().c_str());
     if (method_controller->Finished()) {
       return;

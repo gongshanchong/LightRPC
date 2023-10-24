@@ -37,9 +37,6 @@ void TcpServer::Init() {
   m_main_event_loop_->AddEpollEvent(m_listen_fd_event_);
 
   // 主loop添加服务器端的时间事件监听，定时去除已经关闭的连接
-  // 重复，间隔为timeout_
-  m_clear_client_timer_event_ = std::make_shared<TimerEvent>(timeout_, true, std::bind(&TcpServer::ClearClientTimerFunc, this));
-	m_main_event_loop_->AddTimerEvent(m_clear_client_timer_event_);
 }
 
 void TcpServer::OnAccept() {
@@ -51,9 +48,13 @@ void TcpServer::OnAccept() {
   // 把 cleintfd 添加到任意 IO 线程里面，对线程池的线程进行轮流添加
   IOThread* io_thread = m_io_thread_pool_->GetIOThread();
   // 将客服端放入到线程中的loop中进行监听
+  // 间隔为timeout_
   TcpConnection::s_ptr connetion = std::make_shared<TcpConnection>(io_thread->GetEventLoop(), client_fd, 128, peer_addr, m_local_addr_, protocol_);
+  TimerEvent::s_ptr timer_event = std::make_shared<TimerEvent>(timeout_, false, client_fd, std::bind(&TcpServer::ClearClientTimerFunc, this, std::placeholders::_1));
+	m_main_event_loop_->AddTimerEvent(timer_event);
   connetion->SetState(Connected);
-  m_client_.insert(connetion);
+  // 添加到链接组中
+  m_client_[client_fd] = std::move(connetion);
 
   LOG_INFO("TcpServer succ get client, fd=%d", client_fd);
 }
@@ -63,16 +64,13 @@ void TcpServer::Start() {
   m_main_event_loop_->Loop();
 }
 
-void TcpServer::ClearClientTimerFunc() {
-  auto it = m_client_.begin();
-  for (it = m_client_.begin(); it != m_client_.end(); ) {
-    if ((*it) != nullptr && (*it).use_count() > 0 && (*it)->GetState() == Closed) {
-      // need to delete TcpConnection
-      LOG_DEBUG("TcpConection [fd:%d] will delete, state=%d", (*it)->GetFd(), (*it)->GetState());
-      it = m_client_.erase(it);
-    } else {
-      it++;
-    }
-  }
+void TcpServer::ClearClientTimerFunc(int fd) {
+  if((fd == -1) || (m_client_.find(fd) == m_client_.end())) return;
+
+  // 智能指针conn，当conn引用计数为0时，conn会销毁，conn中的智能指针sock、channel也会销毁
+  auto connetion = m_client_[fd];
+  connetion->SetState(TcpState::Closed);
+  LOG_DEBUG("TcpConection [fd:%d] will delete, state=%d", connetion->GetFd(), connetion->GetState());
+  m_client_.erase(fd);
 }
 }

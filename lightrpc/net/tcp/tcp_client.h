@@ -32,6 +32,8 @@ class TcpClient {
 
   void Stop();
 
+  int GetFd();
+
   int GetConnectErrorCode();
 
   std::string GetConnectErrorInfo();

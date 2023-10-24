@@ -4,8 +4,8 @@
 
 namespace lightrpc {
 
-TimerEvent::TimerEvent(int interval, bool is_repeated, std::function<void()> cb)
-   : m_interval_(interval), m_is_repeated_(is_repeated), m_task_(cb) {
+TimerEvent::TimerEvent(int interval, bool is_repeated, int fd, std::function<void(int fd)> cb)
+   : m_interval_(interval), m_is_repeated_(is_repeated), m_fd_(fd), m_task_(cb) {
   ResetArriveTime();
 }
 

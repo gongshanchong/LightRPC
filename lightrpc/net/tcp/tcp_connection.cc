@@ -38,6 +38,8 @@ TcpConnection::~TcpConnection() {
 }
 
 void TcpConnection::OnRead() {
+  // 更新时间
+  m_timer_event_->ResetArriveTime();
   // 1. 从 socket 缓冲区，调用 系统的 read 函数读取字节 in_buffer 里面
   if (m_state_ != Connected) {
     LOG_ERROR("onRead error, client has already disconneced, addr[%s], clientfd[%d]", m_peer_addr_->ToString().c_str(), m_fd_);
@@ -119,6 +121,8 @@ void TcpConnection::Reply(std::vector<AbstractProtocol::s_ptr>& replay_messages)
 }
 
 void TcpConnection::OnWrite() {
+  // 更新时间
+  m_timer_event_->ResetArriveTime();
   // 将当前 out_buffer 里面的数据全部发送给 client
   if (m_state_ != Connected) {
     LOG_ERROR("onWrite error, client has already disconneced, addr[%s], clientfd[%d]", m_peer_addr_->ToString().c_str(), m_fd_);
@@ -221,6 +225,10 @@ void TcpConnection::ListenRead() {
   // 当前链接对应的loop开始监听读事件
   m_fd_event_->Listen(FdEvent::IN_EVENT, std::bind(&TcpConnection::OnRead, this));
   m_event_loop_->AddEpollEvent(m_fd_event_);
+}
+
+void TcpConnection::AddTimerEvent(TimerEvent::s_ptr timer_event){
+  m_event_loop_->AddTimerEvent(timer_event);
 }
 
 void TcpConnection::PushSendMessage(AbstractProtocol::s_ptr message, std::function<void(AbstractProtocol::s_ptr)> done) {
