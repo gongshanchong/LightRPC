@@ -1,0 +1,125 @@
+[INFO]	[23-10-25 00:02:51.179]	[4189:4189]	[lightrpc/net/eventloop.cc:99]	wakeup fd = 4
+[INFO]	[23-10-25 00:02:51.179]	[4189:4189]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4189]	[lightrpc/net/eventloop.cc:184]	add event success, fd[4]
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4189]	[lightrpc/net/timer.cc:13]	timer fd=5
+[INFO]	[23-10-25 00:02:51.179]	[4189:4189]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4189]	[lightrpc/net/eventloop.cc:184]	add event success, fd[5]
+[INFO]	[23-10-25 00:02:51.179]	[4189:4189]	[lightrpc/net/eventloop.cc:65]	succ create event loop in thread 4189
+[INFO]	[23-10-25 00:02:51.179]	[4189:4192]	[lightrpc/net/eventloop.cc:99]	wakeup fd = 8
+[INFO]	[23-10-25 00:02:51.179]	[4189:4192]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4192]	[lightrpc/net/eventloop.cc:184]	add event success, fd[8]
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4192]	[lightrpc/net/timer.cc:13]	timer fd=9
+[INFO]	[23-10-25 00:02:51.179]	[4189:4192]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4192]	[lightrpc/net/eventloop.cc:184]	add event success, fd[9]
+[INFO]	[23-10-25 00:02:51.179]	[4189:4192]	[lightrpc/net/eventloop.cc:65]	succ create event loop in thread 4192
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4192]	[lightrpc/net/io_thread.cc:49]	IOThread 4192 created, wait start semaphore
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4189]	[lightrpc/net/io_thread.cc:23]	IOThread [4192] create success
+[INFO]	[23-10-25 00:02:51.179]	[4189:4193]	[lightrpc/net/eventloop.cc:99]	wakeup fd = 11
+[INFO]	[23-10-25 00:02:51.179]	[4189:4193]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4193]	[lightrpc/net/eventloop.cc:184]	add event success, fd[11]
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4193]	[lightrpc/net/timer.cc:13]	timer fd=12
+[INFO]	[23-10-25 00:02:51.179]	[4189:4193]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4193]	[lightrpc/net/eventloop.cc:184]	add event success, fd[12]
+[INFO]	[23-10-25 00:02:51.179]	[4189:4193]	[lightrpc/net/eventloop.cc:65]	succ create event loop in thread 4193
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4193]	[lightrpc/net/io_thread.cc:49]	IOThread 4193 created, wait start semaphore
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4189]	[lightrpc/net/io_thread.cc:23]	IOThread [4193] create success
+[INFO]	[23-10-25 00:02:51.179]	[4189:4194]	[lightrpc/net/eventloop.cc:99]	wakeup fd = 14
+[INFO]	[23-10-25 00:02:51.179]	[4189:4194]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4194]	[lightrpc/net/eventloop.cc:184]	add event success, fd[14]
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4194]	[lightrpc/net/timer.cc:13]	timer fd=15
+[INFO]	[23-10-25 00:02:51.179]	[4189:4194]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4194]	[lightrpc/net/eventloop.cc:184]	add event success, fd[15]
+[INFO]	[23-10-25 00:02:51.179]	[4189:4194]	[lightrpc/net/eventloop.cc:65]	succ create event loop in thread 4194
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4194]	[lightrpc/net/io_thread.cc:49]	IOThread 4194 created, wait start semaphore
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4189]	[lightrpc/net/io_thread.cc:23]	IOThread [4194] create success
+[INFO]	[23-10-25 00:02:51.179]	[4189:4195]	[lightrpc/net/eventloop.cc:99]	wakeup fd = 17
+[INFO]	[23-10-25 00:02:51.179]	[4189:4195]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4195]	[lightrpc/net/eventloop.cc:184]	add event success, fd[17]
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4195]	[lightrpc/net/timer.cc:13]	timer fd=18
+[INFO]	[23-10-25 00:02:51.179]	[4189:4195]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4195]	[lightrpc/net/eventloop.cc:184]	add event success, fd[18]
+[INFO]	[23-10-25 00:02:51.179]	[4189:4195]	[lightrpc/net/eventloop.cc:65]	succ create event loop in thread 4195
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4195]	[lightrpc/net/io_thread.cc:49]	IOThread 4195 created, wait start semaphore
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4189]	[lightrpc/net/io_thread.cc:23]	IOThread [4195] create success
+[INFO]	[23-10-25 00:02:51.179]	[4189:4189]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:02:51.179]	[4189:4189]	[lightrpc/net/eventloop.cc:184]	add event success, fd[6]
+[INFO]	[23-10-25 00:02:51.179]	[4189:4189]	[lightrpc/net/tcp/tcp_server.cc:11]	lightrpc TcpServer listen sucess on [127.0.0.1:12345]
+[DEBUG]	[23-10-25 00:02:51.180]	[4189:4189]	[lightrpc/net/io_thread.cc:65]	Now invoke IOThread 4192
+[DEBUG]	[23-10-25 00:02:51.180]	[4189:4189]	[lightrpc/net/io_thread.cc:65]	Now invoke IOThread 4193
+[DEBUG]	[23-10-25 00:02:51.180]	[4189:4189]	[lightrpc/net/io_thread.cc:65]	Now invoke IOThread 4194
+[DEBUG]	[23-10-25 00:02:51.180]	[4189:4189]	[lightrpc/net/io_thread.cc:65]	Now invoke IOThread 4195
+[DEBUG]	[23-10-25 00:02:51.180]	[4189:4192]	[lightrpc/net/io_thread.cc:53]	IOThread 4192 start loop 
+[DEBUG]	[23-10-25 00:02:51.180]	[4189:4193]	[lightrpc/net/io_thread.cc:53]	IOThread 4193 start loop 
+[DEBUG]	[23-10-25 00:02:51.180]	[4189:4194]	[lightrpc/net/io_thread.cc:53]	IOThread 4194 start loop 
+[DEBUG]	[23-10-25 00:02:51.180]	[4189:4195]	[lightrpc/net/io_thread.cc:53]	IOThread 4195 start loop 
+[INFO]	[23-10-25 00:02:59.486]	[4189:4189]	[lightrpc/net/tcp/tcp_acceptor.cc:59]	A client have accpeted succ, peer addr [0.0.0.0:46574]
+[INFO]	[23-10-25 00:02:59.487]	[4189:4189]	[lightrpc/net/eventloop.cc:171]	WAKE UP
+[DEBUG]	[23-10-25 00:02:59.487]	[4189:4189]	[lightrpc/net/wakeup_fd_event.cc:17]	success read 8 bytes
+[INFO]	[23-10-25 00:02:59.487]	[4189:4189]	[lightrpc/net/tcp/tcp_server.cc:59]	TcpServer succ get client, fd=26
+[INFO]	[23-10-25 00:02:59.487]	[4189:4192]	[lightrpc/net/eventloop.cc:187]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:02:59.487]	[4189:4192]	[lightrpc/net/eventloop.cc:187]	add event success, fd[26]
+[DEBUG]	[23-10-25 00:02:59.487]	[4189:4192]	[lightrpc/net/eventloop.cc:106]	read full bytes from wakeup fd[8]
+[DEBUG]	[23-10-25 00:03:07.487]	[4189:4189]	[lightrpc/net/tcp/tcp_server.cc:73]	TcpConection [fd:26] will delete, state=4
+[DEBUG]	[23-10-25 00:03:07.487]	[4189:4189]	[lightrpc/net/tcp/tcp_connection.cc:32]	~TcpConnection
+[INFO]	[23-10-25 00:06:57.867]	[5816:5816]	[lightrpc/net/eventloop.cc:99]	wakeup fd = 4
+[INFO]	[23-10-25 00:06:57.867]	[5816:5816]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:06:57.867]	[5816:5816]	[lightrpc/net/eventloop.cc:184]	add event success, fd[4]
+[DEBUG]	[23-10-25 00:06:57.867]	[5816:5816]	[lightrpc/net/timer.cc:13]	timer fd=5
+[INFO]	[23-10-25 00:06:57.867]	[5816:5816]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:06:57.867]	[5816:5816]	[lightrpc/net/eventloop.cc:184]	add event success, fd[5]
+[INFO]	[23-10-25 00:06:57.867]	[5816:5816]	[lightrpc/net/eventloop.cc:65]	succ create event loop in thread 5816
+[INFO]	[23-10-25 00:06:57.868]	[5816:5819]	[lightrpc/net/eventloop.cc:99]	wakeup fd = 8
+[INFO]	[23-10-25 00:06:57.868]	[5816:5819]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5819]	[lightrpc/net/eventloop.cc:184]	add event success, fd[8]
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5819]	[lightrpc/net/timer.cc:13]	timer fd=9
+[INFO]	[23-10-25 00:06:57.868]	[5816:5819]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5819]	[lightrpc/net/eventloop.cc:184]	add event success, fd[9]
+[INFO]	[23-10-25 00:06:57.868]	[5816:5819]	[lightrpc/net/eventloop.cc:65]	succ create event loop in thread 5819
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5819]	[lightrpc/net/io_thread.cc:49]	IOThread 5819 created, wait start semaphore
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5816]	[lightrpc/net/io_thread.cc:23]	IOThread [5819] create success
+[INFO]	[23-10-25 00:06:57.868]	[5816:5820]	[lightrpc/net/eventloop.cc:99]	wakeup fd = 11
+[INFO]	[23-10-25 00:06:57.868]	[5816:5820]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5820]	[lightrpc/net/eventloop.cc:184]	add event success, fd[11]
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5820]	[lightrpc/net/timer.cc:13]	timer fd=12
+[INFO]	[23-10-25 00:06:57.868]	[5816:5820]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5820]	[lightrpc/net/eventloop.cc:184]	add event success, fd[12]
+[INFO]	[23-10-25 00:06:57.868]	[5816:5820]	[lightrpc/net/eventloop.cc:65]	succ create event loop in thread 5820
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5820]	[lightrpc/net/io_thread.cc:49]	IOThread 5820 created, wait start semaphore
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5816]	[lightrpc/net/io_thread.cc:23]	IOThread [5820] create success
+[INFO]	[23-10-25 00:06:57.868]	[5816:5821]	[lightrpc/net/eventloop.cc:99]	wakeup fd = 14
+[INFO]	[23-10-25 00:06:57.868]	[5816:5821]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5821]	[lightrpc/net/eventloop.cc:184]	add event success, fd[14]
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5821]	[lightrpc/net/timer.cc:13]	timer fd=15
+[INFO]	[23-10-25 00:06:57.868]	[5816:5821]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5821]	[lightrpc/net/eventloop.cc:184]	add event success, fd[15]
+[INFO]	[23-10-25 00:06:57.868]	[5816:5821]	[lightrpc/net/eventloop.cc:65]	succ create event loop in thread 5821
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5821]	[lightrpc/net/io_thread.cc:49]	IOThread 5821 created, wait start semaphore
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5816]	[lightrpc/net/io_thread.cc:23]	IOThread [5821] create success
+[INFO]	[23-10-25 00:06:57.868]	[5816:5822]	[lightrpc/net/eventloop.cc:99]	wakeup fd = 17
+[INFO]	[23-10-25 00:06:57.868]	[5816:5822]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5822]	[lightrpc/net/eventloop.cc:184]	add event success, fd[17]
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5822]	[lightrpc/net/timer.cc:13]	timer fd=18
+[INFO]	[23-10-25 00:06:57.868]	[5816:5822]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5822]	[lightrpc/net/eventloop.cc:184]	add event success, fd[18]
+[INFO]	[23-10-25 00:06:57.868]	[5816:5822]	[lightrpc/net/eventloop.cc:65]	succ create event loop in thread 5822
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5822]	[lightrpc/net/io_thread.cc:49]	IOThread 5822 created, wait start semaphore
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5816]	[lightrpc/net/io_thread.cc:23]	IOThread [5822] create success
+[INFO]	[23-10-25 00:06:57.868]	[5816:5816]	[lightrpc/net/eventloop.cc:184]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5816]	[lightrpc/net/eventloop.cc:184]	add event success, fd[6]
+[INFO]	[23-10-25 00:06:57.868]	[5816:5816]	[lightrpc/net/tcp/tcp_server.cc:11]	lightrpc TcpServer listen sucess on [127.0.0.1:12345]
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5816]	[lightrpc/net/io_thread.cc:65]	Now invoke IOThread 5819
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5816]	[lightrpc/net/io_thread.cc:65]	Now invoke IOThread 5820
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5816]	[lightrpc/net/io_thread.cc:65]	Now invoke IOThread 5821
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5819]	[lightrpc/net/io_thread.cc:53]	IOThread 5819 start loop 
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5816]	[lightrpc/net/io_thread.cc:65]	Now invoke IOThread 5822
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5820]	[lightrpc/net/io_thread.cc:53]	IOThread 5820 start loop 
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5821]	[lightrpc/net/io_thread.cc:53]	IOThread 5821 start loop 
+[DEBUG]	[23-10-25 00:06:57.868]	[5816:5822]	[lightrpc/net/io_thread.cc:53]	IOThread 5822 start loop 
+[INFO]	[23-10-25 00:07:03.561]	[5816:5816]	[lightrpc/net/tcp/tcp_acceptor.cc:59]	A client have accpeted succ, peer addr [0.0.0.0:56186]
+[INFO]	[23-10-25 00:07:03.561]	[5816:5816]	[lightrpc/net/eventloop.cc:171]	WAKE UP
+[DEBUG]	[23-10-25 00:07:03.561]	[5816:5816]	[lightrpc/net/wakeup_fd_event.cc:17]	success read 8 bytes
+[INFO]	[23-10-25 00:07:03.561]	[5816:5816]	[lightrpc/net/tcp/tcp_server.cc:59]	TcpServer succ get client, fd=22
+[INFO]	[23-10-25 00:07:03.561]	[5816:5819]	[lightrpc/net/eventloop.cc:187]	epoll_event.events = 1
+[DEBUG]	[23-10-25 00:07:03.561]	[5816:5819]	[lightrpc/net/eventloop.cc:187]	add event success, fd[22]
+[DEBUG]	[23-10-25 00:07:03.561]	[5816:5819]	[lightrpc/net/eventloop.cc:106]	read full bytes from wakeup fd[8]
+[ERROR]	[23-10-25 00:07:03.562]	[5816:5819]	[lightrpc/common/log.cc:10]	progress received invalid signal, will exit

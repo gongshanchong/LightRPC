@@ -228,6 +228,7 @@ void TcpConnection::ListenRead() {
 }
 
 void TcpConnection::AddTimerEvent(TimerEvent::s_ptr timer_event){
+  m_timer_event_ = timer_event;
   m_event_loop_->AddTimerEvent(timer_event);
 }
 

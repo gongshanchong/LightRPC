@@ -10,7 +10,7 @@
 
   * 与redis结合；
   * 实现服务发现；
-  * 服务器端实现去除空闲连接，在connection类中实现（添加一个timer_event类，在tcp中定义timer_event的回调函数）；
+  * 服务器端实现去除空闲连接，在connection类中实现（添加一个timer_event类，在tcp中定义timer_event的回调函数）(解决)；
   * 去除掉wake_up_event类；
 * 测试客户端使用http进行通信（服务器与浏览器的通信可以通过/调用begin方法进行初始页面设置，后续以序列化的数据进行通信，需要前端进行反序列化）；
 * 日志模块：
