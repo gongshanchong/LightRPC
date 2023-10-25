@@ -50,7 +50,7 @@ std::pair<int, NetAddr::s_ptr> TcpAcceptor::Accept() {
     // 设置新的连接客户端的地址
     sockaddr_in client_addr;
     memset(&client_addr, 0, sizeof(client_addr));
-    socklen_t clien_addr_len = sizeof(clien_addr_len);
+    socklen_t clien_addr_len = sizeof(client_addr);
     // 调用了 accept 函数获取一个新连接的文件描述符
     int client_fd = ::accept(m_listenfd_, (sockaddr*)(&client_addr), &clien_addr_len);
     if (client_fd < 0) {
