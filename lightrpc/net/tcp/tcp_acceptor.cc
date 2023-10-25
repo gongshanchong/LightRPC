@@ -11,7 +11,6 @@ namespace lightrpc {
 TcpAcceptor::TcpAcceptor(NetAddr::s_ptr local_addr) : m_local_addr_(local_addr) {
   if (!local_addr->IsValid()) {
     LOG_ERROR("invalid local addr %s", local_addr->ToString().c_str());
-    exit(0);
   }
   m_family_ = m_local_addr_->GetFamily();
   // SOCK_STREAM（TCP流）
@@ -19,24 +18,20 @@ TcpAcceptor::TcpAcceptor(NetAddr::s_ptr local_addr) : m_local_addr_(local_addr) 
 
   if (m_listenfd_ < 0) {
     LOG_ERROR("invalid listenfd %d", m_listenfd_);
-    exit(0);
   }
   // 绑定地址快速重用
   int val = 1;
   if (setsockopt(m_listenfd_, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val)) != 0) {
-    LOG_ERROR("setsockopt REUSEADDR error, errno=%d, error=%s", errno, strerror(errno));
+    LOG_ERROR("local addr %s, setsockopt REUSEADDR error, errno=%d, error=%s", local_addr->ToString().c_str(), errno, strerror(errno));
   }
-
   // 绑定地址
   socklen_t len = m_local_addr_->GetSockLen();
   if(bind(m_listenfd_, m_local_addr_->GetSockAddr(), len) != 0) {
-    LOG_ERROR("bind error, errno=%d, error=%s", errno, strerror(errno));
-    exit(0);
+    LOG_ERROR("local addr %s, bind error, errno=%d, error=%s", local_addr->ToString().c_str(), errno, strerror(errno));
   }
   // 进行监听
   if(listen(m_listenfd_, 1000) != 0) {
-    LOG_ERROR("listen error, errno=%d, error=%s", errno, strerror(errno));
-    exit(0);
+    LOG_ERROR("local addr %s, listen error, errno=%d, error=%s", local_addr->ToString().c_str(), errno, strerror(errno));
   }
 }
 

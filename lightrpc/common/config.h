@@ -36,8 +36,7 @@ public:
   std::string m_log_file_path_;  // 日志目录
   int m_log_max_file_size_ {0};  // 单个日志文件最大大小
   int m_log_sync_inteval_ {0};   // 日志同步间隔，ms
-  // 端口号和线程数
-  int m_port_ {0};
+  // 线程数
   int m_io_threads_ {0};
 
   TiXmlDocument* m_xml_document_{NULL};

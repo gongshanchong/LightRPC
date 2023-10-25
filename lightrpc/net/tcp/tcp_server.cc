@@ -3,6 +3,7 @@
 #include "tcp_connection.h"
 #include "../../common/log.h"
 #include "../../common/config.h"
+#include <cstdio>
 
 namespace lightrpc {
 

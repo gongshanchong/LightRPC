@@ -92,10 +92,10 @@ void Logger::SyncLoop(int fd) {
 
 // 初始化静态全局日志变量
 void Logger::InitGlobalLogger(int type /*=1*/) {
-    LogLevel global_log_level = StringToLogLevel(Config::GetGlobalConfig()->m_log_level_);
-    printf("Init log level [%s]\n", LogLevelToString(global_log_level).c_str());
-    g_logger = new Logger(global_log_level, type);
-    g_logger->Init();
+  LogLevel global_log_level = StringToLogLevel(Config::GetGlobalConfig()->m_log_level_);
+  g_logger = new Logger(global_log_level, type);
+  g_logger->Init();
+  printf("Init log level [%s]\n", LogLevelToString(global_log_level).c_str());
 }
 
 std::string LogLevelToString(LogLevel level) {
@@ -254,7 +254,6 @@ void* AsyncLogger::Loop(void* arg) {
 
   return NULL;
 }
-
 
 void AsyncLogger::Stop() {
   m_stop_flag_ = true;

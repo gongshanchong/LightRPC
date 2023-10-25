@@ -74,10 +74,7 @@ Config::Config(const char* xmlfile) {
     printf("LOG -- CONFIG LEVEL[%s], FILE_NAME[%s],FILE_PATH[%s] MAX_FILE_SIZE[%d B], SYNC_INTEVAL[%d ms]\n", 
     m_log_level_.c_str(), m_log_file_name_.c_str(), m_log_file_path_.c_str(), m_log_max_file_size_, m_log_sync_inteval_);
 
-    READ_STR_FROM_XML_NODE(port, server_node);
     READ_STR_FROM_XML_NODE(io_threads, server_node);
-
-    m_port_ = std::atoi(port_str.c_str());
     m_io_threads_ = std::atoi(io_threads_str.c_str());
 
     TiXmlElement* stubs_node = root_node->FirstChildElement("stubs");
@@ -103,7 +100,7 @@ Config::Config(const char* xmlfile) {
             m_rpc_stubs_.insert(std::make_pair(stub.name_, stub));
         }
     }
-    printf("Server -- PORT[%d], IO Threads[%d]\n", m_port_, m_io_threads_);
+    printf("Server -- IO Threads[%d]\n", m_io_threads_);
 }
 
 }
