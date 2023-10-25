@@ -13,6 +13,15 @@ FdEvent::FdEvent() {
   memset(&m_listen_events_, 0, sizeof(m_listen_events_));
 }
 
+FdEvent::~FdEvent(){
+  LOG_DEBUG("~FdEvent,fd[%d]", m_fd_);
+  if(m_fd_ != -1){
+      close(m_fd_);
+      // close(fd)后fd仍然为原值，需要手动置为-1
+      m_fd_ = -1;
+  }
+}
+
 std::function<void()> FdEvent::Handler(TriggerEvent event) {
   if (event == TriggerEvent::IN_EVENT) {
     return m_read_callback_;

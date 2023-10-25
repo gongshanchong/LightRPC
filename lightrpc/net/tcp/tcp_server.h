@@ -38,7 +38,7 @@ class TcpServer {
   
   IOThreadPool* m_io_thread_pool_ {NULL};   // subReactor 组
 
-  FdEvent* m_listen_fd_event_;              // 当前监听事件
+  FdEvent::s_ptr m_listen_fd_event_;              // 当前监听事件
 
   ProtocalType protocol_;                    // 通信协议
 

@@ -53,7 +53,7 @@ class EventLoop {
   // 唤醒事件的fd
   int m_wakeup_fd_ {0};
   // 这里wakeup的作用仅仅是触发可读事件唤醒epoll来停止loop循环
-  WakeUpFdEvent* m_wakeup_fd_event_ {NULL};
+  WakeUpFdEvent::s_ptr m_wakeup_fd_event_ {NULL};
 
   // 是否停止
   bool m_stop_flag_ {false};
@@ -67,7 +67,7 @@ class EventLoop {
   std::mutex handle_mtx_;
 
   // 时间事件管理器
-  Timer* m_timer_ {NULL};
+  Timer::s_ptr m_timer_ {NULL};
 
   // 是否在loop中
   bool m_is_looping_ {false};

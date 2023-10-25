@@ -38,9 +38,9 @@ int main(int argc, char* argv[]) {
   lightrpc::Config::SetGlobalConfig(argv[1]);
   lightrpc::Logger::InitGlobalLogger();
 
-  lightrpc::TcpServer tcp_server(lightrpc::Config::GetGlobalConfig()->m_rpc_stubs_["default"].addr_, 
-  lightrpc::Config::GetGlobalConfig()->m_rpc_stubs_["default"].protocal_, 
-  lightrpc::Config::GetGlobalConfig()->m_rpc_stubs_["default"].timeout_);
+  lightrpc::TcpServer tcp_server(lightrpc::Config::GetGlobalConfig()->m_rpc_stubs_["browser"].addr_, 
+  lightrpc::Config::GetGlobalConfig()->m_rpc_stubs_["browser"].protocal_, 
+  lightrpc::Config::GetGlobalConfig()->m_rpc_stubs_["browser"].timeout_);
   // 依据配置文件中的服务的协议进行相关的操作
   std::shared_ptr<OrderImpl> service = std::make_shared<OrderImpl>();
   lightrpc::RpcDispatcher::GetRpcDispatcher()->RegisterService(service);

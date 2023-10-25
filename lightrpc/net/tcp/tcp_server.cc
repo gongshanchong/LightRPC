@@ -21,10 +21,6 @@ TcpServer::~TcpServer() {
     delete m_io_thread_pool_;
     m_io_thread_pool_ = NULL; 
   }
-  if (m_listen_fd_event_) {
-    delete m_listen_fd_event_;
-    m_listen_fd_event_ = NULL;
-  }
 }
 
 void TcpServer::Init() {
@@ -33,9 +29,9 @@ void TcpServer::Init() {
   m_main_event_loop_ = EventLoop::GetCurrentEventLoop();
   m_io_thread_pool_ = new IOThreadPool(Config::GetGlobalConfig()->m_io_threads_);
   // 主loop添加服务器端的事件监听
-  m_listen_fd_event_ = new FdEvent(m_acceptor_->GetListenFd());
+  m_listen_fd_event_ = std::make_shared<FdEvent>(m_acceptor_->GetListenFd());
   m_listen_fd_event_->Listen(FdEvent::IN_EVENT, std::bind(&TcpServer::OnAccept, this));
-  m_main_event_loop_->AddEpollEvent(m_listen_fd_event_);
+  m_main_event_loop_->AddEpollEvent(m_listen_fd_event_.get());
 
   // 主loop添加服务器端的时间事件监听，定时去除已经关闭的连接
 }

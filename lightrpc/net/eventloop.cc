@@ -1,3 +1,4 @@
+#include <memory>
 #include <sys/socket.h>
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
@@ -68,20 +69,12 @@ EventLoop::EventLoop() {
 
 EventLoop::~EventLoop() {
   close(m_epoll_fd_);
-  if (m_wakeup_fd_event_) {
-    delete m_wakeup_fd_event_;
-    m_wakeup_fd_event_ = NULL;
-  }
-  if (m_timer_) {
-    delete m_timer_;
-    m_timer_ = NULL;
-  }
 }
 
 // 初始化时间事件管理器
 void EventLoop::InitTimer() {
-  m_timer_ = new Timer();
-  AddEpollEvent(m_timer_);
+  m_timer_ = std::make_shared<Timer>();
+  AddEpollEvent(m_timer_.get());
 }
 
 // 向时间事件管理器添加时间事件
@@ -98,7 +91,7 @@ void EventLoop::InitWakeUpFdEevent() {
   }
   LOG_INFO("wakeup fd = %d", m_wakeup_fd_);
   // 为事件fd设置event类
-  m_wakeup_fd_event_ = new WakeUpFdEvent(m_wakeup_fd_);
+  m_wakeup_fd_event_ = std::make_shared<WakeUpFdEvent>(m_wakeup_fd_);
   m_wakeup_fd_event_->Listen(FdEvent::IN_EVENT, [this]() {
     char buf[8];
     while(read(m_wakeup_fd_, buf, 8) != -1 && errno != EAGAIN) {
@@ -106,7 +99,7 @@ void EventLoop::InitWakeUpFdEevent() {
     LOG_DEBUG("read full bytes from wakeup fd[%d]", m_wakeup_fd_);
   });
 
-  AddEpollEvent(m_wakeup_fd_event_);
+  AddEpollEvent(m_wakeup_fd_event_.get());
 }
 
 void EventLoop::Loop() {

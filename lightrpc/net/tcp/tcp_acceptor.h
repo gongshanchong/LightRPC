@@ -23,6 +23,7 @@ class TcpAcceptor {
 
   int m_listenfd_ {-1}; // 监听套接字
 
+  bool init_flag_{true}; // 初始化是否成功
 };
 }
 #endif

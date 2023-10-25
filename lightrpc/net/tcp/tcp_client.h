@@ -53,7 +53,7 @@ class TcpClient {
   EventLoop* m_event_loop_ {NULL};
 
   int m_fd_ {-1};
-  FdEvent* m_fd_event_ {NULL};
+  FdEvent::s_ptr m_fd_event_ {NULL};
 
   ProtocalType protocol_;              // 通信协议
   TcpConnection::s_ptr m_connection_; // 连接

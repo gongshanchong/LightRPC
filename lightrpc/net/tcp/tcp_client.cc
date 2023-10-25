@@ -4,7 +4,6 @@
 #include "../../common/log.h"
 #include "tcp_client.h"
 #include "../eventloop.h"
-#include "../fd_event_pool.h"
 #include "../../common/error_code.h"
 #include "net_addr.h"
 
@@ -19,18 +18,16 @@ TcpClient::TcpClient(NetAddr::s_ptr peer_addr, ProtocalType protocol) : m_peer_a
     return;
   }
   // 创建客户端的事件
-  m_fd_event_ = FdEventPool::GetFdEventPool()->GetFdEvent(m_fd_);
+  m_fd_event_ = std::make_shared<FdEvent>(m_fd_);
   m_fd_event_->SetNonBlock();
   // 创建客户端的链接
   m_connection_ = std::make_shared<TcpConnection>(m_event_loop_, m_fd_, 128, peer_addr, nullptr, protocol_, TcpConnectionByClient);
   m_connection_->SetConnectionType(TcpConnectionByClient);
+  m_connection_->SetFdEvent(m_fd_event_);
 }
 
 TcpClient::~TcpClient() {
   LOG_DEBUG("TcpClient::~TcpClient()");
-  if (m_fd_ > 0) {
-    close(m_fd_);
-  }
 }
 
 // 异步的进行 conenct
@@ -69,7 +66,7 @@ void TcpClient::Connect(std::function<void()> done) {
           }
 
           // 连接完后需要去掉可写事件的监听，不然会一直触发
-          m_event_loop_->DeleteEpollEvent(m_fd_event_);
+          m_event_loop_->DeleteEpollEvent(m_fd_event_.get());
           LOG_DEBUG("now begin to done");
           // 如果连接完成，才会执行回调函数
           if (done) {
@@ -78,7 +75,7 @@ void TcpClient::Connect(std::function<void()> done) {
         }
       );
       // 重新添加可写事件的监听，便于下次重新连接
-      m_event_loop_->AddEpollEvent(m_fd_event_);
+      m_event_loop_->AddEpollEvent(m_fd_event_.get());
       // 启动loop监听
       if (!m_event_loop_->IsLooping()) {
         m_event_loop_->Loop();

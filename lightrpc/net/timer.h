@@ -10,6 +10,8 @@ namespace lightrpc {
 // 时间事件管理器
 class Timer : public FdEvent {
  public:
+  // 智能指针
+  typedef std::shared_ptr<Timer> s_ptr;
 
   Timer();
 

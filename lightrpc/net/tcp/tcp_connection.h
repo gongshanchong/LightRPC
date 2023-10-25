@@ -69,6 +69,9 @@ class TcpConnection {
   // 添加定时器事件
   void AddTimerEvent(TimerEvent::s_ptr timer_event);
 
+  // 添加定时器事件
+  void SetFdEvent(FdEvent::s_ptr fd_event);
+
   // 添加TinyPB协议的写函数
   void PushSendMessage(AbstractProtocol::s_ptr message, std::function<void(AbstractProtocol::s_ptr)> done);
 
@@ -79,7 +82,7 @@ class TcpConnection {
   void Reply(std::vector<AbstractProtocol::s_ptr>& replay_messages);
 
 private:
-  EventLoop* m_event_loop_ {NULL};    // 代表持有该连接的 IO 线程
+  EventLoop*  m_event_loop_ {NULL};    // 代表持有该连接的 IO 线程
 
   NetAddr::s_ptr m_local_addr_;       // 监听的服务器地址
   NetAddr::s_ptr m_peer_addr_;        // 链接的客户端的地址
@@ -88,7 +91,7 @@ private:
   TcpBuffer::s_ptr m_out_buffer_;     // 发送缓冲区
 
   int m_fd_ {0};
-  FdEvent* m_fd_event_ {NULL};        // 当前 fd_event 对象
+  FdEvent::s_ptr m_fd_event_ {NULL};  // 当前 fd_event 对象
   TimerEvent::s_ptr m_timer_event_;   // 定时器事件
 
 

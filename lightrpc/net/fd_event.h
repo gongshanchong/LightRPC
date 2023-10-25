@@ -2,11 +2,14 @@
 #define LIGHTRPC_NET_FDEVENT_H
 
 #include <functional>
+#include <memory>
 #include <sys/epoll.h>
 
 namespace lightrpc {
 class FdEvent {
  public:
+  // 智能指针
+  typedef std::shared_ptr<FdEvent> s_ptr;
   // 触发事件
   enum TriggerEvent {
     IN_EVENT = EPOLLIN,
@@ -16,6 +19,7 @@ class FdEvent {
   // 初始化
   FdEvent(int fd);
   FdEvent();
+  ~FdEvent();
 
   // 设置非阻塞
   void SetNonBlock();

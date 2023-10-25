@@ -1,6 +1,6 @@
+#include <memory>
 #include <unistd.h>
 #include "../../common/log.h"
-#include "../../net/fd_event_pool.h"
 #include "tcp_connection.h"
 #include "../rpc/string_codec.h"
 #include "../tinypb/tinypb_codec.h"
@@ -13,9 +13,6 @@ TcpConnection::TcpConnection(EventLoop* event_loop, int fd, int buffer_size, Net
   // 缓冲区初始化
   m_in_buffer_ = std::make_shared<TcpBuffer>(buffer_size);
   m_out_buffer_ = std::make_shared<TcpBuffer>(buffer_size);
-  // 从事件池中获取事件，并设置为非阻塞
-  m_fd_event_ = FdEventPool::GetFdEventPool()->GetFdEvent(fd);
-  m_fd_event_->SetNonBlock();
   // 协议的编解码
   if(protocol == ProtocalType::HTTP){
     m_coder_ = new HttpCodec();
@@ -24,6 +21,9 @@ TcpConnection::TcpConnection(EventLoop* event_loop, int fd, int buffer_size, Net
   }
   // 判断连接的类型
   if (m_connection_type_ == TcpConnectionByServer) {
+    // 从事件池中获取事件，并设置为非阻塞
+    m_fd_event_ = std::make_shared<FdEvent>(m_fd_);
+    m_fd_event_->SetNonBlock();
     ListenRead();
   }
 }
@@ -165,7 +165,7 @@ void TcpConnection::OnWrite() {
   if (is_write_all) {
     // 移除写事件的监听
     m_fd_event_->Cancle(FdEvent::OUT_EVENT);
-    m_event_loop_->AddEpollEvent(m_fd_event_);
+    m_event_loop_->AddEpollEvent(m_fd_event_.get());
   }
 
   // 请求发送成功，执行请求 done 函数（设置读的回调函数）
@@ -190,9 +190,7 @@ void TcpConnection::Clear() {
   if (m_state_ == Closed) {
     return;
   }
-  m_fd_event_->Cancle(FdEvent::IN_EVENT);
-  m_fd_event_->Cancle(FdEvent::OUT_EVENT);
-  m_event_loop_->DeleteEpollEvent(m_fd_event_);
+  m_event_loop_->DeleteEpollEvent(m_fd_event_.get());
 
   m_state_ = Closed;
 }
@@ -218,18 +216,22 @@ void TcpConnection::SetConnectionType(TcpConnectionType type) {
 void TcpConnection::ListenWrite() {
   // 当前链接对应的loop开始监听写事件
   m_fd_event_->Listen(FdEvent::OUT_EVENT, std::bind(&TcpConnection::OnWrite, this));
-  m_event_loop_->AddEpollEvent(m_fd_event_);
+  m_event_loop_->AddEpollEvent(m_fd_event_.get());
 }
 
 void TcpConnection::ListenRead() {
   // 当前链接对应的loop开始监听读事件
   m_fd_event_->Listen(FdEvent::IN_EVENT, std::bind(&TcpConnection::OnRead, this));
-  m_event_loop_->AddEpollEvent(m_fd_event_);
+  m_event_loop_->AddEpollEvent(m_fd_event_.get());
 }
 
 void TcpConnection::AddTimerEvent(TimerEvent::s_ptr timer_event){
   m_timer_event_ = timer_event;
   m_event_loop_->AddTimerEvent(timer_event);
+}
+
+void TcpConnection::SetFdEvent(FdEvent::s_ptr fd_event){
+  m_fd_event_ = fd_event;
 }
 
 void TcpConnection::PushSendMessage(AbstractProtocol::s_ptr message, std::function<void(AbstractProtocol::s_ptr)> done) {
