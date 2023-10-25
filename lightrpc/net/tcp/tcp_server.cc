@@ -51,7 +51,7 @@ void TcpServer::OnAccept() {
   // 间隔为timeout_
   TcpConnection::s_ptr connetion = std::make_shared<TcpConnection>(io_thread->GetEventLoop(), client_fd, 128, peer_addr, m_local_addr_, protocol_);
   TimerEvent::s_ptr timer_event = std::make_shared<TimerEvent>(timeout_, false, std::bind(&TcpServer::ClearClientTimerFunc, this, std::placeholders::_1), client_fd);
-	m_main_event_loop_->AddTimerEvent(timer_event);
+	connetion->AddTimerEvent(timer_event);
   connetion->SetState(Connected);
   // 添加到链接组中
   m_client_[client_fd] = std::move(connetion);
@@ -70,7 +70,7 @@ void TcpServer::ClearClientTimerFunc(int fd) {
   // 智能指针conn，当conn引用计数为0时，conn会销毁，conn中的智能指针sock、channel也会销毁
   auto connetion = m_client_[fd];
   connetion->SetState(TcpState::Closed);
-  LOG_DEBUG("TcpConection [fd:%d] will delete, state=%d", connetion->GetFd(), connetion->GetState());
+  LOG_DEBUG("TcpConection [fd:%d] will delete becasue of timeout, state=%d", connetion->GetFd(), connetion->GetState());
   m_client_.erase(fd);
 }
 }

@@ -192,6 +192,7 @@ void EventLoop::AddEpollEvent(FdEvent* event) {
 
 void EventLoop::DeleteEpollEvent(FdEvent* event) {
   // 保证线程安全
+  // 即事件循环不属于当前线程，就需要尽量将对这个对象的操作移到它所属的那个线程执行，避免回调函数被析构产生错误
   if (IsInLoopThread()) {
     DELETE_TO_EPOLL();
   } else {

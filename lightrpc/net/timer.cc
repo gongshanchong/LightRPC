@@ -43,6 +43,7 @@ void Timer::OnTimer() {
     if ((*it).first <= now) {
       if (!(*it).second->IsCancled()) {
         tmps.push_back((*it).second);
+        if((*it).second->GetArriveTime() > now){ continue; }
         tasks.push_back(std::make_pair((*it).second->GetFd(), (*it).second->GetCallBack()));
       }
     } else {
@@ -53,13 +54,14 @@ void Timer::OnTimer() {
   m_pending_events_.erase(m_pending_events_.begin(), it);
   lock.unlock();
 
-  // 需要把重复的TimerEvent再次添加进去
+  // 需要把重复的TimerEvent或者更新过时间的TimerEvent再次添加进去
   for (auto i = tmps.begin(); i != tmps.end(); ++i) {
     if ((*i)->IsRepeated()) {
       // 调整 arriveTime
       (*i)->ResetArriveTime();
       AddTimerEvent(*i);
     }
+    if((*i)->GetArriveTime() > now){ AddTimerEvent(*i); }
   }
 
   // 重置timerfd触发时间
