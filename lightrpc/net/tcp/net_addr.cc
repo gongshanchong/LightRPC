@@ -43,8 +43,17 @@ IPNetAddr::IPNetAddr(const std::string& ip, uint16_t port) : m_ip_(ip), m_port_(
     // AF_UNIX（本机通信）、AF_INET（TCP/IP – IPv4）、AF_INET6（TCP/IP – IPv6）
     m_addr_.sin_family = AF_INET;
     // 指定指定 ip 地址和端口号
-    m_addr_.sin_addr.s_addr = inet_addr(m_ip_.c_str());
+    // 根据传入的 ip 确定是否指定 ip 地址
+    if(ip == "0.0.0.0" || ip.empty()){
+      // INADDR_ANY表示的是一个服务器上所有的网卡（服务器可能不止一个网卡）多个本地ip地址都进行绑定端口号，进行侦听
+      // 就是指定地址为0.0.0.0的地址,这个地址事实上表示不确定地址,或“所有地址”、“任意地址”
+      m_addr_.sin_addr.s_addr = htonl(INADDR_ANY);
+    }else{
+      m_addr_.sin_addr.s_addr = inet_addr(m_ip_.c_str());
+    }
+    m_ip_ = std::string(inet_ntoa(m_addr_.sin_addr));
     m_addr_.sin_port = htons(m_port_);
+    
 }
   
 IPNetAddr::IPNetAddr(const std::string& addr) {

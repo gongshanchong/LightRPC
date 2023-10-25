@@ -26,7 +26,7 @@
       <!-- 默认配置 -->
       <!-- 调用下游RPC 服务时，需要将其 ip port 配置在此处 -->
       <name>browser</name>
-      <ip>10.0.12.2</ip>
+      <ip>0.0.0.0</ip>
       <port>8080</port>
       <protocal>HTTP</protocal>
       <timeout>8000</timeout>

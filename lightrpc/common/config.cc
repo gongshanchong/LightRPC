@@ -96,7 +96,7 @@ Config::Config(const char* xmlfile) {
             std::string ip = std::string(node->FirstChildElement("ip")->GetText());
             uint16_t port = std::atoi(node->FirstChildElement("port")->GetText());
             stub.addr_ = std::make_shared<IPNetAddr>(ip, port);
-
+    
             m_rpc_stubs_.insert(std::make_pair(stub.name_, stub));
         }
     }

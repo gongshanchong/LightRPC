@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <cstdio>
 #include <sys/socket.h>
 #include <fcntl.h>
 #include <string.h>
@@ -25,18 +26,18 @@ TcpAcceptor::TcpAcceptor(NetAddr::s_ptr local_addr) : m_local_addr_(local_addr) 
   int val = 1;
   if (setsockopt(m_listenfd_, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val)) != 0) {
     init_flag_ = false;
-    LOG_ERROR("setsockopt REUSEADDR error, local addr %s, errno=%d, error=%s", local_addr->ToString().c_str(), errno, strerror(errno));
+    LOG_ERROR("setsockopt REUSEADDR error, local addr %s, errno=%d, error=%s", m_local_addr_->ToString().c_str(), errno, strerror(errno));
   }
   // 绑定地址
   socklen_t len = m_local_addr_->GetSockLen();
   if(bind(m_listenfd_, m_local_addr_->GetSockAddr(), len) != 0) {
     init_flag_ = false;
-    LOG_ERROR("bind error, local addr %s, errno=%d, error=%s", local_addr->ToString().c_str(), errno, strerror(errno));
+    LOG_ERROR("bind error, local addr %s, errno=%d, error=%s", m_local_addr_->ToString().c_str(), errno, strerror(errno));
   }
   // 进行监听
   if(listen(m_listenfd_, 1000) != 0) {
     init_flag_ = false;
-    LOG_ERROR("listen error, local addr %s, errno=%d, error=%s", local_addr->ToString().c_str(), errno, strerror(errno));
+    LOG_ERROR("listen error, local addr %s, errno=%d, error=%s", m_local_addr_->ToString().c_str(), errno, strerror(errno));
   }
 }
 
@@ -51,12 +52,12 @@ std::pair<int, NetAddr::s_ptr> TcpAcceptor::Accept() {
     memset(&client_addr, 0, sizeof(client_addr));
     socklen_t clien_addr_len = sizeof(clien_addr_len);
     // 调用了 accept 函数获取一个新连接的文件描述符
-    int client_fd = ::accept(m_listenfd_, reinterpret_cast<sockaddr*>(&client_addr), &clien_addr_len);
+    int client_fd = ::accept(m_listenfd_, (sockaddr*)(&client_addr), &clien_addr_len);
     if (client_fd < 0) {
       LOG_ERROR("accept error, errno=%d, error=%s", errno, strerror(errno));
     }
     IPNetAddr::s_ptr peer_addr = std::make_shared<IPNetAddr>(client_addr);
-    LOG_INFO("A client have accpeted succ, peer addr [%s]", peer_addr->ToString().c_str());
+    LOG_INFO("A client have accpeted succ, local addr [%s], peer addr [%s]", m_local_addr_->ToString().c_str(), peer_addr->ToString().c_str());
     // 返回新连接的文件描述符和地址
     return std::make_pair(client_fd, peer_addr);
   } else {
