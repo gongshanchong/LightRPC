@@ -1,4 +1,5 @@
 #include "log.h"
+#include <cstdio>
 
 namespace lightrpc {
 
@@ -169,12 +170,13 @@ void Logger::PushAppLog(const std::string& msg) {
 AsyncLogger::AsyncLogger(const std::string& file_name, const std::string& file_path, int max_size) 
   : m_file_name_(file_name), m_file_path_(file_path), m_max_file_size_(max_size) {
   
-    // 创建线程
-    assert(pthread_create(&m_thread_, NULL, &AsyncLogger::Loop, this) == 0);
+  sem_init(&m_sempahore_, 0, 0);
+  // 创建线程
+  assert(pthread_create(&m_thread_, NULL, &AsyncLogger::Loop, this) == 0);
 
-    // wait, 直到新线程执行完 Loop 函数的前置
-    // 防止线程创建时函数已结束导致参数捕获失败
-    sem_wait(&m_sempahore_);
+  // wait, 直到新线程执行完 Loop 函数的前置
+  // 防止线程创建时函数已结束导致参数捕获失败
+  sem_wait(&m_sempahore_);
 }
 
 // 生产者-消费者（条件变量实现）

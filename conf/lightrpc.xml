@@ -18,7 +18,7 @@
       <!-- 调用下游RPC 服务时，需要将其 ip port 配置在此处 -->
       <name>default</name>
       <ip>127.0.0.1</ip>
-      <port>8080</port>
+      <port>12345</port>
       <protocal>HTTP</protocal>
       <timeout>8000</timeout>
     </rpc_server> 
