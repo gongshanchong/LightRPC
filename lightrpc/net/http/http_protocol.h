@@ -28,6 +28,7 @@ extern std::string g_CRLF;
 extern std::string g_CRLF_DOUBLE;
 
 extern std::string content_type_text;
+extern std::string content_type_lightrpc;
 extern const char* default_html_template;
 
 // http协议的头部信息

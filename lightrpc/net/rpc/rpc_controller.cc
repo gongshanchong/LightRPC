@@ -133,6 +133,14 @@ std::string RpcController::GetHttpVersion(){
   return http_version_;
 }
 
+void RpcController::SetHttpRequest(std::shared_ptr<HttpRequest> request){
+  request_ = request;
+}
+
+std::shared_ptr<HttpRequest> RpcController::GetHttpRequest(){
+  return request_;
+}
+
 bool RpcController::Finished() {
   return m_is_finished_;
 }

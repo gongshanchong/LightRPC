@@ -76,6 +76,10 @@ class RpcController : public google::protobuf::RpcController {
 
   std::string GetHttpVersion();
 
+  void SetHttpRequest(std::shared_ptr<HttpRequest> request);
+
+  std::shared_ptr<HttpRequest> GetHttpRequest();
+
   bool Finished();
 
   void SetFinished(bool value);
@@ -96,6 +100,7 @@ class RpcController : public google::protobuf::RpcController {
   HttpHeaderComm http_header_; // http头部消息
   std::string http_version_;  // http版本
   HttpMethod call_method_;   // http请求类型类型
+  std::shared_ptr<HttpRequest> request_;  // http请求
   int m_timeout_ {1000};     // ms
 };
 }

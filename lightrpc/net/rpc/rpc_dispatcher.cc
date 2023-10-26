@@ -108,6 +108,7 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, TcpConnecti
 
   rsp_protocol->m_msg_id_ = req_protocol->m_msg_id_;
   rsp_protocol->m_header_.SetKeyValue("Msg-Id", rsp_protocol->m_msg_id_);
+  // 设置connection和http版本
   SetCommParam(req_protocol, rsp_protocol);
   // 解析完整的 rpc 方法名
   if (!ParseUrlPathToervice(url_path, service_name, method_name)) {
@@ -141,7 +142,8 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, TcpConnecti
   }
   // 根据 method 对象反射出 request 和 response 对象
   google::protobuf::Message* req_msg = service->GetRequestPrototype(method).New();
-  if(req_protocol->m_request_method_ == HttpMethod::POST){
+  if(req_protocol->m_header_.GetValue("Content-Type") == lightrpc::content_type_lightrpc){
+    if(req_protocol->m_request_method_ == HttpMethod::POST){
     if (!req_msg->ParseFromString(req_protocol->m_body_)) {
       LOG_ERROR("%s | deserilize error", req_protocol->m_msg_id_.c_str(), method_name.c_str(), service_name.c_str());
       SetInternalErrorHttp(rsp_protocol, "deserilize error");
@@ -149,13 +151,14 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, TcpConnecti
       DELETE_RESOURCE(req_msg);
       return;
     }
-  }else{
-    if (!req_msg->ParseFromString(req_protocol->m_request_query_)) {
-      LOG_ERROR("%s | deserilize error", req_protocol->m_msg_id_.c_str(), method_name.c_str(), service_name.c_str());
-      SetInternalErrorHttp(rsp_protocol, "deserilize error");
-      Reply(rsp_protocol, connection);
-      DELETE_RESOURCE(req_msg);
-      return;
+    }else{
+      if (!req_msg->ParseFromString(req_protocol->m_request_query_)) {
+        LOG_ERROR("%s | deserilize error", req_protocol->m_msg_id_.c_str(), method_name.c_str(), service_name.c_str());
+        SetInternalErrorHttp(rsp_protocol, "deserilize error");
+        Reply(rsp_protocol, connection);
+        DELETE_RESOURCE(req_msg);
+        return;
+      }
     }
   }
   
@@ -165,23 +168,35 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, TcpConnecti
   rpc_controller->SetLocalAddr(connection->GetLocalAddr());
   rpc_controller->SetPeerAddr(connection->GetPeerAddr());
   rpc_controller->SetMsgId(req_protocol->m_msg_id_);
-  rpc_controller->SetHttpHeader(req_protocol->m_header_);
+  rpc_controller->SetHttpRequest(req_protocol);
   // closure 就会把 response 对象再序列化，最终生成一个 TinyPBProtocol 的结构体，最后通过 TcpConnection::reply 函数，将数据再发送给客户端
   RpcClosure* closure = new RpcClosure([req_msg, rsp_msg, req_protocol, rsp_protocol, connection, rpc_controller, this]() mutable {
+    // 产生错误
     if (rpc_controller->GetErrorCode() != 0){
       LOG_ERROR("%s | run error [%s]", req_protocol->m_msg_id_.c_str(), rpc_controller->GetInfo().c_str());
       SetInternalErrorHttp(rsp_protocol, rpc_controller->GetInfo());
     }
     else {
       SetHttpCode(rsp_protocol, lightrpc::HTTP_OK);
-      SetHttpContentType(rsp_protocol, lightrpc::content_type_text);
-      // 将序列化内容存储到响应体中
-      if (!rsp_msg->SerializeToString(&(rsp_protocol->m_body_))) {
-        LOG_ERROR("%s | serilize error, origin message [%s]", req_protocol->m_msg_id_.c_str(), rsp_msg->ShortDebugString().c_str());
-        SetInternalErrorHttp(rsp_protocol, rpc_controller->GetInfo());
+      if(req_protocol->m_header_.GetValue("Content-Type") == lightrpc::content_type_lightrpc){
+        SetHttpContentType(rsp_protocol, lightrpc::content_type_lightrpc);
+        // 将序列化内容存储到响应体中
+        if (!rsp_msg->SerializeToString(&(rsp_protocol->m_body_))) {
+          LOG_ERROR("%s | serilize error, origin message [%s]", req_protocol->m_msg_id_.c_str(), rsp_msg->ShortDebugString().c_str());
+          SetInternalErrorHttp(rsp_protocol, rpc_controller->GetInfo());
+        }
+        rsp_protocol->m_header_.SetKeyValue("Content-Length", std::to_string(rsp_protocol->m_body_.size()));
+        LOG_INFO("%s | http dispatch success, requesut[%s], response[%s]", req_protocol->m_msg_id_.c_str(), req_msg->ShortDebugString().c_str(), rsp_msg->ShortDebugString().c_str());
       }
-      rsp_protocol->m_header_.SetKeyValue("Content-Length", std::to_string(rsp_protocol->m_body_.size()));
-      LOG_INFO("%s | http dispatch success, requesut[%s], response[%s]", req_protocol->m_msg_id_.c_str(), req_msg->ShortDebugString().c_str(), rsp_msg->ShortDebugString().c_str());
+      else{
+        // 由外部设置的响应头来扩展响应头
+        std::map<std::string, std::string> controller_http_header = rpc_controller->GetHttpHeader().m_maps_;
+        rsp_protocol->m_header_.m_maps_.insert(controller_http_header.begin(), controller_http_header.end());
+        // 设置响应体
+        rsp_protocol->m_body_ = rpc_controller->GetInfo();
+        rsp_protocol->m_header_.SetKeyValue("Content-Length", std::to_string(rsp_protocol->m_body_.size()));
+        LOG_INFO("%s | http dispatch success",req_protocol->m_msg_id_.c_str());
+      }
     }
 
     this->Reply(rsp_protocol, connection);

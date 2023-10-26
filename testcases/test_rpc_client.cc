@@ -70,7 +70,7 @@ void test_rpc_channel() {
   NEWMESSAGE(makeOrderRequest, request);
   NEWMESSAGE(makeOrderResponse, response);
   // 获取服务端通信
-  std::shared_ptr<lightrpc::RpcChannel> channel = std::make_shared<lightrpc::RpcChannel>(lightrpc::RpcChannel::FindAddr("127.0.0.1:12345"));
+  std::shared_ptr<lightrpc::RpcChannel> channel = std::make_shared<lightrpc::RpcChannel>(lightrpc::RpcChannel::FindAddr("127.0.0.1:8080"));
   std::shared_ptr<Order_Stub> stub = std::make_shared<Order_Stub>(channel.get());
   // 请求与响应
   request->set_price(100);
@@ -83,7 +83,7 @@ void test_rpc_channel() {
   controller->SetProtocol(lightrpc::ProtocalType::HTTP);
   controller->SetCallMethod(lightrpc::HttpMethod::GET);
   lightrpc::HttpHeaderComm http_header;
-  http_header.SetKeyValue("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64)");
+  http_header.SetKeyValue("Content-Type",lightrpc::content_type_lightrpc);
   http_header.SetKeyValue("Connection", "Keep-Alive");
   controller->SetHttpHeader(http_header);
   controller->SetHttpVersion("HTTP/1.1");

@@ -8,6 +8,7 @@ std::string g_CRLF = "\r\n";
 std::string g_CRLF_DOUBLE = "\r\n\r\n";
 
 std::string content_type_text = "text/html;charset=utf-8";
+std::string content_type_lightrpc = "application/lightrpc";
 const char* default_html_template = "<html><body><h1>%s</h1><p>%s</p></body></html>";
 
 std::string HttpHeaderComm::GetValue(const std::string& key) {

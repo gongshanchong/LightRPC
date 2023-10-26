@@ -1,0 +1,90 @@
+[INFO]	[23-10-26 10:45:11.844]	[3141:3141]	[lightrpc/net/eventloop.cc:92]	wakeup fd = 4
+[INFO]	[23-10-26 10:45:11.844]	[3141:3141]	[lightrpc/net/eventloop.cc:177]	epoll_event.events = 1
+[DEBUG]	[23-10-26 10:45:11.844]	[3141:3141]	[lightrpc/net/eventloop.cc:177]	add event success, fd[4]
+[DEBUG]	[23-10-26 10:45:11.844]	[3141:3141]	[lightrpc/net/timer.cc:13]	timer fd=5
+[INFO]	[23-10-26 10:45:11.844]	[3141:3141]	[lightrpc/net/eventloop.cc:177]	epoll_event.events = 1
+[DEBUG]	[23-10-26 10:45:11.844]	[3141:3141]	[lightrpc/net/eventloop.cc:177]	add event success, fd[5]
+[INFO]	[23-10-26 10:45:11.844]	[3141:3141]	[lightrpc/net/eventloop.cc:66]	succ create event loop in thread 3141
+[INFO]	[23-10-26 10:45:11.845]	[3141:3144]	[lightrpc/net/eventloop.cc:92]	wakeup fd = 8
+[INFO]	[23-10-26 10:45:11.845]	[3141:3144]	[lightrpc/net/eventloop.cc:177]	epoll_event.events = 1
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3144]	[lightrpc/net/eventloop.cc:177]	add event success, fd[8]
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3144]	[lightrpc/net/timer.cc:13]	timer fd=9
+[INFO]	[23-10-26 10:45:11.845]	[3141:3144]	[lightrpc/net/eventloop.cc:177]	epoll_event.events = 1
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3144]	[lightrpc/net/eventloop.cc:177]	add event success, fd[9]
+[INFO]	[23-10-26 10:45:11.845]	[3141:3144]	[lightrpc/net/eventloop.cc:66]	succ create event loop in thread 3144
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3141]	[lightrpc/net/io_thread.cc:23]	IOThread [3144] create success
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3144]	[lightrpc/net/io_thread.cc:49]	IOThread 3144 created, wait start semaphore
+[INFO]	[23-10-26 10:45:11.845]	[3141:3145]	[lightrpc/net/eventloop.cc:92]	wakeup fd = 11
+[INFO]	[23-10-26 10:45:11.845]	[3141:3145]	[lightrpc/net/eventloop.cc:177]	epoll_event.events = 1
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3145]	[lightrpc/net/eventloop.cc:177]	add event success, fd[11]
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3145]	[lightrpc/net/timer.cc:13]	timer fd=12
+[INFO]	[23-10-26 10:45:11.845]	[3141:3145]	[lightrpc/net/eventloop.cc:177]	epoll_event.events = 1
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3145]	[lightrpc/net/eventloop.cc:177]	add event success, fd[12]
+[INFO]	[23-10-26 10:45:11.845]	[3141:3145]	[lightrpc/net/eventloop.cc:66]	succ create event loop in thread 3145
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3141]	[lightrpc/net/io_thread.cc:23]	IOThread [3145] create success
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3145]	[lightrpc/net/io_thread.cc:49]	IOThread 3145 created, wait start semaphore
+[INFO]	[23-10-26 10:45:11.845]	[3141:3146]	[lightrpc/net/eventloop.cc:92]	wakeup fd = 14
+[INFO]	[23-10-26 10:45:11.845]	[3141:3146]	[lightrpc/net/eventloop.cc:177]	epoll_event.events = 1
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3146]	[lightrpc/net/eventloop.cc:177]	add event success, fd[14]
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3146]	[lightrpc/net/timer.cc:13]	timer fd=15
+[INFO]	[23-10-26 10:45:11.845]	[3141:3146]	[lightrpc/net/eventloop.cc:177]	epoll_event.events = 1
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3146]	[lightrpc/net/eventloop.cc:177]	add event success, fd[15]
+[INFO]	[23-10-26 10:45:11.845]	[3141:3146]	[lightrpc/net/eventloop.cc:66]	succ create event loop in thread 3146
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3146]	[lightrpc/net/io_thread.cc:49]	IOThread 3146 created, wait start semaphore
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3141]	[lightrpc/net/io_thread.cc:23]	IOThread [3146] create success
+[INFO]	[23-10-26 10:45:11.845]	[3141:3147]	[lightrpc/net/eventloop.cc:92]	wakeup fd = 17
+[INFO]	[23-10-26 10:45:11.845]	[3141:3147]	[lightrpc/net/eventloop.cc:177]	epoll_event.events = 1
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3147]	[lightrpc/net/eventloop.cc:177]	add event success, fd[17]
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3147]	[lightrpc/net/timer.cc:13]	timer fd=18
+[INFO]	[23-10-26 10:45:11.845]	[3141:3147]	[lightrpc/net/eventloop.cc:177]	epoll_event.events = 1
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3147]	[lightrpc/net/eventloop.cc:177]	add event success, fd[18]
+[INFO]	[23-10-26 10:45:11.845]	[3141:3147]	[lightrpc/net/eventloop.cc:66]	succ create event loop in thread 3147
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3147]	[lightrpc/net/io_thread.cc:49]	IOThread 3147 created, wait start semaphore
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3141]	[lightrpc/net/io_thread.cc:23]	IOThread [3147] create success
+[INFO]	[23-10-26 10:45:11.845]	[3141:3141]	[lightrpc/net/eventloop.cc:177]	epoll_event.events = 1
+[DEBUG]	[23-10-26 10:45:11.845]	[3141:3141]	[lightrpc/net/eventloop.cc:177]	add event success, fd[6]
+[INFO]	[23-10-26 10:45:11.845]	[3141:3141]	[lightrpc/net/tcp/tcp_server.cc:12]	lightrpc TcpServer listen sucess on [0.0.0.0:8080]
+[DEBUG]	[23-10-26 10:45:11.847]	[3141:3141]	[lightrpc/net/io_thread.cc:65]	Now invoke IOThread 3144
+[DEBUG]	[23-10-26 10:45:11.847]	[3141:3141]	[lightrpc/net/io_thread.cc:65]	Now invoke IOThread 3145
+[DEBUG]	[23-10-26 10:45:11.847]	[3141:3141]	[lightrpc/net/io_thread.cc:65]	Now invoke IOThread 3146
+[DEBUG]	[23-10-26 10:45:11.847]	[3141:3141]	[lightrpc/net/io_thread.cc:65]	Now invoke IOThread 3147
+[DEBUG]	[23-10-26 10:45:11.847]	[3141:3145]	[lightrpc/net/io_thread.cc:53]	IOThread 3145 start loop 
+[DEBUG]	[23-10-26 10:45:11.847]	[3141:3144]	[lightrpc/net/io_thread.cc:53]	IOThread 3144 start loop 
+[DEBUG]	[23-10-26 10:45:11.847]	[3141:3147]	[lightrpc/net/io_thread.cc:53]	IOThread 3147 start loop 
+[DEBUG]	[23-10-26 10:45:11.847]	[3141:3146]	[lightrpc/net/io_thread.cc:53]	IOThread 3146 start loop 
+[INFO]	[23-10-26 10:45:18.401]	[3141:3141]	[lightrpc/net/tcp/tcp_acceptor.cc:60]	A client have accpeted succ, local addr [0.0.0.0:8080], peer addr [127.0.0.1:45568]
+[INFO]	[23-10-26 10:45:18.401]	[3141:3141]	[lightrpc/net/eventloop.cc:164]	WAKE UP
+[DEBUG]	[23-10-26 10:45:18.401]	[3141:3141]	[lightrpc/net/wakeup_fd_event.cc:17]	success read 8 bytes
+[INFO]	[23-10-26 10:45:18.401]	[3141:3141]	[lightrpc/net/tcp/tcp_server.cc:56]	TcpServer succ get client, fd=22
+[INFO]	[23-10-26 10:45:18.401]	[3141:3144]	[lightrpc/net/eventloop.cc:180]	epoll_event.events = 1
+[DEBUG]	[23-10-26 10:45:18.401]	[3141:3144]	[lightrpc/net/eventloop.cc:180]	add event success, fd[22]
+[DEBUG]	[23-10-26 10:45:18.401]	[3141:3144]	[lightrpc/net/eventloop.cc:99]	read full bytes from wakeup fd[8]
+[DEBUG]	[23-10-26 10:45:18.401]	[3141:3144]	[lightrpc/net/tcp/tcp_connection.cc:59]	success read 118 bytes from addr[127.0.0.1:45568], client fd[22]
+[DEBUG]	[23-10-26 10:45:18.401]	[3141:3144]	[lightrpc/net/http/http_codec.cc:131]	request line: GET /Order/makeOrder?dapple HTTP/1.1
+[DEBUG]	[23-10-26 10:45:18.401]	[3141:3144]	[lightrpc/net/http/http_codec.cc:169]	http request path: /Order/makeOrder and query is dapple
+[DEBUG]	[23-10-26 10:45:18.401]	[3141:3144]	[lightrpc/net/http/http_protocol.cc:78]	insert key = Connection, value = Keep-Alive
+[DEBUG]	[23-10-26 10:45:18.401]	[3141:3144]	[lightrpc/net/http/http_protocol.cc:78]	insert key = Content-Type, value = application/lightrpc
+[DEBUG]	[23-10-26 10:45:18.401]	[3141:3144]	[lightrpc/net/http/http_protocol.cc:78]	insert key = Msg-Id, value = 99998888
+[DEBUG]	[23-10-26 10:45:18.401]	[3141:3144]	[lightrpc/net/http/http_codec.cc:121]	parse http request[99998888] success, read size is 118 bytes
+[INFO]	[23-10-26 10:45:18.401]	[3141:3144]	[lightrpc/net/tcp/tcp_connection.cc:101]	success get request[99998888] from client[127.0.0.1:45568]
+[INFO]	[23-10-26 10:45:18.401]	[3141:3144]	[lightrpc/net/rpc/rpc_dispatcher.cc:104]	begin to dispatch client http request, msgno = 99998888
+[DEBUG]	[23-10-26 10:45:18.401]	[3141:3144]	[lightrpc/net/http/http_protocol.cc:128]	set response version = HTTP/1.1
+[INFO]	[23-10-26 10:45:18.401]	[3141:3144]	[lightrpc/net/rpc/rpc_dispatcher.cc:257]	parse sericve_name[Order] and method_name[makeOrder] from url [/Order/makeOrder]
+[INFO]	[23-10-26 10:45:18.401]	[3141:3144]	[lightrpc/net/rpc/../rpc/rpc_controller.h:18]	RpcController
+[INFO]	[23-10-26 10:45:18.401]	[3141:3144]	[lightrpc/net/rpc/../rpc/rpc_closure.h:16]	RpcClosure
+[INFO]	[23-10-26 10:45:18.401]	[3141:3144]	[lightrpc/net/rpc/rpc_interface.cc:9]	RpcInterface
+[INFO]	[23-10-26 10:45:23.402]	[3141:3144]	[lightrpc/net/rpc/rpc_interface.cc:13]	~RpcInterface
+[INFO]	[23-10-26 10:45:23.402]	[3141:3144]	[lightrpc/net/rpc/rpc_dispatcher.cc:189]	99998888 | http dispatch success, requesut[price: 100 goods: "apple"], response[order_id: "20230514"]
+[DEBUG]	[23-10-26 10:45:23.402]	[3141:3144]	[lightrpc/net/http/http_codec.cc:21]	msg_id = 99998888 | succ encode and write http response to buffer
+[DEBUG]	[23-10-26 10:45:23.402]	[3141:3144]	[lightrpc/net/http/http_codec.cc:36]	msg_id = 99998888 | after write, writeindex = 123
+[INFO]	[23-10-26 10:45:23.402]	[3141:3144]	[lightrpc/net/eventloop.cc:177]	epoll_event.events = 5
+[DEBUG]	[23-10-26 10:45:23.402]	[3141:3144]	[lightrpc/net/eventloop.cc:177]	update event success, fd[22]
+[INFO]	[23-10-26 10:45:23.402]	[3141:3144]	[lightrpc/net/rpc/../rpc/rpc_closure.h:20]	~RpcClosure
+[INFO]	[23-10-26 10:45:23.402]	[3141:3144]	[lightrpc/net/rpc/rpc_controller.h:19]	~RpcController
+[DEBUG]	[23-10-26 10:45:23.402]	[3141:3144]	[lightrpc/net/tcp/tcp_connection.cc:155]	no data need to send to client [127.0.0.1:45568]
+[DEBUG]	[23-10-26 10:45:23.402]	[3141:3144]	[lightrpc/net/fd_event.cc:55]	cancle out_event success, fd[22]
+[INFO]	[23-10-26 10:45:23.402]	[3141:3144]	[lightrpc/net/eventloop.cc:177]	epoll_event.events = 1
+[DEBUG]	[23-10-26 10:45:23.402]	[3141:3144]	[lightrpc/net/eventloop.cc:177]	update event success, fd[22]
+[DEBUG]	[23-10-26 10:45:31.402]	[3141:3144]	[lightrpc/net/tcp/tcp_server.cc:70]	TcpConection [fd:22] will delete becasue of timeout, state=4
+[DEBUG]	[23-10-26 10:45:31.402]	[3141:3144]	[lightrpc/net/tcp/tcp_connection.cc:32]	~TcpConnection
+[DEBUG]	[23-10-26 10:45:31.402]	[3141:3144]	[lightrpc/net/fd_event.cc:17]	~FdEvent,fd[22]
