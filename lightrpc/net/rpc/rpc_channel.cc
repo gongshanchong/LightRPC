@@ -133,14 +133,6 @@ void RpcChannel::CallTinyPBService(const google::protobuf::MethodDescriptor* met
         LOG_INFO("%s | success get rpc response, call method name[%s], peer addr[%s], local addr[%s]", 
           rsp_protocol->m_msg_id_.c_str(), rsp_protocol->m_method_name_.c_str(),
           GetTcpClient()->GetPeerAddr()->ToString().c_str(), GetTcpClient()->GetLocalAddr()->ToString().c_str());
-        // 反序列化响应
-        if (!(m_response_->ParseFromString(rsp_protocol->m_pb_data_))){
-          LOG_ERROR("%s | serialize error", rsp_protocol->m_msg_id_.c_str());
-          method_controller->SetError(ERROR_FAILED_SERIALIZE, "serialize error");
-          
-          CallBack();
-          return;
-        }
         // 连接错误
         if (rsp_protocol->m_err_code_ != 0) {
           LOG_ERROR("%s | call rpc methood[%s] failed, error code[%d], error info[%s]", 
@@ -148,6 +140,14 @@ void RpcChannel::CallTinyPBService(const google::protobuf::MethodDescriptor* met
             rsp_protocol->m_err_code_, rsp_protocol->m_err_info_.c_str());
 
           method_controller->SetError(rsp_protocol->m_err_code_, rsp_protocol->m_err_info_);
+          
+          CallBack();
+          return;
+        }
+        // 反序列化响应
+        if (!(m_response_->ParseFromString(rsp_protocol->m_pb_data_))){
+          LOG_ERROR("%s | serialize error", rsp_protocol->m_msg_id_.c_str());
+          method_controller->SetError(ERROR_FAILED_SERIALIZE, "serialize error");
           
           CallBack();
           return;
