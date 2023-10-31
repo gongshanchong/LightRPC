@@ -26,7 +26,6 @@
 #include "orderimpl.h"
 
 int main(int argc, char* argv[]) {
-
   if (argc != 2) {
     printf("Start test_rpc_server error, argc not 2 \n");
     printf("Start like this: \n");
