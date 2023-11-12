@@ -144,13 +144,13 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, TcpConnecti
   google::protobuf::Message* req_msg = service->GetRequestPrototype(method).New();
   if(req_protocol->m_header_.GetValue("Content-Type") == lightrpc::content_type_lightrpc){
     if(req_protocol->m_request_method_ == HttpMethod::POST){
-    if (!req_msg->ParseFromString(req_protocol->m_body_)) {
-      LOG_ERROR("%s | deserilize error", req_protocol->m_msg_id_.c_str(), method_name.c_str(), service_name.c_str());
-      SetInternalErrorHttp(rsp_protocol, "deserilize error");
-      Reply(rsp_protocol, connection);
-      DELETE_RESOURCE(req_msg);
-      return;
-    }
+      if (!req_msg->ParseFromString(req_protocol->m_body_)) {
+        LOG_ERROR("%s | deserilize error", req_protocol->m_msg_id_.c_str(), method_name.c_str(), service_name.c_str());
+        SetInternalErrorHttp(rsp_protocol, "deserilize error");
+        Reply(rsp_protocol, connection);
+        DELETE_RESOURCE(req_msg);
+        return;
+      }
     }else{
       if (!req_msg->ParseFromString(req_protocol->m_request_query_)) {
         LOG_ERROR("%s | deserilize error", req_protocol->m_msg_id_.c_str(), method_name.c_str(), service_name.c_str());
