@@ -7,7 +7,7 @@
 
 namespace lightrpc {
 
-TcpServer::TcpServer(NetAddr::s_ptr local_addr, ProtocalType protocol, int timeout) : m_local_addr_(local_addr), protocol_(protocol), timeout_(timeout){
+TcpServer::TcpServer(NetAddr::s_ptr local_addr, NetAddr::s_ptr zookeeper_addr, ProtocalType protocol, int timeout) : m_local_addr_(local_addr), m_zookeeper_addr_(zookeeper_addr), protocol_(protocol), timeout_(timeout){
   Init(); 
   LOG_INFO("lightrpc TcpServer listen sucess on [%s]", m_local_addr_->ToString().c_str());
 }
@@ -32,8 +32,6 @@ void TcpServer::Init() {
   m_listen_fd_event_ = std::make_shared<FdEvent>(m_acceptor_->GetListenFd());
   m_listen_fd_event_->Listen(FdEvent::IN_EVENT, std::bind(&TcpServer::OnAccept, this));
   m_main_event_loop_->AddEpollEvent(m_listen_fd_event_.get());
-
-  // 主loop添加服务器端的时间事件监听，定时去除已经关闭的连接
 }
 
 void TcpServer::OnAccept() {
@@ -57,6 +55,8 @@ void TcpServer::OnAccept() {
 }
 
 void TcpServer::Start() {
+  // 把当前rpc节点上要发布的服务全部注册到zk上面
+  RpcDispatcher::GetRpcDispatcher()->RegisterToZookeeper(m_local_addr_, m_zookeeper_addr_);
   m_io_thread_pool_->Start();
   m_main_event_loop_->Loop();
 }

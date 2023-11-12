@@ -12,7 +12,7 @@ namespace lightrpc {
 
 class TcpServer {
  public:
-  TcpServer(NetAddr::s_ptr local_addr, ProtocalType protocol, int timeout);
+  TcpServer(NetAddr::s_ptr local_addr, NetAddr::s_ptr zookeeper_addr, ProtocalType protocol, int timeout);
 
   ~TcpServer();
 
@@ -33,6 +33,8 @@ class TcpServer {
   TcpAcceptor::s_ptr m_acceptor_;  // 链接器
 
   NetAddr::s_ptr m_local_addr_;    // 本地监听地址
+
+  NetAddr::s_ptr m_zookeeper_addr_;    // 服务配置地址
 
   EventLoop* m_main_event_loop_ {NULL};     // mainReactor
   

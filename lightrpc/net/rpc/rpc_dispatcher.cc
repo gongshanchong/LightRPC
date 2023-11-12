@@ -268,8 +268,6 @@ void RpcDispatcher::Reply(AbstractProtocol::s_ptr response, TcpConnection* conne
 void RpcDispatcher::RegisterService(service_s_ptr service) {
   std::string service_name = service->GetDescriptor()->full_name();
   m_service_map_[service_name] = service;
-  // TODO:服务注册
-  
 }
 
 void RpcDispatcher::RegisterServlet(const std::string& path, service_s_ptr service){
@@ -277,10 +275,24 @@ void RpcDispatcher::RegisterServlet(const std::string& path, service_s_ptr servi
   if (it == m_service_map_.end()) {
     LOG_DEBUG("register servlet success to path {%s}", path);
     m_service_map_[path] = service;
-    // TODO:服务注册
-
   } else {
     LOG_DEBUG("failed to register, beacuse path {%s} has already register sertlet", path);
+  }
+}
+
+void RpcDispatcher::RegisterToZookeeper(NetAddr::s_ptr local_addr, NetAddr::s_ptr zookeeper_addr){
+  //把当前rpc节点上要发布的服务全部注册到zk上面，让rpc client可以从zk上发现服务
+  ZookeeperClient zk_client;
+  zk_client.start(zookeeper_addr);
+
+  // 在配置中心中创建节点
+  // 格式：/服务名
+  for (auto &sp : m_service_map_){
+    string service_path = (sp.first.find("/") != sp.first.end()) ? sp.first : ("/" + sp.first);
+    char method_path_data[128] = {0};
+    sprintf(method_path_data, "%s", local_addr.ToString().c_str());
+    //ZOO_EPHEMERAL 表示znode时候临时性节点
+    zk_client.create(service_path.c_str(), method_path_data, strlen(method_path_data), ZOO_EPHEMERAL);
   }
 }
 }

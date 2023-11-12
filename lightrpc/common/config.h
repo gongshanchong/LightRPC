@@ -18,6 +18,11 @@ struct RpcStub {
   int timeout_ {2000};
 };
 
+struct RpcZookeeper {
+  std::string name_;
+  NetAddr::s_ptr addr_;
+};
+
 class Config {
 public:
   Config(const char* xmlfile);
@@ -40,6 +45,8 @@ public:
   int m_io_threads_ {0};
 
   TiXmlDocument* m_xml_document_{NULL};
+  // 服务配置中心
+  std::map<std::string, RpcZookeeper> m_rpc_zookeepers_;
   // rpc服务的名字及其对应的地址和超时设置
   std::map<std::string, RpcStub> m_rpc_stubs_;
 };

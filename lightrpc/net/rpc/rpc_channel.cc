@@ -4,7 +4,7 @@
 
 namespace lightrpc {
 
-RpcChannel::RpcChannel() {
+RpcChannel::RpcChannel(NetAddr::s_ptr zookeeper_addr) : m_zookeeper_addr_(zookeeper_addr){
   LOG_INFO("RpcChannel");
 }
 
@@ -29,16 +29,16 @@ void RpcChannel::Init(const google::protobuf::MethodDescriptor* method,
       CallBack();
       return;
     }
-    // TODO:服务发现
-    m_peer_addr_ = FindAddr(method->full_name());
+    // 服务发现
+    NetAddr::s_ptr peer_addr = FindAddr(method->full_name());
     // 获取客户端地址
-    if (m_peer_addr_ == nullptr) {
+    if (peer_addr == nullptr) {
       LOG_ERROR("failed get peer addr");
       method_controller->SetError(ERROR_RPC_PEER_ADDR, "peer addr nullptr");
       CallBack();
       return;
     }
-    m_client_ = std::make_shared<TcpClient>(m_peer_addr_, method_controller->GetProtocol());
+    m_client_ = std::make_shared<TcpClient>(peer_addr, method_controller->GetProtocol());
 }
 
 void RpcChannel::CallBack() {
@@ -325,7 +325,19 @@ NetAddr::s_ptr RpcChannel::FindAddr(const std::string& str) {
   std::string service_name = str.substr(0, i);
   std::string method_name = str.substr(i + 1, str.length() - i - 1);
 
-  // TODO:zookeeper的服务发现
-  return nullptr;
+  // zookeeper的服务发现
+  // 获取ip和port
+  ZookeeperClient zk_client;
+  zk_client.start(m_zookeeper_addr_);
+  std::string host_data = zk_client.get_data(("/" + service_name).c_str());
+  if(host_data == ""){
+      return nullptr;
+  }
+  int host_index = host_data.find(":");
+  if(host_index == -1){
+      return nullptr;
+  }
+
+  return std::make_shared<IPNetAddr>(host_data);
 }
 }

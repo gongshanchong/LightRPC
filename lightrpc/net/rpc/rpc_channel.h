@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "rpc_controller.h"
+#include "zookeeper_client.h"
 #include "../tinypb/tinypb_protocol.h"
 #include "../tcp/tcp_client.h"
 #include "../../common/log.h"
@@ -37,7 +38,7 @@ class RpcChannel : public google::protobuf::RpcChannel, public std::enable_share
   typedef google::protobuf::Closure* closure_ptr;
 
  public:
-  RpcChannel();
+  RpcChannel(NetAddr::s_ptr zookeeper_addr);
 
   ~RpcChannel();
 
@@ -66,7 +67,7 @@ class RpcChannel : public google::protobuf::RpcChannel, public std::enable_share
                           google::protobuf::Message* response, google::protobuf::Closure* done);
 
  private:
-  NetAddr::s_ptr m_peer_addr_ {nullptr};
+  NetAddr::s_ptr m_zookeeper_addr_ {nullptr};
   TcpClient::s_ptr m_client_ {nullptr};
 
   controller_ptr m_controller_ {nullptr};

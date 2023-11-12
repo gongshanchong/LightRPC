@@ -16,6 +16,7 @@
 #include "../rpc/rpc_closure.h"
 #include "../tcp/net_addr.h"
 #include "abstract_protocol.h"
+#include "zookeeper_client.h"
 
 namespace lightrpc {
 
@@ -32,6 +33,8 @@ class RpcDispatcher {
   // 将这个服务注册到了服务器中
   void RegisterService(service_s_ptr service);
   void RegisterServlet(const std::string& path, service_s_ptr service);
+  // 把当前rpc节点上要发布的服务全部注册到zk上面
+  void RegisterToZookeeper(NetAddr::s_ptr local_addr, NetAddr::s_ptr zookeeper_addr);
 
  private:
   // 调用TINYPB协议的服务

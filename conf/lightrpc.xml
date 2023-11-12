@@ -12,6 +12,14 @@
     <io_threads>2</io_threads>
   </server>
 
+  <zookeepers>
+    <rpc_zookeeper>
+      <name>default</name>
+      <ip>127.0.0.1</ip>
+      <port>8081</port>
+    </rpc_zookeeper>
+  </zookeepers>
+
   <stubs>
     <rpc_server>
       <!-- 默认配置 -->
