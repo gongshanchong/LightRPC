@@ -268,6 +268,8 @@ void RpcDispatcher::Reply(AbstractProtocol::s_ptr response, TcpConnection* conne
 void RpcDispatcher::RegisterService(service_s_ptr service) {
   std::string service_name = service->GetDescriptor()->full_name();
   m_service_map_[service_name] = service;
+  // TODO:服务注册
+  
 }
 
 void RpcDispatcher::RegisterServlet(const std::string& path, service_s_ptr service){
@@ -275,6 +277,8 @@ void RpcDispatcher::RegisterServlet(const std::string& path, service_s_ptr servi
   if (it == m_service_map_.end()) {
     LOG_DEBUG("register servlet success to path {%s}", path);
     m_service_map_[path] = service;
+    // TODO:服务注册
+
   } else {
     LOG_DEBUG("failed to register, beacuse path {%s} has already register sertlet", path);
   }

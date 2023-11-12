@@ -37,13 +37,7 @@ class RpcChannel : public google::protobuf::RpcChannel, public std::enable_share
   typedef google::protobuf::Closure* closure_ptr;
 
  public:
-  // 获取 addr
-  // 若 str 是 ip:port, 直接返回
-  // 否则认为是 rpc 服务名，尝试从配置文件里面获取对应的 ip:port（后期会加上服务发现）
-  static NetAddr::s_ptr FindAddr(const std::string& str);
-
- public:
-  RpcChannel(NetAddr::s_ptr peer_addr);
+  RpcChannel();
 
   ~RpcChannel();
 
@@ -54,8 +48,12 @@ class RpcChannel : public google::protobuf::RpcChannel, public std::enable_share
   TcpClient* GetTcpClient();
 
  private:
-  void Init(google::protobuf::RpcController* controller, const google::protobuf::Message* request,
+  void Init(const google::protobuf::MethodDescriptor* method,
+                          google::protobuf::RpcController* controller, const google::protobuf::Message* request,
                           google::protobuf::Message* response, google::protobuf::Closure* done);
+  // 获取 addr，服务发现
+  NetAddr::s_ptr FindAddr(const std::string& str);
+
   void CallBack();
 
   // 调用TINYPB协议的服务

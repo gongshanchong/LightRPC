@@ -4,7 +4,7 @@
 
 namespace lightrpc {
 
-RpcChannel::RpcChannel(NetAddr::s_ptr peer_addr) : m_peer_addr_(peer_addr){
+RpcChannel::RpcChannel() {
   LOG_INFO("RpcChannel");
 }
 
@@ -12,7 +12,8 @@ RpcChannel::~RpcChannel() {
   LOG_INFO("~RpcChannel");
 }
 
-void RpcChannel::Init(google::protobuf::RpcController* controller, const google::protobuf::Message* request,
+void RpcChannel::Init(const google::protobuf::MethodDescriptor* method,
+                          google::protobuf::RpcController* controller, const google::protobuf::Message* request,
                           google::protobuf::Message* response, google::protobuf::Closure* done){
     m_request_ = request;
     m_response_ = response;
@@ -28,6 +29,8 @@ void RpcChannel::Init(google::protobuf::RpcController* controller, const google:
       CallBack();
       return;
     }
+    // TODO:服务发现
+    m_peer_addr_ = FindAddr(method->full_name());
     // 获取客户端地址
     if (m_peer_addr_ == nullptr) {
       LOG_ERROR("failed get peer addr");
@@ -295,7 +298,7 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
                         google::protobuf::RpcController* controller, const google::protobuf::Message* request,
                         google::protobuf::Message* response, google::protobuf::Closure* done){
   // 初始化
-  Init(controller, request, response, done);
+  Init(method, controller, request, response, done);
   // 依据协议进行不同的服务调用
   if(dynamic_cast<RpcController*>(controller)->GetProtocol() == ProtocalType::TINYPB){
     CallTinyPBService(method, controller, request, response, done);
@@ -309,17 +312,20 @@ TcpClient* RpcChannel::GetTcpClient() {
 }
 
 NetAddr::s_ptr RpcChannel::FindAddr(const std::string& str) {
-  if (IPNetAddr::CheckValid(str)) {
-    return std::make_shared<IPNetAddr>(str);
-  } else {
-    auto it = Config::GetGlobalConfig()->m_rpc_stubs_.find(str);
-    if (it != Config::GetGlobalConfig()->m_rpc_stubs_.end()) {
-      LOG_INFO("find addr [%s] in global config of str[%s]", (*it).second.addr_->ToString().c_str(), str.c_str());
-      return (*it).second.addr_;
-    } else {
-      LOG_INFO("can not find addr in global config of str[%s]", str.c_str());
-      return nullptr;
-    }
+  // 解析 service_full_name，得到 service_name 和 method_name
+  if (str.empty()) {
+    LOG_ERROR("full name empty"); 
+    return nullptr;
   }
+  size_t i = str.find_first_of(".");
+  if (i == str.npos) {
+    LOG_ERROR("not find . in full name [%s]", str.c_str());
+    return nullptr;
+  }
+  std::string service_name = str.substr(0, i);
+  std::string method_name = str.substr(i + 1, str.length() - i - 1);
+
+  // TODO:zookeeper的服务发现
+  return nullptr;
 }
 }
