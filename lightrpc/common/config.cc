@@ -77,16 +77,17 @@ Config::Config(const char* xmlfile) {
     READ_STR_FROM_XML_NODE(io_threads, server_node);
     m_io_threads_ = std::atoi(io_threads_str.c_str());
 
-    TiXmlElement* stubs_node = root_node->FirstChildElement("zookeepers");
-    if (stubs_node) {
-        for (TiXmlElement* node = stubs_node->FirstChildElement("rpc_zookeeper"); node; node = node->NextSiblingElement("rpc_zookeeper")) {
+    TiXmlElement* zookeeper_node = root_node->FirstChildElement("zookeepers");
+    if (zookeeper_node) {
+        for (TiXmlElement* node = zookeeper_node->FirstChildElement("rpc_zookeeper"); node; node = node->NextSiblingElement("rpc_zookeeper")) {
             RpcZookeeper zookeeper;
             zookeeper.name_ = std::string(node->FirstChildElement("name")->GetText());
             std::string ip = std::string(node->FirstChildElement("ip")->GetText());
             uint16_t port = std::atoi(node->FirstChildElement("port")->GetText());
             zookeeper.addr_ = std::make_shared<IPNetAddr>(ip, port);
-            m_rpc_zookeepers_.insert(std::make_pair(stub.name_, stub));
+            m_rpc_zookeepers_.insert(std::make_pair(zookeeper.name_, zookeeper));
         }
+    }
 
     TiXmlElement* stubs_node = root_node->FirstChildElement("stubs");
     if (stubs_node) {
@@ -112,5 +113,4 @@ Config::Config(const char* xmlfile) {
     }
     printf("Server -- IO Threads[%d]\n", m_io_threads_);
 }
-
 }

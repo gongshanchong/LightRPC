@@ -4,194 +4,154 @@
 #include "order.pb.h"
 
 #include <algorithm>
-#include "google/protobuf/io/coded_stream.h"
-#include "google/protobuf/extension_set.h"
-#include "google/protobuf/wire_format_lite.h"
-#include "google/protobuf/descriptor.h"
-#include "google/protobuf/generated_message_reflection.h"
-#include "google/protobuf/reflection_ops.h"
-#include "google/protobuf/wire_format.h"
-// @@protoc_insertion_point(includes)
 
-// Must be included last.
-#include "google/protobuf/port_def.inc"
+#include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/extension_set.h>
+#include <google/protobuf/wire_format_lite.h>
+#include <google/protobuf/descriptor.h>
+#include <google/protobuf/generated_message_reflection.h>
+#include <google/protobuf/reflection_ops.h>
+#include <google/protobuf/wire_format.h>
+// @@protoc_insertion_point(includes)
+#include <google/protobuf/port_def.inc>
+
 PROTOBUF_PRAGMA_INIT_SEG
+
 namespace _pb = ::PROTOBUF_NAMESPACE_ID;
-namespace _pbi = ::PROTOBUF_NAMESPACE_ID::internal;
-template <typename>
+namespace _pbi = _pb::internal;
+
 PROTOBUF_CONSTEXPR makeOrderRequest::makeOrderRequest(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.goods_)*/ {
-    &::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized {}
-  }
-
-  , /*decltype(_impl_.price_)*/ 0
-
+    /*decltype(_impl_.goods_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.price_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct makeOrderRequestDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR makeOrderRequestDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR makeOrderRequestDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~makeOrderRequestDefaultTypeInternal() {}
   union {
     makeOrderRequest _instance;
   };
 };
-
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 makeOrderRequestDefaultTypeInternal _makeOrderRequest_default_instance_;
-template <typename>
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 makeOrderRequestDefaultTypeInternal _makeOrderRequest_default_instance_;
 PROTOBUF_CONSTEXPR makeOrderResponse::makeOrderResponse(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.res_info_)*/ {
-    &::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized {}
-  }
-
-  , /*decltype(_impl_.order_id_)*/ {
-    &::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized {}
-  }
-
-  , /*decltype(_impl_.ret_code_)*/ 0
-
+    /*decltype(_impl_.res_info_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.order_id_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.ret_code_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct makeOrderResponseDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR makeOrderResponseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR makeOrderResponseDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~makeOrderResponseDefaultTypeInternal() {}
   union {
     makeOrderResponse _instance;
   };
 };
-
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 makeOrderResponseDefaultTypeInternal _makeOrderResponse_default_instance_;
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 makeOrderResponseDefaultTypeInternal _makeOrderResponse_default_instance_;
 static ::_pb::Metadata file_level_metadata_order_2eproto[2];
-static constexpr const ::_pb::EnumDescriptor**
-    file_level_enum_descriptors_order_2eproto = nullptr;
-static const ::_pb::ServiceDescriptor*
-    file_level_service_descriptors_order_2eproto[1];
-const ::uint32_t TableStruct_order_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
-    protodesc_cold) = {
-    ~0u,  // no _has_bits_
-    PROTOBUF_FIELD_OFFSET(::makeOrderRequest, _internal_metadata_),
-    ~0u,  // no _extensions_
-    ~0u,  // no _oneof_case_
-    ~0u,  // no _weak_field_map_
-    ~0u,  // no _inlined_string_donated_
-    ~0u,  // no _split_
-    ~0u,  // no sizeof(Split)
-    PROTOBUF_FIELD_OFFSET(::makeOrderRequest, _impl_.price_),
-    PROTOBUF_FIELD_OFFSET(::makeOrderRequest, _impl_.goods_),
-    ~0u,  // no _has_bits_
-    PROTOBUF_FIELD_OFFSET(::makeOrderResponse, _internal_metadata_),
-    ~0u,  // no _extensions_
-    ~0u,  // no _oneof_case_
-    ~0u,  // no _weak_field_map_
-    ~0u,  // no _inlined_string_donated_
-    ~0u,  // no _split_
-    ~0u,  // no sizeof(Split)
-    PROTOBUF_FIELD_OFFSET(::makeOrderResponse, _impl_.ret_code_),
-    PROTOBUF_FIELD_OFFSET(::makeOrderResponse, _impl_.res_info_),
-    PROTOBUF_FIELD_OFFSET(::makeOrderResponse, _impl_.order_id_),
-};
+static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_order_2eproto = nullptr;
+static const ::_pb::ServiceDescriptor* file_level_service_descriptors_order_2eproto[1];
 
-static const ::_pbi::MigrationSchema
-    schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-        { 0, -1, -1, sizeof(::makeOrderRequest)},
-        { 10, -1, -1, sizeof(::makeOrderResponse)},
+const uint32_t TableStruct_order_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::makeOrderRequest, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::makeOrderRequest, _impl_.price_),
+  PROTOBUF_FIELD_OFFSET(::makeOrderRequest, _impl_.goods_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::makeOrderResponse, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::makeOrderResponse, _impl_.ret_code_),
+  PROTOBUF_FIELD_OFFSET(::makeOrderResponse, _impl_.res_info_),
+  PROTOBUF_FIELD_OFFSET(::makeOrderResponse, _impl_.order_id_),
+};
+static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+  { 0, -1, -1, sizeof(::makeOrderRequest)},
+  { 8, -1, -1, sizeof(::makeOrderResponse)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
-    &::_makeOrderRequest_default_instance_._instance,
-    &::_makeOrderResponse_default_instance_._instance,
-};
-const char descriptor_table_protodef_order_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-    "\n\013order.proto\"0\n\020makeOrderRequest\022\r\n\005pri"
-    "ce\030\001 \001(\005\022\r\n\005goods\030\002 \001(\t\"I\n\021makeOrderResp"
-    "onse\022\020\n\010ret_code\030\001 \001(\005\022\020\n\010res_info\030\002 \001(\t"
-    "\022\020\n\010order_id\030\003 \001(\t2;\n\005Order\0222\n\tmakeOrder"
-    "\022\021.makeOrderRequest\032\022.makeOrderResponseB"
-    "\003\200\001\001b\006proto3"
-};
-static ::absl::once_flag descriptor_table_order_2eproto_once;
-const ::_pbi::DescriptorTable descriptor_table_order_2eproto = {
-    false,
-    false,
-    212,
-    descriptor_table_protodef_order_2eproto,
-    "order.proto",
-    &descriptor_table_order_2eproto_once,
-    nullptr,
-    0,
-    2,
-    schemas,
-    file_default_instances,
-    TableStruct_order_2eproto::offsets,
-    file_level_metadata_order_2eproto,
-    file_level_enum_descriptors_order_2eproto,
-    file_level_service_descriptors_order_2eproto,
+  &::_makeOrderRequest_default_instance_._instance,
+  &::_makeOrderResponse_default_instance_._instance,
 };
 
-// This function exists to be marked as weak.
-// It can significantly speed up compilation by breaking up LLVM's SCC
-// in the .pb.cc translation units. Large translation units see a
-// reduction of more than 35% of walltime for optimized builds. Without
-// the weak attribute all the messages in the file, including all the
-// vtables and everything they use become part of the same SCC through
-// a cycle like:
-// GetMetadata -> descriptor table -> default instances ->
-//   vtables -> GetMetadata
-// By adding a weak function here we break the connection from the
-// individual vtables back into the descriptor table.
+const char descriptor_table_protodef_order_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
+  "\n\013order.proto\"0\n\020makeOrderRequest\022\r\n\005pri"
+  "ce\030\001 \001(\005\022\r\n\005goods\030\002 \001(\t\"I\n\021makeOrderResp"
+  "onse\022\020\n\010ret_code\030\001 \001(\005\022\020\n\010res_info\030\002 \001(\t"
+  "\022\020\n\010order_id\030\003 \001(\t2;\n\005Order\0222\n\tmakeOrder"
+  "\022\021.makeOrderRequest\032\022.makeOrderResponseB"
+  "\003\200\001\001b\006proto3"
+  ;
+static ::_pbi::once_flag descriptor_table_order_2eproto_once;
+const ::_pbi::DescriptorTable descriptor_table_order_2eproto = {
+    false, false, 212, descriptor_table_protodef_order_2eproto,
+    "order.proto",
+    &descriptor_table_order_2eproto_once, nullptr, 0, 2,
+    schemas, file_default_instances, TableStruct_order_2eproto::offsets,
+    file_level_metadata_order_2eproto, file_level_enum_descriptors_order_2eproto,
+    file_level_service_descriptors_order_2eproto,
+};
 PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_order_2eproto_getter() {
   return &descriptor_table_order_2eproto;
 }
+
 // Force running AddDescriptors() at dynamic initialization time.
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY2
-static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_order_2eproto(&descriptor_table_order_2eproto);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_order_2eproto(&descriptor_table_order_2eproto);
+
 // ===================================================================
 
 class makeOrderRequest::_Internal {
  public:
 };
 
-makeOrderRequest::makeOrderRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
-  SharedCtor(arena);
+makeOrderRequest::makeOrderRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
   // @@protoc_insertion_point(arena_constructor:makeOrderRequest)
 }
 makeOrderRequest::makeOrderRequest(const makeOrderRequest& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   makeOrderRequest* const _this = this; (void)_this;
   new (&_impl_) Impl_{
-      decltype(_impl_.goods_) {}
-
-    , decltype(_impl_.price_) {}
-
+      decltype(_impl_.goods_){}
+    , decltype(_impl_.price_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   _impl_.goods_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-        _impl_.goods_.Set("", GetArenaForAllocation());
-  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.goods_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (!from._internal_goods().empty()) {
-    _this->_impl_.goods_.Set(from._internal_goods(), _this->GetArenaForAllocation());
+    _this->_impl_.goods_.Set(from._internal_goods(), 
+      _this->GetArenaForAllocation());
   }
   _this->_impl_.price_ = from._impl_.price_;
   // @@protoc_insertion_point(copy_constructor:makeOrderRequest)
 }
 
-inline void makeOrderRequest::SharedCtor(::_pb::Arena* arena) {
+inline void makeOrderRequest::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
   (void)arena;
+  (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.goods_) {}
-
-    , decltype(_impl_.price_) { 0 }
-
+      decltype(_impl_.goods_){}
+    , decltype(_impl_.price_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.goods_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-        _impl_.goods_.Set("", GetArenaForAllocation());
-  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.goods_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 }
 
 makeOrderRequest::~makeOrderRequest() {
@@ -204,7 +164,7 @@ makeOrderRequest::~makeOrderRequest() {
 }
 
 inline void makeOrderRequest::SharedDtor() {
-  ABSL_DCHECK(GetArenaForAllocation() == nullptr);
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
   _impl_.goods_.Destroy();
 }
 
@@ -214,7 +174,7 @@ void makeOrderRequest::SetCachedSize(int size) const {
 
 void makeOrderRequest::Clear() {
 // @@protoc_insertion_point(message_clear_start:makeOrderRequest)
-  ::uint32_t cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -226,28 +186,26 @@ void makeOrderRequest::Clear() {
 const char* makeOrderRequest::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::uint32_t tag;
+    uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
       // int32 price = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::uint8_t>(tag) == 8)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           _impl_.price_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
-        } else {
+        } else
           goto handle_unusual;
-        }
         continue;
       // string goods = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::uint8_t>(tag) == 18)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           auto str = _internal_mutable_goods();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
           CHK_(::_pbi::VerifyUTF8(str, "makeOrderRequest.goods"));
-        } else {
+        } else
           goto handle_unusual;
-        }
         continue;
       default:
         goto handle_unusual;
@@ -272,25 +230,26 @@ failure:
 #undef CHK_
 }
 
-::uint8_t* makeOrderRequest::_InternalSerialize(
-    ::uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* makeOrderRequest::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:makeOrderRequest)
-  ::uint32_t cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // int32 price = 1;
   if (this->_internal_price() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteInt32ToArray(
-        1, this->_internal_price(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_price(), target);
   }
 
   // string goods = 2;
   if (!this->_internal_goods().empty()) {
-    const std::string& _s = this->_internal_goods();
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-        _s.data(), static_cast<int>(_s.length()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE, "makeOrderRequest.goods");
-    target = stream->WriteStringMaybeAliased(2, _s, target);
+      this->_internal_goods().data(), static_cast<int>(this->_internal_goods().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "makeOrderRequest.goods");
+    target = stream->WriteStringMaybeAliased(
+        2, this->_internal_goods(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -301,24 +260,24 @@ failure:
   return target;
 }
 
-::size_t makeOrderRequest::ByteSizeLong() const {
+size_t makeOrderRequest::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:makeOrderRequest)
-  ::size_t total_size = 0;
+  size_t total_size = 0;
 
-  ::uint32_t cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // string goods = 2;
   if (!this->_internal_goods().empty()) {
-    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-                                    this->_internal_goods());
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_goods());
   }
 
   // int32 price = 1;
   if (this->_internal_price() != 0) {
-    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-        this->_internal_price());
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_price());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
@@ -335,8 +294,8 @@ void makeOrderRequest::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const
   auto* const _this = static_cast<makeOrderRequest*>(&to_msg);
   auto& from = static_cast<const makeOrderRequest&>(from_msg);
   // @@protoc_insertion_point(class_specific_merge_from_start:makeOrderRequest)
-  ABSL_DCHECK_NE(&from, _this);
-  ::uint32_t cached_has_bits = 0;
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (!from._internal_goods().empty()) {
@@ -364,9 +323,10 @@ void makeOrderRequest::InternalSwap(makeOrderRequest* other) {
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.goods_, lhs_arena,
-                                       &other->_impl_.goods_, rhs_arena);
-
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.goods_, lhs_arena,
+      &other->_impl_.goods_, rhs_arena
+  );
   swap(_impl_.price_, other->_impl_.price_);
 }
 
@@ -375,67 +335,67 @@ void makeOrderRequest::InternalSwap(makeOrderRequest* other) {
       &descriptor_table_order_2eproto_getter, &descriptor_table_order_2eproto_once,
       file_level_metadata_order_2eproto[0]);
 }
+
 // ===================================================================
 
 class makeOrderResponse::_Internal {
  public:
 };
 
-makeOrderResponse::makeOrderResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
-  SharedCtor(arena);
+makeOrderResponse::makeOrderResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
   // @@protoc_insertion_point(arena_constructor:makeOrderResponse)
 }
 makeOrderResponse::makeOrderResponse(const makeOrderResponse& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   makeOrderResponse* const _this = this; (void)_this;
   new (&_impl_) Impl_{
-      decltype(_impl_.res_info_) {}
-
-    , decltype(_impl_.order_id_) {}
-
-    , decltype(_impl_.ret_code_) {}
-
+      decltype(_impl_.res_info_){}
+    , decltype(_impl_.order_id_){}
+    , decltype(_impl_.ret_code_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   _impl_.res_info_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-        _impl_.res_info_.Set("", GetArenaForAllocation());
-  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.res_info_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (!from._internal_res_info().empty()) {
-    _this->_impl_.res_info_.Set(from._internal_res_info(), _this->GetArenaForAllocation());
+    _this->_impl_.res_info_.Set(from._internal_res_info(), 
+      _this->GetArenaForAllocation());
   }
   _impl_.order_id_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-        _impl_.order_id_.Set("", GetArenaForAllocation());
-  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.order_id_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (!from._internal_order_id().empty()) {
-    _this->_impl_.order_id_.Set(from._internal_order_id(), _this->GetArenaForAllocation());
+    _this->_impl_.order_id_.Set(from._internal_order_id(), 
+      _this->GetArenaForAllocation());
   }
   _this->_impl_.ret_code_ = from._impl_.ret_code_;
   // @@protoc_insertion_point(copy_constructor:makeOrderResponse)
 }
 
-inline void makeOrderResponse::SharedCtor(::_pb::Arena* arena) {
+inline void makeOrderResponse::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
   (void)arena;
+  (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.res_info_) {}
-
-    , decltype(_impl_.order_id_) {}
-
-    , decltype(_impl_.ret_code_) { 0 }
-
+      decltype(_impl_.res_info_){}
+    , decltype(_impl_.order_id_){}
+    , decltype(_impl_.ret_code_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.res_info_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-        _impl_.res_info_.Set("", GetArenaForAllocation());
-  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.res_info_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   _impl_.order_id_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-        _impl_.order_id_.Set("", GetArenaForAllocation());
-  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.order_id_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 }
 
 makeOrderResponse::~makeOrderResponse() {
@@ -448,7 +408,7 @@ makeOrderResponse::~makeOrderResponse() {
 }
 
 inline void makeOrderResponse::SharedDtor() {
-  ABSL_DCHECK(GetArenaForAllocation() == nullptr);
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
   _impl_.res_info_.Destroy();
   _impl_.order_id_.Destroy();
 }
@@ -459,7 +419,7 @@ void makeOrderResponse::SetCachedSize(int size) const {
 
 void makeOrderResponse::Clear() {
 // @@protoc_insertion_point(message_clear_start:makeOrderResponse)
-  ::uint32_t cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -472,39 +432,36 @@ void makeOrderResponse::Clear() {
 const char* makeOrderResponse::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::uint32_t tag;
+    uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
       // int32 ret_code = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::uint8_t>(tag) == 8)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           _impl_.ret_code_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
-        } else {
+        } else
           goto handle_unusual;
-        }
         continue;
       // string res_info = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::uint8_t>(tag) == 18)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           auto str = _internal_mutable_res_info();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
           CHK_(::_pbi::VerifyUTF8(str, "makeOrderResponse.res_info"));
-        } else {
+        } else
           goto handle_unusual;
-        }
         continue;
       // string order_id = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::uint8_t>(tag) == 26)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           auto str = _internal_mutable_order_id();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
           CHK_(::_pbi::VerifyUTF8(str, "makeOrderResponse.order_id"));
-        } else {
+        } else
           goto handle_unusual;
-        }
         continue;
       default:
         goto handle_unusual;
@@ -529,33 +486,36 @@ failure:
 #undef CHK_
 }
 
-::uint8_t* makeOrderResponse::_InternalSerialize(
-    ::uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* makeOrderResponse::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:makeOrderResponse)
-  ::uint32_t cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // int32 ret_code = 1;
   if (this->_internal_ret_code() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteInt32ToArray(
-        1, this->_internal_ret_code(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_ret_code(), target);
   }
 
   // string res_info = 2;
   if (!this->_internal_res_info().empty()) {
-    const std::string& _s = this->_internal_res_info();
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-        _s.data(), static_cast<int>(_s.length()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE, "makeOrderResponse.res_info");
-    target = stream->WriteStringMaybeAliased(2, _s, target);
+      this->_internal_res_info().data(), static_cast<int>(this->_internal_res_info().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "makeOrderResponse.res_info");
+    target = stream->WriteStringMaybeAliased(
+        2, this->_internal_res_info(), target);
   }
 
   // string order_id = 3;
   if (!this->_internal_order_id().empty()) {
-    const std::string& _s = this->_internal_order_id();
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-        _s.data(), static_cast<int>(_s.length()), ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE, "makeOrderResponse.order_id");
-    target = stream->WriteStringMaybeAliased(3, _s, target);
+      this->_internal_order_id().data(), static_cast<int>(this->_internal_order_id().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "makeOrderResponse.order_id");
+    target = stream->WriteStringMaybeAliased(
+        3, this->_internal_order_id(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -566,30 +526,31 @@ failure:
   return target;
 }
 
-::size_t makeOrderResponse::ByteSizeLong() const {
+size_t makeOrderResponse::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:makeOrderResponse)
-  ::size_t total_size = 0;
+  size_t total_size = 0;
 
-  ::uint32_t cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // string res_info = 2;
   if (!this->_internal_res_info().empty()) {
-    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-                                    this->_internal_res_info());
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_res_info());
   }
 
   // string order_id = 3;
   if (!this->_internal_order_id().empty()) {
-    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-                                    this->_internal_order_id());
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_order_id());
   }
 
   // int32 ret_code = 1;
   if (this->_internal_ret_code() != 0) {
-    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-        this->_internal_ret_code());
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_ret_code());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
@@ -606,8 +567,8 @@ void makeOrderResponse::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, cons
   auto* const _this = static_cast<makeOrderResponse*>(&to_msg);
   auto& from = static_cast<const makeOrderResponse&>(from_msg);
   // @@protoc_insertion_point(class_specific_merge_from_start:makeOrderResponse)
-  ABSL_DCHECK_NE(&from, _this);
-  ::uint32_t cached_has_bits = 0;
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (!from._internal_res_info().empty()) {
@@ -638,11 +599,14 @@ void makeOrderResponse::InternalSwap(makeOrderResponse* other) {
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.res_info_, lhs_arena,
-                                       &other->_impl_.res_info_, rhs_arena);
-  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.order_id_, lhs_arena,
-                                       &other->_impl_.order_id_, rhs_arena);
-
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.res_info_, lhs_arena,
+      &other->_impl_.res_info_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.order_id_, lhs_arena,
+      &other->_impl_.order_id_, rhs_arena
+  );
   swap(_impl_.ret_code_, other->_impl_.ret_code_);
 }
 
@@ -651,7 +615,10 @@ void makeOrderResponse::InternalSwap(makeOrderResponse* other) {
       &descriptor_table_order_2eproto_getter, &descriptor_table_order_2eproto_once,
       file_level_metadata_order_2eproto[1]);
 }
+
 // ===================================================================
+
+Order::~Order() {}
 
 const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* Order::descriptor() {
   ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_order_2eproto);
@@ -663,78 +630,79 @@ const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* Order::GetDescriptor() {
 }
 
 void Order::makeOrder(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                         const ::makeOrderRequest*, ::makeOrderResponse*, ::google::protobuf::Closure* done) {
+                         const ::makeOrderRequest*,
+                         ::makeOrderResponse*,
+                         ::google::protobuf::Closure* done) {
   controller->SetFailed("Method makeOrder() not implemented.");
   done->Run();
 }
 
-void Order::CallMethod(
-    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method,
-    ::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-    const ::PROTOBUF_NAMESPACE_ID::Message* request,
-    ::PROTOBUF_NAMESPACE_ID::Message* response, ::google::protobuf::Closure* done) {
-  ABSL_DCHECK_EQ(method->service(), file_level_service_descriptors_order_2eproto[0]);
-  switch (method->index()) {
+void Order::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method,
+                             ::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                             const ::PROTOBUF_NAMESPACE_ID::Message* request,
+                             ::PROTOBUF_NAMESPACE_ID::Message* response,
+                             ::google::protobuf::Closure* done) {
+  GOOGLE_DCHECK_EQ(method->service(), file_level_service_descriptors_order_2eproto[0]);
+  switch(method->index()) {
     case 0:
       makeOrder(controller,
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::makeOrderRequest*>(request),
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::makeOrderResponse*>(response), done);
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::makeOrderRequest*>(
+                 request),
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::makeOrderResponse*>(
+                 response),
+             done);
       break;
-
     default:
-      ABSL_LOG(FATAL) << "Bad method index; this should never happen.";
+      GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
       break;
   }
 }
 
 const ::PROTOBUF_NAMESPACE_ID::Message& Order::GetRequestPrototype(
     const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const {
-  ABSL_DCHECK_EQ(method->service(), descriptor());
-  switch (method->index()) {
+  GOOGLE_DCHECK_EQ(method->service(), descriptor());
+  switch(method->index()) {
     case 0:
       return ::makeOrderRequest::default_instance();
-
     default:
-      ABSL_LOG(FATAL) << "Bad method index; this should never happen.";
+      GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
       return *::PROTOBUF_NAMESPACE_ID::MessageFactory::generated_factory()
-                  ->GetPrototype(method->input_type());
+          ->GetPrototype(method->input_type());
   }
 }
 
 const ::PROTOBUF_NAMESPACE_ID::Message& Order::GetResponsePrototype(
     const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const {
-  ABSL_DCHECK_EQ(method->service(), descriptor());
-  switch (method->index()) {
+  GOOGLE_DCHECK_EQ(method->service(), descriptor());
+  switch(method->index()) {
     case 0:
       return ::makeOrderResponse::default_instance();
-
     default:
-      ABSL_LOG(FATAL) << "Bad method index; this should never happen.";
+      GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
       return *::PROTOBUF_NAMESPACE_ID::MessageFactory::generated_factory()
-                  ->GetPrototype(method->output_type());
+          ->GetPrototype(method->output_type());
   }
 }
 
 Order_Stub::Order_Stub(::PROTOBUF_NAMESPACE_ID::RpcChannel* channel)
-    : channel_(channel), owns_channel_(false) {}
-
+  : channel_(channel), owns_channel_(false) {}
 Order_Stub::Order_Stub(
     ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel,
     ::PROTOBUF_NAMESPACE_ID::Service::ChannelOwnership ownership)
-    : channel_(channel),
-      owns_channel_(ownership ==
-                    ::PROTOBUF_NAMESPACE_ID::Service::STUB_OWNS_CHANNEL) {}
-
+  : channel_(channel),
+    owns_channel_(ownership == ::PROTOBUF_NAMESPACE_ID::Service::STUB_OWNS_CHANNEL) {}
 Order_Stub::~Order_Stub() {
   if (owns_channel_) delete channel_;
 }
 
 void Order_Stub::makeOrder(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                               const ::makeOrderRequest* request,
-                              ::makeOrderResponse* response, ::google::protobuf::Closure* done) {
-  channel_->CallMethod(descriptor()->method(0), controller,
-                       request, response, done);
+                              ::makeOrderResponse* response,
+                              ::google::protobuf::Closure* done) {
+  channel_->CallMethod(descriptor()->method(0),
+                       controller, request, response, done);
 }
+
 // @@protoc_insertion_point(namespace_scope)
 PROTOBUF_NAMESPACE_OPEN
 template<> PROTOBUF_NOINLINE ::makeOrderRequest*
@@ -746,5 +714,6 @@ Arena::CreateMaybeMessage< ::makeOrderResponse >(Arena* arena) {
   return Arena::CreateMessageInternal< ::makeOrderResponse >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
+
 // @@protoc_insertion_point(global_scope)
-#include "google/protobuf/port_undef.inc"
+#include <google/protobuf/port_undef.inc>

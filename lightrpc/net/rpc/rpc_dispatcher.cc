@@ -288,9 +288,9 @@ void RpcDispatcher::RegisterToZookeeper(NetAddr::s_ptr local_addr, NetAddr::s_pt
   // 在配置中心中创建节点
   // 格式：/服务名
   for (auto &sp : m_service_map_){
-    string service_path = (sp.first.find("/") != sp.first.end()) ? sp.first : ("/" + sp.first);
+    std::string service_path = (sp.first.find("/") != std::string::npos) ? sp.first : ("/" + sp.first);
     char method_path_data[128] = {0};
-    sprintf(method_path_data, "%s", local_addr.ToString().c_str());
+    sprintf(method_path_data, "%s", local_addr->ToString().c_str());
     //ZOO_EPHEMERAL 表示znode时候临时性节点
     zk_client.create(service_path.c_str(), method_path_data, strlen(method_path_data), ZOO_EPHEMERAL);
   }

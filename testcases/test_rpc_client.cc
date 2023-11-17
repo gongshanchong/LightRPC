@@ -27,50 +27,11 @@
 
 #include "order.pb.h"
 
-void test_tcp_client() {
-  lightrpc::IPNetAddr::s_ptr addr = std::make_shared<lightrpc::IPNetAddr>("127.0.0.1", 12345);
-  lightrpc::TcpClient client(addr, lightrpc::ProtocalType::TINYPB);
-  client.Connect([addr, &client]() {
-    LOG_DEBUG("conenct to [%s] success", addr->ToString().c_str());
-    std::shared_ptr<lightrpc::TinyPBProtocol> message = std::make_shared<lightrpc::TinyPBProtocol>();
-    message->m_msg_id_ = "99998888";
-    message->m_pb_data_ = "test pb data";
-
-    makeOrderRequest request;
-    request.set_price(100);
-    request.set_goods("apple");
-    
-    if (!request.SerializeToString(&(message->m_pb_data_))) {
-      LOG_DEBUG("serilize error");
-      return;
-    }
-
-    message->m_method_name_ = "Order.makeOrder";
-
-    client.WriteMessage(message, [request](lightrpc::AbstractProtocol::s_ptr msg_ptr) {
-      LOG_DEBUG("send message success, request[%s]", request.ShortDebugString().c_str());
-    });
-
-
-    client.ReadMessage("99998888", [](lightrpc::AbstractProtocol::s_ptr msg_ptr) {
-      std::shared_ptr<lightrpc::TinyPBProtocol> message = std::dynamic_pointer_cast<lightrpc::TinyPBProtocol>(msg_ptr);
-      LOG_DEBUG("msg_id[%s], get response %s", message->m_msg_id_.c_str(), message->m_pb_data_.c_str());
-      makeOrderResponse response;
-
-      if(!response.ParseFromString(message->m_pb_data_)) {
-        LOG_DEBUG("deserialize error");
-        return;
-      }
-      LOG_DEBUG("get response success, response[%s]", response.ShortDebugString().c_str());
-    });
-  });
-}
-
 void test_rpc_channel() {
   NEWMESSAGE(makeOrderRequest, request);
   NEWMESSAGE(makeOrderResponse, response);
   // 获取服务端通信
-  std::shared_ptr<lightrpc::RpcChannel> channel = std::make_shared<lightrpc::RpcChannel>(std::make_shared<IPNetAddr>("127.0.0.1:8081"));
+  std::shared_ptr<lightrpc::RpcChannel> channel = std::make_shared<lightrpc::RpcChannel>(std::make_shared<lightrpc::IPNetAddr>("127.0.0.1:8081"));
   std::shared_ptr<Order_Stub> stub = std::make_shared<Order_Stub>(channel.get());
   // 请求与响应
   request->set_price(100);

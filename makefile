@@ -26,16 +26,10 @@ PATH_INSTALL_INC_HTTP = $(PATH_INSTALL_INC_ROOT)/$(PATH_HTTP)
 PATH_INSTALL_INC_RPC = $(PATH_INSTALL_INC_ROOT)/$(PATH_RPC)
 
 
-# PATH_PROTOBUF = /usr/include/google
-# PATH_TINYXML = /usr/include/tinyxml
-
 CXX := g++
-
-CXXFLAGS += -g -O0 -std=c++17 -Wall -Wno-deprecated -Wno-unused-but-set-variable
-
+CXXFLAGS += -g -O0 -std=c++11 -Wall -Wno-deprecated -Wno-unused-but-set-variable
 CXXFLAGS += -I./ -I$(PATH_LIGHTRPC)	-I$(PATH_COMM) -I$(PATH_NET) -I$(PATH_TCP) -I$(PATH_TINYPB) -I$(PATH_HTTP) -I$(PATH_RPC)
-
-LIBS += /usr/local/lib/libprotobuf.a	/usr/lib/libtinyxml.a
+LIBS += /usr/local/lib/libprotobuf.a /usr/lib/libtinyxml.a /usr/local/lib/libzookeeper_mt.a 
 
 COMM_OBJ := $(patsubst $(PATH_COMM)/%.cc, $(PATH_OBJ)/%.o, $(wildcard $(PATH_COMM)/*.cc))
 NET_OBJ := $(patsubst $(PATH_NET)/%.cc, $(PATH_OBJ)/%.o, $(wildcard $(PATH_NET)/*.cc))
@@ -45,39 +39,37 @@ HTTP_OBJ := $(patsubst $(PATH_HTTP)/%.cc, $(PATH_OBJ)/%.o, $(wildcard $(PATH_HTT
 RPC_OBJ := $(patsubst $(PATH_RPC)/%.cc, $(PATH_OBJ)/%.o, $(wildcard $(PATH_RPC)/*.cc))
 
 ALL_TESTS : $(PATH_BIN)/test_rpc_client $(PATH_BIN)/test_rpc_server
-# ALL_TESTS : $(PATH_BIN)/test_log
 
 TEST_CASE_OUT := $(PATH_BIN)/test_rpc_client $(PATH_BIN)/test_rpc_server
 
 LIB_OUT := $(PATH_LIB)/liblightrpc.a
 
 $(PATH_BIN)/test_rpc_client: $(LIB_OUT)
-	$(CXX) $(CXXFLAGS) $(PATH_TESTCASES)/test_rpc_client.cc $(PATH_TESTCASES)/order.pb.cc -o $@ $(LIB_OUT) $(LIBS) -ldl -pthread
+	$(CXX) -o $@ $(PATH_TESTCASES)/test_rpc_client.cc $(PATH_TESTCASES)/order.pb.cc $(LIB_OUT) $(CXXFLAGS) $(LIBS) -ldl -pthread
 
 $(PATH_BIN)/test_rpc_server: $(LIB_OUT)
-	$(CXX) $(CXXFLAGS) $(PATH_TESTCASES)/test_rpc_server.cc $(PATH_TESTCASES)/order.pb.cc -o $@ $(LIB_OUT) $(LIBS) -ldl -pthread
-
+	$(CXX) -o $@ $(PATH_TESTCASES)/test_rpc_server.cc $(PATH_TESTCASES)/order.pb.cc $(LIB_OUT) $(CXXFLAGS) $(LIBS) -ldl -pthread
 
 $(LIB_OUT): $(COMM_OBJ) $(NET_OBJ) $(TCP_OBJ) $(TINYPB_OBJ) $(HTTP_OBJ) $(RPC_OBJ)
 	cd $(PATH_OBJ) && ar rcv liblightrpc.a *.o && cp liblightrpc.a ../lib/
 
 $(PATH_OBJ)/%.o : $(PATH_COMM)/%.cc
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) -o $@ $(CXXFLAGS) -c $<
 
 $(PATH_OBJ)/%.o : $(PATH_NET)/%.cc
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) -o $@ $(CXXFLAGS) -c $<
 
 $(PATH_OBJ)/%.o : $(PATH_TCP)/%.cc
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) -o $@ $(CXXFLAGS) -c $<
 
 $(PATH_OBJ)/%.o : $(PATH_TINYPB)/%.cc
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) -o $@ $(CXXFLAGS) -c $<
 
 $(PATH_OBJ)/%.o : $(PATH_HTTP)/%.cc
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) -o $@ $(CXXFLAGS) -c $<
 
 $(PATH_OBJ)/%.o : $(PATH_RPC)/%.cc
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) -o $@ $(CXXFLAGS) -c $<
 
 # print something test
 # like this: make PRINT-PATH_BIN, and then will print variable PATH_BIN
