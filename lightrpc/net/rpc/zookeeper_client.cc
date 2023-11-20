@@ -1,5 +1,6 @@
 #include "zookeeper_client.h"
 #include <iostream>
+#include <string>
 
 namespace lightrpc {
 
@@ -72,7 +73,7 @@ void ZookeeperClient::create(const char *path, const char *data, int datalen, in
 std::string ZookeeperClient::get_data(const char *path)
 {
     //buffer存储返回结果
-    char buffer[64] = {0};
+    char buffer[128] = {0};
     int buffer_len = sizeof(buffer);
     int flag = zoo_get(zhandle_, path, 0, buffer, &buffer_len, nullptr);
     if (flag != ZOK)

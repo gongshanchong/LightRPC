@@ -31,7 +31,7 @@ void test_rpc_channel() {
   NEWMESSAGE(makeOrderRequest, request);
   NEWMESSAGE(makeOrderResponse, response);
   // 获取服务端通信
-  std::shared_ptr<lightrpc::RpcChannel> channel = std::make_shared<lightrpc::RpcChannel>(std::make_shared<lightrpc::IPNetAddr>("127.0.0.1:8081"));
+  std::shared_ptr<lightrpc::RpcChannel> channel = std::make_shared<lightrpc::RpcChannel>(std::make_shared<lightrpc::IPNetAddr>("127.0.0.1:2181"));
   std::shared_ptr<Order_Stub> stub = std::make_shared<Order_Stub>(channel.get());
   // 请求与响应
   request->set_price(100);

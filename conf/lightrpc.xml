@@ -16,7 +16,7 @@
     <rpc_zookeeper>
       <name>default</name>
       <ip>127.0.0.1</ip>
-      <port>8081</port>
+      <port>2181</port>
     </rpc_zookeeper>
   </zookeepers>
 

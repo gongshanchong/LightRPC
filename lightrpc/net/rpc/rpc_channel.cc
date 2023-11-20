@@ -102,7 +102,7 @@ void RpcChannel::CallTinyPBService(const google::protobuf::MethodDescriptor* met
     method_controller->SetError(ERROR_RPC_CALL_TIMEOUT, "rpc call timeout " + std::to_string(method_controller->GetTimeout()));
 
     channel->CallBack();
-  }, m_client_->GetFd());
+  });
   m_client_->AddTimerEvent(timer_event);
   // 设置connnect的回调函数，连接成功后发送请求并接受响应
   m_client_->Connect([method_controller, req_protocol, this]() mutable {
