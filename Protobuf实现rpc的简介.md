@@ -1,4 +1,4 @@
-# RPC
+# Protobuf实现rpc的简介
 
 ## RPC简介
 
@@ -8,10 +8,11 @@ RPC （Remote Procedure Call）从字面上理解，就是调用一个方法，�
 
 1. 函数调用时，数据结构的约定问题；
 2. 数据传输时，序列化与反序列化问题；
+
    1. 使用protobuf；
 3. 网络通行问题；
+
    1. http、自定义协议；
-4. 跨语言；
 
 ## protobuf介绍
 

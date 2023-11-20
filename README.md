@@ -1,27 +1,82 @@
-# 问题：
+# A C++ Light Remote Procedure Call（LightRPC）
 
-* 部分细节点不明确，比如runtime等；(解决)
-* rpc_channel如何更优雅的在客户端中使用？；(解决)
-* InterFace是否有必要，为了日志输出？（解决，为了更方便的销毁过程中产生的变量，以及业务代码的编写）
-* controller是否有必要，辅助信息？；（解决，可以更好的记录代码运行中产生的错误，客户端可以得知本地的错误，服务端可以将服务解析中产生的错误发送给客户端）
-* 对于makefile编写、编译的产出不是很了解；
-* 单例模式的单例最后如何销毁的？；
-* 优化：
+本项目为C++11编写的小型远程调用框架，基于**主从Reactor架构**，底层采用**epoll**实现IO多路复用。应用层使用**http协议**和**自定义的tinyrpc协议**通过**protobuf**进行通信，通过**zookeeper**实现**服务发现**。
 
-  * 与redis结合；
-  * 实现服务发现(Zookeeper)；
-  * 如何实现代码的迁移；
-  * 如何支持跨语言的问题；
-  * 参考grpc优化get、post请求(解决)
-  * 服务器端实现去除空闲连接，在connection类中实现（添加一个timer_event类，在tcp中定义timer_event的回调函数）(解决)；
-* 测试客户端使用http进行通信（服务器与浏览器的通信可以通过/调用begin方法进行初始页面设置，后续以序列化的数据进行通信，需要前端进行反序列化）；
-* 日志模块：
+## 目录
 
-  * 异常发生时，会触发提前设置好的信号处理函数进行日志的写;（解决）
-  * 为什么由时间通知来进行定时的异步写，为什么不直接进行异步写，而要通过定时器来进行间隔写？；
-  * 
-* Eventloop：
+|      Part Ⅰ      |      Part Ⅱ      |      Part Ⅲ      |      Part Ⅳ      |            Part Ⅴ            |   Part Ⅵ   |
+| :----------------: | :----------------: | :----------------: | :----------------: | :----------------------------: | :---------: |
+| [环境配置](#环境配置) | [前置知识](#前置知识) | [整体框架](#整体框架) | [各个模块](#各个模块) | [使用及功能展示](#使用及功能展示) | [遇到的问题]() |
 
-  * 为什么在添加事件的时候需要判断是不是在线程里面？；
-  * evetloop添加任务时为什么要上锁？；
-  * wakeup是否有必要？eventloop中判断是否在同一线程似乎没有必要；(可不可以不要宏来去除掉WakeEvent)；
+## 环境配置
+
+本项目使用了智能指针，如std::make_unique，还有其他一些C++新特性，本项目的环境部署在腾讯云，使用版本如下：
+
+1. 服务端环境：
+   * C++17及以上
+   * ubuntu 20.04，CPU 2核 - 内存 2GB
+2. 依赖库安装：
+   1. protobuf：[protobuf安装](https://zhuanlan.zhihu.com/p/631291781)，安装到/usr/local目录
+   2. tinyxml：
+      要生成 libtinyxml.a 静态库，需要简单修改 makefile 如下:
+
+      ```
+      # 84 行修改为如下
+      OUTPUT := libtinyxml.a
+
+      # 93 行修改为如下
+      SRCS := tinyxml.cpp tinyxmlparser.cpp tinyxmlerror.cpp tinystr.cpp 
+
+      # 注释掉129行# 93 行xmltest.o: tinyxml.h tinystr.h
+
+      # 104行修改如下
+      ${OUTPUT}: ${OBJS}
+          ${AR} $@ ${LDFLAGS} ${OBJS} ${LIBS} ${EXTRA_LIBS}
+      ```
+
+      安装过程如下：
+
+      ```
+      wget https://udomain.dl.sourceforge.net/project/tinyxml/tinyxml/2.6.2/tinyxml_2_6_2.zip
+
+      unzip tinyxml_2_6_2.zip
+
+      cd tinyxml
+      make -j4
+
+      # copy 库文件到系统库文件搜索路径下
+      cp libtinyxml.a /usr/lib/
+
+      # copy 头文件到系统头文件搜索路径下 
+      mkdir /usr/include/tinyxml
+      cp *.h /usr/include/tinyxml
+      ```
+   3. zookeeper：
+
+      1. 安装zookeeper之前需要安装java（[JAVA安装](https://blog.csdn.net/qq_43329216/article/details/118385502)）；
+      2. [Linux下 zookeeper 的安装](https://blog.csdn.net/shenmingxueIT/article/details/115755444?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522169865410516800226512242%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fblog.%2522%257D&request_id=169865410516800226512242&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~first_rank_ecpm_v1~rank_v31_ecpm-4-115755444-null-null.nonecase&utm_term=zookeeper&spm=1018.2226.3001.4450)；
+      3. 可能出现的报错（[Linux安装zookeeper原生C API接口出现的make编译错误](https://blog.csdn.net/weixin_43604792/article/details/103879578)）；
+
+## 前置知识
+
+**Protobuf：**
+
+* [Protobuf实现rpc的简介](123)
+
+**zookeeper：**
+
+* [zookeeper入门——基础知识](https://blog.csdn.net/shenmingxueIT/article/details/116135815)
+
+## 整体概览
+
+**整体流程：**
+
+![1700492030492](image/README/1700492030492.png)
+
+**整体框架：**
+
+## 各个模块
+
+## 使用及功能展示
+
+## 遇到的问题
