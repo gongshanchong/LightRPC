@@ -9,7 +9,7 @@
   </log>
 
   <server>
-    <io_threads>2</io_threads>
+    <io_threads>1</io_threads>
   </server>
 
   <zookeepers>

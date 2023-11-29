@@ -142,10 +142,11 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, TcpConnecti
   }
   // 根据 method 对象反射出 request 和 response 对象
   google::protobuf::Message* req_msg = service->GetRequestPrototype(method).New();
+  // 判断请求是否为rpc类型，并反序列化获得请求的内容
   if(req_protocol->m_header_.GetValue("Content-Type") == lightrpc::content_type_lightrpc){
     if(req_protocol->m_request_method_ == HttpMethod::POST){
       if (!req_msg->ParseFromString(req_protocol->m_body_)) {
-        LOG_ERROR("%s | deserilize error", req_protocol->m_msg_id_.c_str(), method_name.c_str(), service_name.c_str());
+        LOG_ERROR("%s | sericve_name[%s] and method_name[%s], deserilize error", req_protocol->m_msg_id_.c_str(), service_name.c_str(), method_name.c_str());
         SetInternalErrorHttp(rsp_protocol, "deserilize error");
         Reply(rsp_protocol, connection);
         DELETE_RESOURCE(req_msg);
@@ -153,13 +154,19 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, TcpConnecti
       }
     }else{
       if (!req_msg->ParseFromString(req_protocol->m_request_query_)) {
-        LOG_ERROR("%s | deserilize error", req_protocol->m_msg_id_.c_str(), method_name.c_str(), service_name.c_str());
+        LOG_ERROR("%s | sericve_name[%s] and method_name[%s], deserilize error", req_protocol->m_msg_id_.c_str(), service_name.c_str(), method_name.c_str());
         SetInternalErrorHttp(rsp_protocol, "deserilize error");
         Reply(rsp_protocol, connection);
         DELETE_RESOURCE(req_msg);
         return;
       }
     }
+  }else{
+    LOG_ERROR("%s | Content-Type is not application/lightrpc", req_protocol->m_msg_id_.c_str());
+    SetInternalErrorHttp(rsp_protocol, "Content-Type is not application/lightrpc");
+    Reply(rsp_protocol, connection);
+    DELETE_RESOURCE(req_msg);
+    return;
   }
   
   google::protobuf::Message* rsp_msg = service->GetResponsePrototype(method).New();
@@ -169,7 +176,7 @@ void RpcDispatcher::CallHttpService(AbstractProtocol::s_ptr request, TcpConnecti
   rpc_controller->SetPeerAddr(connection->GetPeerAddr());
   rpc_controller->SetMsgId(req_protocol->m_msg_id_);
   rpc_controller->SetHttpRequest(req_protocol);
-  // closure 就会把 response 对象再序列化，最终生成一个 TinyPBProtocol 的结构体，最后通过 TcpConnection::reply 函数，将数据再发送给客户端
+  // closure 就会把 response 对象再序列化，最终生成一个 HttpProtocol 的结构体，最后通过 TcpConnection::reply 函数，将数据再发送给客户端
   RpcClosure* closure = new RpcClosure([req_msg, rsp_msg, req_protocol, rsp_protocol, connection, rpc_controller, this]() mutable {
     // 产生错误
     if (rpc_controller->GetErrorCode() != 0){
@@ -292,7 +299,8 @@ void RpcDispatcher::RegisterToZookeeper(NetAddr::s_ptr local_addr, NetAddr::s_pt
     char method_path_data[128] = {0};
     sprintf(method_path_data, "%s", local_addr->ToString().c_str());
     //ZOO_EPHEMERAL 表示znode时候临时性节点
-    zk_client.create(service_path.c_str(), method_path_data, strlen(method_path_data), ZOO_EPHEMERAL);
+    zk_client.create(service_path.c_str(), method_path_data, strlen(method_path_data), 0);
   }
+  
 }
 }

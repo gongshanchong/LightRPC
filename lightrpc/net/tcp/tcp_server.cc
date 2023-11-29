@@ -24,8 +24,9 @@ TcpServer::~TcpServer() {
 }
 
 void TcpServer::Init() {
+  // 链接器
   m_acceptor_ = std::make_shared<TcpAcceptor>(m_local_addr_);
-
+  // 主loop、线程池
   m_main_event_loop_ = EventLoop::GetCurrentEventLoop();
   m_io_thread_pool_ = new IOThreadPool(Config::GetGlobalConfig()->m_io_threads_);
   // 主loop添加服务器端的事件监听

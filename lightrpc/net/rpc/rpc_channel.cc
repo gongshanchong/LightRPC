@@ -93,11 +93,11 @@ void RpcChannel::CallTinyPBService(const google::protobuf::MethodDescriptor* met
   s_ptr channel = shared_from_this(); 
   // 设置超时事件
   TimerEvent::s_ptr timer_event = std::make_shared<TimerEvent>(method_controller->GetTimeout(), false, [channel, method_controller, done](int) mutable {
-    LOG_INFO("%s | call rpc timeout arrive", method_controller->GetMsgId().c_str());
     if (method_controller->Finished()) {
       return;
     }
 
+    LOG_INFO("%s | call rpc timeout arrive", method_controller->GetMsgId().c_str());
     method_controller->StartCancel();
     method_controller->SetError(ERROR_RPC_CALL_TIMEOUT, "rpc call timeout " + std::to_string(method_controller->GetTimeout()));
 
@@ -220,11 +220,11 @@ void RpcChannel::CallHttpService(const google::protobuf::MethodDescriptor* metho
   s_ptr channel = shared_from_this(); 
   // 设置超时事件
   TimerEvent::s_ptr timer_event = std::make_shared<TimerEvent>(method_controller->GetTimeout(), false, [channel, method_controller, done](int) mutable {
-    LOG_INFO("%s | call rpc timeout arrive", method_controller->GetMsgId().c_str());
     if (method_controller->Finished()) {
       return;
     }
 
+    LOG_INFO("%s | call rpc timeout arrive", method_controller->GetMsgId().c_str());
     method_controller->StartCancel();
     method_controller->SetError(ERROR_RPC_CALL_TIMEOUT, "rpc call timeout " + std::to_string(method_controller->GetTimeout()));
 
