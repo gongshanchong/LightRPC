@@ -167,8 +167,7 @@ namespace lightrpc {
         requset->m_request_path_ = rquest_resourse.substr(0, j);
         requset->m_request_query_ = rquest_resourse.substr(j + 1, l - j - 1);
         LOG_DEBUG("http request path: %s and query is %s", requset->m_request_path_.c_str(), requset->m_request_query_.c_str());
-        SplitStrToMap(requset->m_request_query_, "&", "=", requset->m_query_maps_);
-
+        
         return true;
     }
 

@@ -24,9 +24,9 @@ struct AbstractProtocol : public std::enable_shared_from_this<AbstractProtocol> 
   virtual ~AbstractProtocol() {}
 
  public:
-  std::string m_msg_id_;      // 请求号，唯一标识一个请求或者响应
+  std::string m_msg_id_;      // 消息号，唯一标识一个请求或者响应
   ProtocalType protocol_;     // 协议
-  HttpType http_type_;    // http请求类型
+  HttpType http_type_;        // http请求类型
 };
 }
 #endif
