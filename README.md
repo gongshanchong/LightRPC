@@ -249,7 +249,6 @@ make install
 make uninstallW
 ```
 
-
 ```
 LightRPC
 ├─ README.md
@@ -373,7 +372,6 @@ LightRPC
 
 ```
 
-
 ### 2.准备proto文件
 
 ```
@@ -400,7 +398,7 @@ service Order {
 
 ```
 // 生成C++代码
-protoc --cpp_out=./ test_tinypb_server.proto
+protoc --cpp_out=./ order.proto
 ```
 
 以上面的 `order.proto` 为例，本质上我们使用的其实是 `protoc` 生成的 `order.pb.h` 和 `order.pb.cc` 文件。 message xxx可以理解为 class 类，简单来说就是对一些变量进行封装，在 pb.h 会生成对应的 class 类。
