@@ -8,4 +8,12 @@
     <log_sync_interval>500</log_sync_interval>
   </log>
 
+  <zookeepers>
+    <rpc_zookeeper>
+      <name>default</name>
+      <ip>127.0.0.1</ip>
+      <port>2181</port>
+    </rpc_zookeeper>
+  </zookeepers>
+
 </root>
