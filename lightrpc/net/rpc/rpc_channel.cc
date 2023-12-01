@@ -49,6 +49,7 @@ void RpcChannel::CallBack() {
         method_controller->GetErrorCode(), 
         method_controller->GetInfo().c_str());
     method_controller->StartCancel();
+    m_client_->Stop();
     return;
   }
   if (method_controller->Finished()) {
@@ -61,6 +62,7 @@ void RpcChannel::CallBack() {
     if (method_controller) {
       method_controller->SetFinished(true);
     }
+    m_client_->Stop();
   }
 }
 
@@ -232,7 +234,7 @@ void RpcChannel::CallHttpService(const google::protobuf::MethodDescriptor* metho
   });
   m_client_->AddTimerEvent(timer_event);
   // 设置connnect的回调函数，连接成功后发送请求并接受响应
-  m_client_->Connect([method_controller, req_protocol, this]() mutable {
+  m_client_->Connect([method_full_name, method_controller, req_protocol, this]() mutable {
     // 连接错误
     if (GetTcpClient()->GetConnectErrorCode() != 0) {
       method_controller->SetError(GetTcpClient()->GetConnectErrorCode(), GetTcpClient()->GetConnectErrorInfo());
@@ -250,24 +252,24 @@ void RpcChannel::CallHttpService(const google::protobuf::MethodDescriptor* metho
       GetTcpClient()->GetPeerAddr()->ToString().c_str());
     // 先调用 writeMessage 发送 req_protocol, 然后调用 readMessage 等待回包
     // 发送请求并设置回调函数
-    GetTcpClient()->WriteMessage(req_protocol, [method_controller, req_protocol, this](AbstractProtocol::s_ptr) mutable {
+    GetTcpClient()->WriteMessage(req_protocol, [method_full_name, method_controller, req_protocol, this](AbstractProtocol::s_ptr) mutable {
       // 发送请求成功，输出日志
       LOG_INFO("%s | send rpc request success. call method name[%s], peer addr[%s], local addr[%s]", 
-        req_protocol->m_msg_id_.c_str(), req_protocol->m_request_path_.c_str(),
+        req_protocol->m_msg_id_.c_str(), method_full_name.c_str(),
         GetTcpClient()->GetPeerAddr()->ToString().c_str(), GetTcpClient()->GetLocalAddr()->ToString().c_str());
 
       // 读取响应并设置回调函数
-      GetTcpClient()->ReadMessage(req_protocol->m_msg_id_, [method_controller, req_protocol, this](AbstractProtocol::s_ptr msg) mutable {
+      GetTcpClient()->ReadMessage(req_protocol->m_msg_id_, [method_full_name, method_controller, req_protocol, this](AbstractProtocol::s_ptr msg) mutable {
         std::shared_ptr<lightrpc::HttpResponse> rsp_protocol = std::dynamic_pointer_cast<lightrpc::HttpResponse>(msg);
         rsp_protocol->m_msg_id_ = req_protocol->m_msg_id_;
         // 读取响应成功，输出日志
         LOG_INFO("%s | success get rpc response, call method name[%s], peer addr[%s], local addr[%s]", 
-          rsp_protocol->m_msg_id_.c_str(), req_protocol->m_request_path_.c_str(),
+          rsp_protocol->m_msg_id_.c_str(), method_full_name.c_str(),
           GetTcpClient()->GetPeerAddr()->ToString().c_str(), GetTcpClient()->GetLocalAddr()->ToString().c_str());
         // 连接错误
         if (rsp_protocol->m_response_code_ != HttpCode::HTTP_OK) {
           LOG_ERROR("%s | call rpc methood[%s] failed, error code[%d], error info[%s]", 
-            rsp_protocol->m_msg_id_.c_str(), req_protocol->m_request_path_.c_str(),
+            rsp_protocol->m_msg_id_.c_str(), method_full_name.c_str(),
             rsp_protocol->m_response_code_, HttpCodeToString(rsp_protocol->m_response_code_));
 
           method_controller->SetError(rsp_protocol->m_response_code_, HttpCodeToString(rsp_protocol->m_response_code_));
@@ -285,7 +287,7 @@ void RpcChannel::CallHttpService(const google::protobuf::MethodDescriptor* metho
         }
         // 调用rpc成功
         LOG_INFO("%s | call rpc success, call method name[%s], peer addr[%s], local addr[%s]",
-          rsp_protocol->m_msg_id_.c_str(), req_protocol->m_request_path_.c_str(),
+          rsp_protocol->m_msg_id_.c_str(), method_full_name.c_str(),
           GetTcpClient()->GetPeerAddr()->ToString().c_str(), GetTcpClient()->GetLocalAddr()->ToString().c_str())
 
         CallBack();
