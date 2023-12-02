@@ -43,6 +43,10 @@ void RpcChannel::Init(const google::protobuf::MethodDescriptor* method,
 
 void RpcChannel::CallBack() {
   RpcController* method_controller = dynamic_cast<RpcController*>(m_controller_);
+  if (method_controller->Finished()) {
+    LOG_INFO("call rpc repeat, request[%s] of this controller finished", m_request_->ShortDebugString().c_str());
+    return;
+  }
   if (method_controller->GetErrorCode() != 0) {
     LOG_ERROR("call rpc failed, request[%s], error code[%d], error info[%s]", 
         m_request_->ShortDebugString().c_str(), 
@@ -50,11 +54,6 @@ void RpcChannel::CallBack() {
         method_controller->GetInfo().c_str());
     method_controller->StartCancel();
     m_client_->Stop();
-    return;
-  }
-  if (method_controller->Finished()) {
-    LOG_INFO("call rpc repeat, request[%s] of this controller finished", m_request_->ShortDebugString().c_str());
-    return;
   }
   // 执行闭包函数
   if (m_closure_) {

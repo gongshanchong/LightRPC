@@ -49,11 +49,18 @@ void test_rpc_channel() {
   controller->SetHttpHeader(http_header);
   controller->SetHttpVersion("HTTP/1.1");
   // 回调函数设置
-  std::shared_ptr<lightrpc::RpcClosure> closure = std::make_shared<lightrpc::RpcClosure>([request, response]() mutable {
-    LOG_INFO("call rpc success, request[%s], response[%s]", request->ShortDebugString().c_str(), response->ShortDebugString().c_str());
-    // 执行业务逻辑
-    if (response->order_id() == "xxx") {
-      // xx
+  std::shared_ptr<lightrpc::RpcClosure> closure = std::make_shared<lightrpc::RpcClosure>([request, response, controller]() mutable {
+    if (controller->GetErrorCode() == 0) {
+      LOG_INFO("call rpc success, request[%s], response[%s]", request->ShortDebugString().c_str(), response->ShortDebugString().c_str());
+      // 执行业务逻辑
+      if (response->order_id() == "xxx") {
+        // xx
+      }
+    }else{
+      LOG_ERROR("call rpc failed, request[%s], error code[%d], error info[%s]", 
+        request->ShortDebugString().c_str(), 
+        controller->GetErrorCode(), 
+        controller->GetInfo().c_str());
     }
   });
   // 远程调用，可以通过controller来进行相关的控制（如连接超时时间、错误、调用完成。。。）
