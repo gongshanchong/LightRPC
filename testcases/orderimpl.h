@@ -9,8 +9,8 @@
 
 class MakeOrderInterface : public lightrpc::RpcInterface{
 public:
-    MakeOrderInterface(const google::protobuf::Message* req, google::protobuf::Message* rsp, ::google::protobuf::Closure* done, google::protobuf::RpcController* controller):
-    lightrpc::RpcInterface(req, rsp, done, controller){}
+    MakeOrderInterface(const google::protobuf::Message* req, google::protobuf::Message* rsp, google::protobuf::RpcController* controller, ::google::protobuf::Closure* done):
+    lightrpc::RpcInterface(req, rsp, controller, done){}
 
     void Run(){
         try {
@@ -50,7 +50,7 @@ class OrderImpl : public Order {
                       const ::makeOrderRequest* request,
                       ::makeOrderResponse* response,
                       ::google::protobuf::Closure* done) {
-    std::shared_ptr<MakeOrderInterface> impl = std::make_shared<MakeOrderInterface>(request, response, done, controller);
+    std::shared_ptr<MakeOrderInterface> impl = std::make_shared<MakeOrderInterface>(request, response, controller, done);
     impl->Run();
   }
 };

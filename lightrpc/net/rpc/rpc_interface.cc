@@ -3,7 +3,7 @@
 
 namespace lightrpc {
 
-RpcInterface::RpcInterface(const google::protobuf::Message* req, google::protobuf::Message* rsp, ::google::protobuf::Closure* done, google::protobuf::RpcController* controller)
+RpcInterface::RpcInterface(const google::protobuf::Message* req, google::protobuf::Message* rsp, google::protobuf::RpcController* controller, ::google::protobuf::Closure* done)
   : m_req_base_(req), m_rsp_base_(rsp), m_done_(done){
     m_controller_ = dynamic_cast<RpcController*>(controller);
     LOG_INFO("RpcInterface");
