@@ -53,16 +53,13 @@ void RpcChannel::CallBack() {
         method_controller->GetErrorCode(), 
         method_controller->GetInfo().c_str());
     method_controller->StartCancel();
-    m_client_->Stop();
   }
   // 执行闭包函数
   if (m_closure_) {
     m_closure_->Run();
-    if (method_controller) {
-      method_controller->SetFinished(true);
-    }
-    m_client_->Stop();
   }
+  method_controller->SetFinished(true);
+  m_client_->Stop();
 }
 
 void RpcChannel::CallTinyPBService(const google::protobuf::MethodDescriptor* method,
