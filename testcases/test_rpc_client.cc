@@ -31,7 +31,7 @@ void test_rpc_channel() {
   NEWMESSAGE(makeOrderRequest, request);
   NEWMESSAGE(makeOrderResponse, response);
   // 获取服务端通信
-  std::shared_ptr<lightrpc::RpcChannel> channel = std::make_shared<lightrpc::RpcChannel>(std::make_shared<lightrpc::IPNetAddr>("127.0.0.1:2181"));
+  std::shared_ptr<lightrpc::RpcChannel> channel = std::make_shared<lightrpc::RpcChannel>(lightrpc::Config::GetGlobalConfig()->m_rpc_zookeepers_["default"].addr_);
   std::shared_ptr<Order_Stub> stub = std::make_shared<Order_Stub>(channel.get());
   // 请求与响应
   request->set_price(100);
@@ -69,9 +69,11 @@ void test_rpc_channel() {
 
 int main() {
 
-  lightrpc::Config::SetGlobalConfig(NULL);
+  lightrpc::Config::SetGlobalConfig("../conf/lightrpc_client.xml");
 
-  lightrpc::Logger::InitGlobalLogger(0);
+  lightrpc::Logger::InitGlobalLogger();
+
+  LOG_INFO("test_rpc_channel start");
 
   // test_tcp_client();
   test_rpc_channel();

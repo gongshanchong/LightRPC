@@ -141,6 +141,7 @@ public:
     typedef std::shared_ptr<Logger> s_ptr;
 
     Logger(LogLevel level, int type = 1);
+    virtual ~Logger();
 
     void PushLog(const std::string& msg);
 
@@ -168,7 +169,7 @@ public:
 public:
     static Logger* GetGlobalLogger();
 
-    static void InitGlobalLogger(int type = 1);
+    static void InitGlobalLogger();
 
 private:
     LogLevel m_set_level_;

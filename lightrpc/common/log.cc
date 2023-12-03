@@ -38,6 +38,14 @@ Logger::Logger(LogLevel level, int type /*=1*/) : m_set_level_(level), m_type_(t
         Config::GetGlobalConfig()->m_log_max_file_size_);
 }
 
+Logger::~Logger(){
+    // 需要注意将已经添加的所有任务执行完
+    Flush();
+    // 阻塞主线程,主线程等待其他子线程执行完毕,一起退出
+    pthread_join(GetAsyncLopger()->m_thread_, NULL);
+    pthread_join(GetAsyncAppLopger()->m_thread_, NULL);
+}
+
 // 刷新
 void Logger::Flush() {
     // 同步消息到异步写缓冲区
@@ -92,9 +100,9 @@ void Logger::SyncLoop(int fd) {
 }
 
 // 初始化静态全局日志变量
-void Logger::InitGlobalLogger(int type /*=1*/) {
+void Logger::InitGlobalLogger() {
   LogLevel global_log_level = StringToLogLevel(Config::GetGlobalConfig()->m_log_level_);
-  g_logger = new Logger(global_log_level, type);
+  g_logger = new Logger(global_log_level, Config::GetGlobalConfig()->m_log_type_);
   g_logger->Init();
   printf("Init log level [%s]\n", LogLevelToString(global_log_level).c_str());
 }

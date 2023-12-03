@@ -36,6 +36,7 @@ public:
 
 public:
   // 日志的设置
+  int m_log_type_;               // 日志是否输出到文件
   std::string m_log_level_;      // 日志级别
   std::string m_log_file_name_;  // 日志名称
   std::string m_log_file_path_;  // 日志目录

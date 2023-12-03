@@ -256,7 +256,7 @@ LightRPC
 │  ├─ test_rpc_client
 │  └─ test_rpc_server
 ├─ conf				// 配置文件目录
-│  ├─ lightrpc.xml
+│  ├─ lightrpc_server.xml
 │  └─ lightrpc_client.xml
 ├─ image			// 存储README.md文件中的图片
 │  ├─ README
@@ -452,6 +452,24 @@ void test_rpc_channel() {
   });
   // 远程调用，可以通过controller来进行相关的控制（如连接超时时间、错误、调用完成。。。）
   stub->makeOrder(controller.get(), request.get(), response.get(), closure.get());
+}
+```
+
+```
+int main() {
+
+  lightrpc::Config::SetGlobalConfig("../conf/lightrpc_client.xml");
+
+  lightrpc::Logger::InitGlobalLogger();
+
+  LOG_INFO("test_rpc_channel start");
+
+  // test_tcp_client();
+  test_rpc_channel();
+
+  LOG_INFO("test_rpc_channel end");
+
+  return 0;
 }
 ```
 
