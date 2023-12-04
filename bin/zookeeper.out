@@ -80,3 +80,14 @@ EndOfStreamException: Unable to read additional data from client sessionid 0x18c
 	at java.lang.Thread.run(Thread.java:748)
 2023-12-03 16:27:20,647 [myid:] - INFO  [ProcessThread(sid:0 cport:2181)::PrepRequestProcessor@486] - Processed session termination for sessionid: 0x18c2ec40bf80004
 2023-12-03 16:27:20,650 [myid:] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxn@1044] - Closed socket connection for client /127.0.0.1:35068 which had sessionid 0x18c2ec40bf80004
+2023-12-03 16:58:16,688 [myid:] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxnFactory@192] - Accepted socket connection from /127.0.0.1:50268
+2023-12-03 16:58:16,709 [myid:] - WARN  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@896] - Connection request from old client /127.0.0.1:50268; will be dropped if server is in r-o mode
+2023-12-03 16:58:16,712 [myid:] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@942] - Client attempting to establish new session at /127.0.0.1:50268
+2023-12-03 16:58:16,739 [myid:] - INFO  [SyncThread:0:ZooKeeperServer@687] - Established session 0x18c2ec40bf80005 with negotiated timeout 30000 for client /127.0.0.1:50268
+2023-12-03 16:58:16,750 [myid:] - WARN  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxn@368] - caught end of stream exception
+EndOfStreamException: Unable to read additional data from client sessionid 0x18c2ec40bf80005, likely client has closed socket
+	at org.apache.zookeeper.server.NIOServerCnxn.doIO(NIOServerCnxn.java:239)
+	at org.apache.zookeeper.server.NIOServerCnxnFactory.run(NIOServerCnxnFactory.java:203)
+	at java.lang.Thread.run(Thread.java:748)
+2023-12-03 16:58:16,750 [myid:] - INFO  [ProcessThread(sid:0 cport:2181)::PrepRequestProcessor@486] - Processed session termination for sessionid: 0x18c2ec40bf80005
+2023-12-03 16:58:16,751 [myid:] - INFO  [NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxn@1044] - Closed socket connection for client /127.0.0.1:50268 which had sessionid 0x18c2ec40bf80005
