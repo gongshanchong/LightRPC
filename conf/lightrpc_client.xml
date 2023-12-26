@@ -9,12 +9,12 @@
     <log_sync_interval>5</log_sync_interval>
   </log>
   <client>
-    <zookeepers>
-      <rpc_zookeeper>
-        <name>default</name>
+    <servers>
+      <server>
+        <name>zookeeper</name>
         <ip>127.0.0.1</ip>
         <port>2181</port>
-      </rpc_zookeeper>
-    </zookeepers>
+      </server>
+    </servers>
   </client>
 </root>

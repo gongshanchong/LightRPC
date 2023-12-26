@@ -84,18 +84,18 @@ Config::Config(const char* xmlfile) {
 
     // 客户端配置
     if(client_node){
-        TiXmlElement* zookeeper_node = client_node->FirstChildElement("zookeepers");
-        if (zookeeper_node) {
-            for (TiXmlElement* node = zookeeper_node->FirstChildElement("rpc_zookeeper"); node; node = node->NextSiblingElement("rpc_zookeeper")) {
-                RpcZookeeper zookeeper;
-                zookeeper.name_ = std::string(node->FirstChildElement("name")->GetText());
+        TiXmlElement* server_node = client_node->FirstChildElement("servers");
+        if (server_node) {
+            for (TiXmlElement* node = server_node->FirstChildElement("server"); node; node = node->NextSiblingElement("server")) {
+                RpcServer rpcserver;
+                rpcserver.name_ = std::string(node->FirstChildElement("name")->GetText());
                 std::string ip = std::string(node->FirstChildElement("ip")->GetText());
                 uint16_t port = std::atoi(node->FirstChildElement("port")->GetText());
-                zookeeper.addr_ = std::make_shared<IPNetAddr>(ip, port);
-                m_rpc_zookeepers_.insert(std::make_pair(zookeeper.name_, zookeeper));
+                rpcserver.addr_ = std::make_shared<IPNetAddr>(ip, port);
+                m_rpc_servers_.insert(std::make_pair(rpcserver.name_, rpcserver));
             }
         }else{
-            printf("Start lightrpc server error, failed to read node [zookeepers]");
+            printf("Start lightrpc server error, failed to read node [servers]");
             exit(0);
         }
     }
@@ -108,12 +108,12 @@ Config::Config(const char* xmlfile) {
         TiXmlElement* zookeeper_node = server_node->FirstChildElement("zookeepers");
         if (zookeeper_node) {
             for (TiXmlElement* node = zookeeper_node->FirstChildElement("rpc_zookeeper"); node; node = node->NextSiblingElement("rpc_zookeeper")) {
-                RpcZookeeper zookeeper;
-                zookeeper.name_ = std::string(node->FirstChildElement("name")->GetText());
+                RpcServer rpcserver;
+                rpcserver.name_ = std::string(node->FirstChildElement("name")->GetText());
                 std::string ip = std::string(node->FirstChildElement("ip")->GetText());
                 uint16_t port = std::atoi(node->FirstChildElement("port")->GetText());
-                zookeeper.addr_ = std::make_shared<IPNetAddr>(ip, port);
-                m_rpc_zookeepers_.insert(std::make_pair(zookeeper.name_, zookeeper));
+                rpcserver.addr_ = std::make_shared<IPNetAddr>(ip, port);
+                m_rpc_servers_.insert(std::make_pair(rpcserver.name_, rpcserver));
             }
         }else{
             printf("Start lightrpc server error, failed to read node [zookeepers]");
